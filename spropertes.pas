@@ -15,14 +15,15 @@ type
     procedure returnPRP(); virtual; abstract;
     procedure OnChange(Sender: TObject); virtual; abstract;
   end;
+
   ArrayOfProperty = array of TProperty;
 
   TSpinProperty = class(TProperty)
     SpinLabel: TLabel;
     SpinEdit: TSpinEdit;
     Ch: PLongint;
-    n:integer;
-    constructor Create(s:string;t: PLongint; i:integer);
+    n: integer;
+    constructor Create(s: string; t: PLongint; i: integer);
     procedure deletePRP(); override;
     procedure returnPRP(); override;
     procedure OnChange(Sender: TObject); override;
@@ -87,8 +88,8 @@ end;
 procedure TSpinProperty.OnChange(Sender: TObject);
 begin
   ch^ := SpinEdit.Value;
-  if Length(Figures)>0 then
-  figures[high(figures)].getparams;
+  if Length(Figures) > 0 then
+    figures[high(figures)].getparams;
   InvalidateHandler;
 end;
 
@@ -143,8 +144,8 @@ procedure TSpinProperty.returnPRP();
 begin
   SpinLabel.Parent := PropertyPanel;
   SpinEdit.Parent := PropertyPanel;
-  SpinLabel.Top :=n*100;
-  SpinEdit.Top :=n*100+10;
+  SpinLabel.Top := n * 100;
+  SpinEdit.Top := n * 100 + 10;
 end;
 
 procedure TPenStyleProperty.returnPRP();
@@ -164,20 +165,20 @@ begin
 end;
 
 { Create }
-constructor TSpinProperty.Create(s:string;t: PLongint; i:integer);
+constructor TSpinProperty.Create(s: string; t: PLongint; i: integer);
 begin
-  n:=i;
+  n := i;
   SpinLabel := TLabel.Create(PropertyPanel);
   SpinLabel.Caption := s;
   SpinLabel.Align := alTop;
-  SpinLabel.Top := n*100;
-  Ch:=t;
+  SpinLabel.Top := n * 100;
+  Ch := t;
   SpinEdit := TSpinEdit.Create(PropertyPanel);
   SpinEdit.Align := alTop;
   SpinEdit.MinValue := 1;
   SpinEdit.MaxValue := 50;
   SpinEdit.Value := Width;
-  SpinEdit.Top := n*100+10;
+  SpinEdit.Top := n * 100 + 10;
   SpinEdit.Alignment := taLeftJustify;
   SpinEdit.OnChange := @OnChange;
 end;
@@ -222,11 +223,11 @@ initialization
 
   begin
     PropertyPanel := TPanel.Create(nil);
-    RegisterProperty(TSpinProperty.Create('Width',@Width,length(Propertys)));
+    RegisterProperty(TSpinProperty.Create('Width', @Width, length(Propertys)));
     RegisterProperty(TPenStyleProperty.Create());
     RegisterProperty(TBrushStyleProperty.Create());
-    RegisterProperty(TSpinProperty.Create('Radius X',@RadX ,length(Propertys)));
-    RegisterProperty(TSpinProperty.Create('Radius Y',@RadY ,length(Propertys)));
+    RegisterProperty(TSpinProperty.Create('Radius X', @RadX, length(Propertys)));
+    RegisterProperty(TSpinProperty.Create('Radius Y', @RadY, length(Propertys)));
   end;
 
 end.
