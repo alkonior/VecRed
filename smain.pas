@@ -183,15 +183,15 @@ end;
 procedure TVecRedF.PBMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
 var
-  point:TFloatPoint;
+  point: TFloatPoint;
 begin
   spoint.x := WindowWH.x div 2;
   spoint.y := WindowWH.y div 2;
-  point:=ScrnToWorld(spoint);
-  if WheelDelta>0 then
-    zoom := round(zoom * 1.2)+2
+  point := ScrnToWorld(spoint);
+  if WheelDelta > 0 then
+    zoom := round(zoom * 1.2) + 2
   else
-    zoom := round(zoom / 1.2)+2;
+    zoom := round(zoom / 1.2) + 2;
   if zoom > 1000 then
     zoom := 1000;
   if zoom < 0 then
@@ -288,7 +288,7 @@ procedure TVecRedF.PBPaint(Sender: TObject);
 var
   i: TFigure;
 begin
-  SetScrolBars(ScrollBarBottom,ScrollBarRight);
+  SetScrolBars(ScrollBarBottom, ScrollBarRight);
   ScrollB := True;
   for i in Figures do
     i.draw(pb.Canvas);

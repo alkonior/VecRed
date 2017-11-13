@@ -84,7 +84,8 @@ begin
   Canvas.Brush.Color := C2;
   Canvas.Pen.Style := P;
   Canvas.Brush.Style := B;
-  //Canvas.RoundRect(Trect.Create(WorldToScrn(points[0]), WorldToScrn(points[1])), RY, RY);
+  Canvas.RoundRect(WorldToScrn(points[0]).x, WorldToScrn(points[0]).y,
+    WorldToScrn(points[1]).x, WorldToScrn(points[1]).y, RY, RY);
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
@@ -94,7 +95,8 @@ begin
   Canvas.Brush.Color := C2;
   Canvas.Pen.Style := P;
   Canvas.Brush.Style := B;
-  //Canvas.Rectangle(Trect.Create(WorldToScrn(points[0]), WorldToScrn(points[1])));
+  Canvas.Rectangle(WorldToScrn(points[0]).x, WorldToScrn(points[0]).y,
+    WorldToScrn(points[1]).x, WorldToScrn(points[1]).y);
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
@@ -104,7 +106,8 @@ begin
   Canvas.Brush.Color := C2;
   Canvas.Pen.Style := P;
   Canvas.Brush.Style := B;
-  //Canvas.Ellipse(Trect.Create(WorldToScrn(points[0]), WorldToScrn(points[1])));
+  Canvas.Ellipse(WorldToScrn(points[0]).x, WorldToScrn(points[0]).y,
+    WorldToScrn(points[1]).x, WorldToScrn(points[1]).y);
 end;
 
 procedure TPolyline.Draw(Canvas: TCanvas);
@@ -134,7 +137,8 @@ begin
   Canvas.Pen.Color := clBlack;
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Style := psDashDot;
-  Canvas.Rectangle(WorldToScrn(points[0]).x,WorldToScrn(points[0]).y,WorldToScrn(points[1]).x ,WorldToScrn(points[1]).y);
+  Canvas.Rectangle(WorldToScrn(points[0]).x, WorldToScrn(points[0]).y,
+    WorldToScrn(points[1]).x, WorldToScrn(points[1]).y);
   Canvas.Brush.Style := bsSolid;
 end;
 

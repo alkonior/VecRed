@@ -19,12 +19,12 @@ function Min(P1, P2: TFloatPoint): TFloatPoint; overload;
 function CasePenStyle(Index: integer): TPenStyle;
 function CaseBrushStyle(Index: integer): TBrushStyle;
 procedure GetMaxMin(point: TFloatPoint);
-procedure SetScrolBars(var Scroll1,Scroll2:TScrollBar);
+procedure SetScrolBars(var Scroll1, Scroll2: TScrollBar);
 procedure CenterZoom(oldzoom: double);
 procedure ChangeCenter();
 procedure ZoomToRect(Point1, Point2: TFloatPoint);
-Operator - (Addend1, Addend2 : TPoint) : TPoint;
-Operator + (Addend1, Addend2 : TPoint) : TPoint;
+operator -(Addend1, Addend2: TPoint): TPoint;
+operator +(Addend1, Addend2: TPoint): TPoint;
 
 var
   Offset: TPoint;
@@ -41,14 +41,15 @@ var
   InvalidateHandler: procedure of object;
 
 implementation
-procedure SetScrolBars(var Scroll1,Scroll2:TScrollBar);
+
+procedure SetScrolBars(var Scroll1, Scroll2: TScrollBar);
 begin
   if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
   begin
-    Scroll1.Min := round(min(minpoint*zoom/100, LMinPoint*zoom/100)).x - 50;
-    Scroll1.Max := round(max(maxpoint*zoom/100, LMaxPoint*zoom/100)).x + 50;
-    Scroll2.Min := round(min(minpoint*zoom/100, LMinPoint*zoom/100)).Y - 50;
-    Scroll2.Max := round(max(maxpoint*zoom/100, LMaxPoint*zoom/100)).Y + 50;
+    Scroll1.Min := round(min(minpoint * zoom / 100, LMinPoint * zoom / 100)).x - 50;
+    Scroll1.Max := round(max(maxpoint * zoom / 100, LMaxPoint * zoom / 100)).x + 50;
+    Scroll2.Min := round(min(minpoint * zoom / 100, LMinPoint * zoom / 100)).Y - 50;
+    Scroll2.Max := round(max(maxpoint * zoom / 100, LMaxPoint * zoom / 100)).Y + 50;
     Scroll1.Position := round(offset).x;
     Scroll2.Position := round(offset).y;
     Scroll1.PageSize :=
@@ -78,16 +79,17 @@ begin
   LMinPoint := MinPoint;
   LMaxPoint := MaxPoint;
 end;
-Operator + (Addend1, Addend2 : TPoint) : TPoint;
+
+operator +(Addend1, Addend2: TPoint): TPoint;
 begin
-  result.x:=Addend1.x+Addend2.x;
-  result.y:=Addend1.y+Addend2.y;
+  Result.x := Addend1.x + Addend2.x;
+  Result.y := Addend1.y + Addend2.y;
 end;
 
-Operator - (Addend1, Addend2 : TPoint) : TPoint;
+operator -(Addend1, Addend2: TPoint): TPoint;
 begin
-  result.x:=Addend1.x-Addend2.x;
-  result.y:=Addend1.y-Addend2.y;
+  Result.x := Addend1.x - Addend2.x;
+  Result.y := Addend1.y - Addend2.y;
 end;
 
 function Max(P1, P2: TFloatPoint): TFloatPoint;
@@ -145,7 +147,7 @@ end;
 procedure ZoomToRect(Point1, Point2: TFloatPoint);
 var
   oldz: float;
-  mip, map, point3,point4: TFloatPoint;
+  mip, map, point3, point4: TFloatPoint;
 begin
   oldz := zoom;
   if (point1 = Point2) then
