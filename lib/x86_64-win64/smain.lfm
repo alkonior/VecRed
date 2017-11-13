@@ -16,6 +16,7 @@ object VecRedF: TVecRedF
   OnKeyUp = FormKeyUp
   Position = poDesktopCenter
   LCLVersion = '1.6.4.0'
+  LCLVersion = '1.2.6.0'
   object PBPanel: TPanel
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
