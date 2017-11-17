@@ -276,10 +276,7 @@ end;
 procedure TVecRedF.PBMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
-  if ChoosenTool is TZoomTool then
-    Drawing := False;
-  if ChoosenTool is TScrollTool then
-    Drawing := False;
+  ChoosenTool.MouseUp(ScrnToWorld(Point(x,y)));
   ZoomB.Value := zoom;
   Invalidate;
 end;

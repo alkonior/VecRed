@@ -30,6 +30,10 @@ type
     procedure Draw(Canvas: TCanvas); override;
   end;
 
+  TPen = class(TFigure)
+    procedure Draw(Canvas: TCanvas); override;
+  end;
+
   TLine = class(TFigure)
     procedure Draw(Canvas: TCanvas); override;
   end;
@@ -111,6 +115,19 @@ begin
 end;
 
 procedure TPolyline.Draw(Canvas: TCanvas);
+var
+  i: integer;
+begin
+  Canvas.Pen.Color := C1;
+  Canvas.Pen.Width := W;
+  Canvas.Pen.Style := P;
+  for i := 0 to length(points) - 2 do
+  begin
+    Canvas.Line(WorldToScrn(Points[i]), WorldToScrn(points[i + 1]));
+  end;
+end;
+
+procedure TPen.Draw(Canvas: TCanvas);
 var
   i: integer;
 begin

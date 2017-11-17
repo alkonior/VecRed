@@ -21,6 +21,7 @@ type
     procedure FigureCreate(Point: TFloatPoint); virtual; abstract;
     procedure ChangePoint(Point: TFloatPoint); virtual; abstract;
     procedure AddPoint(Point: TFloatPoint); virtual; abstract;
+    procedure MouseUp(Point: TFloatPoint); virtual; abstract;
     procedure FigureEnd(); virtual; abstract;
     procedure PropertiesCreate();
   end;
@@ -33,6 +34,16 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint);override;
+  end;
+  TPenTool = class(TTool)
+  public
+    constructor Create;
+    procedure FigureCreate(Point: TFloatPoint); override;
+    procedure ChangePoint(Point: TFloatPoint); override;
+    procedure AddPoint(Point: TFloatPoint); override;
+    procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint);override;
   end;
 
   TLineTool = class(TTool)
@@ -42,6 +53,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TRectangleTool = class(TTool)
@@ -51,6 +63,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint);  override;
   end;
 
   TRoundRectTool = class(TTool)
@@ -60,6 +73,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TEllipseTool = class(TTool)
@@ -69,6 +83,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint);
   end;
 
   TZoomTool = class(TTool)
@@ -78,6 +93,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TRectZoomTool = class(TTool)
@@ -87,6 +103,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TScrollTool = class(TTool)
@@ -96,6 +113,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
 procedure DeletePRP();
@@ -141,6 +159,23 @@ end;
 { FigureCreate }
 
 procedure TPolylineTool.FigureCreate(Point: TFloatPoint);
+begin
+  GetMaxMin(point);
+  Setlength(Figures, length(figures) + 1);
+  Figures[High(Figures)] := TPolyLine.Create;
+  with (Figures[High(Figures)] as TPolyLine) do
+  begin
+    SetLength(Points, 2);
+    Points[0] := Point;
+    Points[1] := Point;
+    C1 := PenColor;
+    W := Width;
+    P := PenStyle;
+    Selected := False;
+  end;
+end;
+
+procedure TPenTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
@@ -280,6 +315,19 @@ begin
   end;
 end;
 
+procedure TPenTool.ChangePoint(Point: TFloatPoint);
+begin
+  MinPoint := Min(LMinPoint, point);
+  MaxPoint := Max(LMaxPoint, point);
+  LMinPoint := MinPoint;
+  LMaxPoint := MaxPoint;
+  with Figures[high(Figures)] do
+  begin
+    SetLength(points,Length(Points)+1);
+    points[high(points)] := point;
+  end;
+end;
+
 procedure TLineTool.ChangePoint(Point: TFloatPoint);
 begin
   with Figures[high(Figures)] do
@@ -392,11 +440,65 @@ procedure TZoomTool.AddPoint(Point: TFloatPoint);
 begin
 end;
 
+procedure TPenTool.AddPoint(Point: TFloatPoint);
+begin
+end;
+
 procedure TScrollTool.AddPoint(Point: TFloatPoint);
 begin
 end;
 
+{ MouseUp }
+
+procedure TPolylineTool.MouseUp(Point: TFloatPoint);
+begin
+end;
+
+procedure TPenTool.MouseUp(Point: TFloatPoint);
+begin
+    Drawing := False;
+end;
+
+procedure TLineTool.MouseUp(Point: TFloatPoint);
+begin
+end;
+
+procedure TRectangleTool.MouseUp(Point: TFloatPoint);
+begin
+end;
+
+procedure TRoundRectTool.MouseUp(Point: TFloatPoint);
+begin
+end;
+
+procedure TRectZoomTool.MouseUp(Point: TFloatPoint);
+begin
+  ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
+  FreeAndNil(Figures[High(Figures)]);
+  SetLength(Figures, Length(Figures) - 1);
+  Drawing := False;
+end;
+
+procedure TEllipseTool.MouseUp(Point: TFloatPoint);
+begin
+end;
+
+procedure TZoomTool.MouseUp(Point: TFloatPoint);
+begin
+  Drawing := False;
+end;
+
+procedure TScrollTool.MouseUp(Point: TFloatPoint);
+begin
+  Drawing := False;
+end;
+
+
 { FigureEnd }
+procedure TPenTool.FigureEnd();
+begin
+    Drawing := False;
+end;
 
 procedure TPolylineTool.FigureEnd();
 begin
@@ -441,6 +543,15 @@ end;
 { Create }
 
 constructor TPolylineTool.Create;
+begin
+  Icon := 'ico/polyline.png';
+  nPRP := 2;
+  SetLength(PRP, length(Propertys));
+  prp[0] := True;
+  prp[1] := True;
+end;
+
+constructor TPenTool.Create;
 begin
   Icon := 'ico/polyline.png';
   nPRP := 2;
@@ -514,6 +625,7 @@ end;
 
 
 initialization
+  RegisterTool(TPenTool.Create);
   RegisterTool(TPolylineTool.Create);
   RegisterTool(TLineTool.Create);
   RegisterTool(TRectangleTool.Create);
