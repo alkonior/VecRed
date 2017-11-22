@@ -44,6 +44,7 @@ type
     procedure MPanelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure MPanelMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure PBClick(Sender: TObject);
     procedure PBMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
     procedure PBResize(Sender: TObject);
@@ -178,6 +179,11 @@ procedure TVecRedF.MPanelMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
   Mooving := False;
+end;
+
+procedure TVecRedF.PBClick(Sender: TObject);
+begin
+  ChoosenTool.FigureEnd();
 end;
 
 procedure TVecRedF.PBMouseWheel(Sender: TObject; Shift: TShiftState;

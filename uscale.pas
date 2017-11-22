@@ -148,7 +148,6 @@ begin
   Map := max(point1, point2);
   Point1 := map;
   point2 := mip;
-  Offset := offset + WorldToScrn(point1);
   zoom := round(min(((IntToFloat(WindowWH.x) * 100) / (point1.x - point2.x)),
     (IntToFloat(WindowWH.y) * 100) / (point1.y - point2.y))) - 1;
   if Zoom > 1000 then

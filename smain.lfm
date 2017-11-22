@@ -48,6 +48,7 @@ object VecRedF: TVecRedF
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Right = 20
       BorderSpacing.Bottom = 20
+      OnClick = PBClick
       OnMouseDown = PBMouseDown
       OnMouseMove = PBMouseMove
       OnMouseUp = PBMouseUp
