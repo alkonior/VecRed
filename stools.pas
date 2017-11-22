@@ -84,7 +84,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
-    procedure MouseUp(Point: TFloatPoint);
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TZoomTool = class(TTool)

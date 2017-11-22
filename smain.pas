@@ -295,6 +295,9 @@ begin
   ScrollB := True;
   for i in Figures do
     i.draw(pb.Canvas);
+  for i in Figures do
+    if i.Selected then
+    i.drawoutline(pb.Canvas);
 end;
 
 procedure TVecRedF.C1Change(Sender: TObject);

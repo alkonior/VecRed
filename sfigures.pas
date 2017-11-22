@@ -17,6 +17,7 @@ type
     Points: array of TFloatPoint;
     Selected: boolean;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
+    procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
     procedure GetParams(); virtual; abstract;
   end;
 
@@ -25,14 +26,7 @@ type
     W: integer;
     P: TPenStyle;
     procedure Draw(Canvas: TCanvas); override;
-    procedure GetParams(); override;
-  end;
-
-  TPen = class(TFigure)
-    C1: TColor;
-    W: integer;
-    P: TPenStyle;
-    procedure Draw(Canvas: TCanvas); override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
     procedure GetParams(); override;
   end;
 
@@ -41,6 +35,7 @@ type
     W: integer;
     P: TPenStyle;
     procedure Draw(Canvas: TCanvas); override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
     procedure GetParams(); override;
   end;
 
@@ -51,6 +46,7 @@ type
     C2: TColor;
     B: TBrushStyle;
     procedure Draw(Canvas: TCanvas); override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
     procedure GetParams(); override;
   end;
 
@@ -61,11 +57,13 @@ type
     C2: TColor;
     B: TBrushStyle;
     procedure Draw(Canvas: TCanvas); override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
     procedure GetParams(); override;
   end;
 
   TRectZoom = class(TFigure)
     procedure Draw(Canvas: TCanvas); override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
     procedure GetParams(); override;
   end;
 
@@ -77,6 +75,7 @@ type
     B: TBrushStyle;
     RY, RX: integer;
     procedure Draw(Canvas: TCanvas); override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
     procedure GetParams(); override;
   end;
 
@@ -90,18 +89,13 @@ var      { Var }
   Drawing: boolean = False;
   RadXOfFigure: integer = 0;
   RadYOfFigure: integer = 0;
-  SelectedNumber:integer = 0;
+  SelectedNumber: integer = 0;
+
 implementation
 
 { Porocedures }
-{ GetParams }
-procedure TPen.GetParams();
-begin
-  C1 := PenColor;
-  W := WidthOfFigure;
-  P := PenStyle;
-end;
 
+{ GetParams }
 
 procedure TPolyline.GetParams();
 begin
@@ -198,19 +192,6 @@ begin
   end;
 end;
 
-procedure TPen.Draw(Canvas: TCanvas);
-var
-  i: integer;
-begin
-  Canvas.Pen.Color := C1;
-  Canvas.Pen.Width := W;
-  Canvas.Pen.Style := P;
-  for i := 0 to length(points) - 2 do
-  begin
-    Canvas.Line(WorldToScrn(Points[i]), WorldToScrn(points[i + 1]));
-  end;
-end;
-
 procedure TLine.Draw(Canvas: TCanvas);
 begin
   Canvas.Pen.Color := C1;
@@ -228,6 +209,75 @@ begin
   Canvas.Rectangle(WorldToScrn(points[0]).x, WorldToScrn(points[0]).y,
     WorldToScrn(points[1]).x, WorldToScrn(points[1]).y);
   Canvas.Brush.Style := bsSolid;
+end;
+
+{ DrawOutLine }
+
+procedure TRoundRect.DrawOutLine(Canvas: TCanvas);
+begin
+  Canvas.Brush.Style := bsClear;
+  Canvas.Pen.Color := (clWhite xor clRed);
+  Canvas.Pen.Width := 1;
+  Canvas.Pen.Style := psDash;
+  Canvas.Pen.Mode := pmXor;
+  Canvas.RoundRect(WorldToScrn(points[0]).x - 1, WorldToScrn(points[0]).y - 1,
+    WorldToScrn(points[1]).x + 1, WorldToScrn(points[1]).y + 1, RY, RY);
+  Canvas.Pen.Mode := pmCopy;
+end;
+
+procedure TRectangle.DrawOutLine(Canvas: TCanvas);
+begin
+  Canvas.Brush.Style := bsClear;
+  Canvas.Pen.Color := (clWhite xor clRed);
+  Canvas.Pen.Width := 1;
+  Canvas.Pen.Style := psDash;
+  Canvas.Pen.Mode := pmXor;
+  Canvas.Rectangle(WorldToScrn(points[0]).x - 1, WorldToScrn(points[0]).y - 1,
+    WorldToScrn(points[1]).x + 1, WorldToScrn(points[1]).y + 1);
+  Canvas.Pen.Mode := pmCopy;
+end;
+
+procedure TEllipse.DrawOutLine(Canvas: TCanvas);
+begin
+  Canvas.Brush.Style := bsClear;
+  Canvas.Pen.Color := (clWhite xor clRed);
+  Canvas.Pen.Width := 1;
+  Canvas.Pen.Style := psDash;
+  Canvas.Pen.Mode := pmXor;
+  Canvas.Ellipse(WorldToScrn(points[0]).x - 1, WorldToScrn(points[0]).y - 1,
+    WorldToScrn(points[1]).x + 1, WorldToScrn(points[1]).y + 1);
+  Canvas.Pen.Mode := pmCopy;
+end;
+
+procedure TPolyline.DrawOutLine(Canvas: TCanvas);
+var
+  i: integer;
+begin
+  Canvas.Pen.Color := (clWhite xor clRed);
+  Canvas.Pen.Width := 1;
+  Canvas.Pen.Style := psDash;
+  Canvas.Pen.Mode := pmXor;
+  for i := 0 to length(points) - 2 do
+  begin
+    Canvas.Line((WorldToScrn(Points[i]) + Tpoint.create(0, 1)), WorldToScrn(points[i + 1]) + Tpoint.create(0, 1));
+    Canvas.Line(WorldToScrn(Points[i]) + Tpoint.create(0, -1), WorldToScrn(points[i + 1]) + Tpoint.create(0, -1));
+  end;
+  Canvas.Pen.Mode := pmCopy;
+end;
+
+procedure TLine.DrawOutLine(Canvas: TCanvas);
+begin
+  Canvas.Pen.Color := (clWhite xor clRed);
+  Canvas.Pen.Width := 1;
+  Canvas.Pen.Style := psDash;
+  Canvas.Pen.Mode := pmXor;
+  Canvas.Line(WorldToScrn(Points[0]) + Tpoint.create(0, 1), WorldToScrn(points[1]) + Tpoint.create(0, 1));
+   Canvas.Line(WorldToScrn(Points[0]) + Tpoint.create(0, -1), WorldToScrn(points[1]) + Tpoint.create(0, -1));
+  Canvas.Pen.Mode := pmCopy;
+end;
+
+procedure TRectZoom.DrawOutLine(Canvas: TCanvas);
+begin
 end;
 
 end.
