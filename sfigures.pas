@@ -16,8 +16,6 @@ type
   TFigure = class
     Points: array of TFloatPoint;
     Selected: boolean;
-
-
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure GetParams(); virtual; abstract;
   end;
@@ -92,7 +90,7 @@ var      { Var }
   Drawing: boolean = False;
   RadXOfFigure: integer = 0;
   RadYOfFigure: integer = 0;
-
+  SelectedNumber:integer = 0;
 implementation
 
 { Porocedures }

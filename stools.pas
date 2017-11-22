@@ -107,6 +107,16 @@ type
     procedure MouseUp(Point: TFloatPoint); override;
   end;
 
+  TSelectTool = class(TTool)
+  public
+    constructor Create;
+    procedure FigureCreate(Point: TFloatPoint); override;
+    procedure ChangePoint(Point: TFloatPoint); override;
+    procedure AddPoint(Point: TFloatPoint); override;
+    procedure FigureEnd(); override;
+    procedure MouseUp(Point: TFloatPoint); override;
+  end;
+
   TScrollTool = class(TTool)
   public
     constructor Create;
@@ -169,11 +179,8 @@ begin
     SetLength(Points, 2);
     Points[0] := Point;
     Points[1] := Point;
-    C1 := PenColor;
-    W := WidthOfFigure;
-    P := PenStyle;
-    Selected := False;
   end;
+  Figures[High(Figures)].GetParams();
 end;
 
 procedure TPenTool.FigureCreate(Point: TFloatPoint);
@@ -186,11 +193,8 @@ begin
     SetLength(Points, 2);
     Points[0] := Point;
     Points[1] := Point;
-    C1 := PenColor;
-    W := WidthOfFigure;
-    P := PenStyle;
-    Selected := False;
   end;
+  Figures[High(Figures)].GetParams();
 end;
 
 procedure TLineTool.FigureCreate(Point: TFloatPoint);
@@ -203,12 +207,8 @@ begin
     SetLength(Points, 2);
     Points[0] := Point;
     Points[1] := Point;
-    C1 := PenColor;
-    W := WidthOfFigure;
-    P := PenStyle;
-    Selected := False;
-
   end;
+  Figures[High(Figures)].GetParams();
 end;
 
 procedure TEllipseTool.FigureCreate(Point: TFloatPoint);
@@ -234,14 +234,9 @@ begin
   begin
     SetLength(Points, 2);
     Points[0] := Point;
-    Points[1] := Point;
-    C1 := PenColor;
-    C2 := BrushColor;
-    W := WidthOfFigure;
-    P := PenStyle;
-    B := BrushStyle;
-    Selected := False;
+    Points[1] := Point;;
   end;
+  Figures[High(Figures)].GetParams();
 end;
 
 procedure TRoundRectTool.FigureCreate(Point: TFloatPoint);
@@ -254,15 +249,8 @@ begin
     SetLength(Points, 2);
     Points[0] := Point;
     Points[1] := Point;
-    C1 := PenColor;
-    C2 := BrushColor;
-    W := WidthOfFigure;
-    P := PenStyle;
-    B := BrushStyle;
-    RY := RadYOfFigure;
-    RX := RadXOfFigure;
-    Selected := False;
   end;
+  Figures[High(Figures)].GetParams();
 end;
 
 procedure TZoomTool.FigureCreate(Point: TFloatPoint);
@@ -282,6 +270,18 @@ end;
 
 
 procedure TRectZoomTool.FigureCreate(Point: TFloatPoint);
+begin
+  Setlength(Figures, length(figures) + 1);
+  Figures[High(Figures)] := TRectZoom.Create;
+  with (Figures[High(Figures)] as TRectZoom) do
+  begin
+    SetLength(Points, 2);
+    Points[0] := Point;
+    Points[1] := Point;
+  end;
+end;
+
+procedure TSelectTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
   Figures[High(Figures)] := TRectZoom.Create;
@@ -377,6 +377,14 @@ begin
   end;
 end;
 
+procedure TSelectTool.ChangePoint(Point: TFloatPoint);
+begin
+  with Figures[high(Figures)] do
+  begin
+    points[high(points)] := point;
+  end;
+end;
+
 procedure TScrollTool.ChangePoint(Point: TFloatPoint);
 begin
   if length(Figures) > 0 then
@@ -421,10 +429,10 @@ end;
 
 procedure TRectZoomTool.AddPoint(Point: TFloatPoint);
 begin
-  ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
-  FreeAndNil(Figures[High(Figures)]);
-  SetLength(Figures, Length(Figures) - 1);
-  Drawing := False;
+end;
+
+procedure TSelectTool.AddPoint(Point: TFloatPoint);
+begin
 end;
 
 procedure TEllipseTool.AddPoint(Point: TFloatPoint);
@@ -470,6 +478,15 @@ end;
 procedure TRectZoomTool.MouseUp(Point: TFloatPoint);
 begin
   ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
+  FreeAndNil(Figures[High(Figures)]);
+  SetLength(Figures, Length(Figures) - 1);
+  Drawing := False;
+end;
+
+procedure TSelectTool.MouseUp(Point: TFloatPoint);
+begin
+  SelectedNumber:=1;
+  Figures[0].Selected:=true;
   FreeAndNil(Figures[High(Figures)]);
   SetLength(Figures, Length(Figures) - 1);
   Drawing := False;
@@ -522,6 +539,13 @@ begin
 end;
 
 procedure TRectZoomTool.FigureEnd();
+begin
+  FreeAndNil(Figures[High(Figures)]);
+  SetLength(Figures, Length(Figures) - 1);
+  Drawing := False;
+end;
+
+procedure TSelectTool.FigureEnd();
 begin
   FreeAndNil(Figures[High(Figures)]);
   SetLength(Figures, Length(Figures) - 1);
@@ -619,6 +643,13 @@ begin
   prp[4] := True;
 end;
 
+constructor TSelectTool.Create;
+begin
+  Icon := 'ico/select.png';
+  nPRP := 1;
+  SetLength(PRP, length(Propertys));
+  prp[5] := True;
+end;
 
 initialization
   RegisterTool(TPenTool.Create);
@@ -630,4 +661,5 @@ initialization
   RegisterTool(TZoomTool.Create);
   RegisterTool(TRectZoomTool.Create);
   RegisterTool(TScrollTool.Create);
+  RegisterTool(TSelectTool.Create);
 end.
