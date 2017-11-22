@@ -239,6 +239,8 @@ begin
 end;
 
 procedure TVecRedF.ToolClick(Sender: TObject);
+var
+  i: TFigure;
 begin
   if Drawing then
   begin
@@ -249,6 +251,10 @@ begin
     MaxPoint := LLMaxPoint;
     MinPoint := LLMinPoint;
   end;
+  SelectedNumber := 0;
+  for i in figures do
+    i.Selected := False;
+  Invalidate;
   ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
   DeletePRP();
   ChoosenTool.PropertiesCreate();
@@ -297,7 +303,7 @@ begin
     i.draw(pb.Canvas);
   for i in Figures do
     if i.Selected then
-    i.drawoutline(pb.Canvas);
+      i.drawoutline(pb.Canvas);
 end;
 
 procedure TVecRedF.C1Change(Sender: TObject);

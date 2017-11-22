@@ -173,13 +173,7 @@ procedure TPolylineTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create;
-  with (Figures[High(Figures)] as TPolyLine) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TPolyLine.Create(point);
   Figures[High(Figures)].GetParams();
 end;
 
@@ -187,13 +181,7 @@ procedure TPenTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create;
-  with (Figures[High(Figures)] as TPolyLine) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TPolyLine.Create(point);
   Figures[High(Figures)].GetParams();
 end;
 
@@ -201,13 +189,7 @@ procedure TLineTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TLine.Create;
-  with (Figures[High(Figures)] as TLine) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TLine.Create(point);
   Figures[High(Figures)].GetParams();
 end;
 
@@ -215,13 +197,7 @@ procedure TEllipseTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TEllipse.Create;
-  with (Figures[High(Figures)] as TEllipse) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TEllipse.Create(point);
   Figures[High(Figures)].GetParams();
 end;
 
@@ -229,13 +205,7 @@ procedure TRectangleTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRectangle.Create;
-  with (Figures[High(Figures)] as TRectangle) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;;
-  end;
+  Figures[High(Figures)] := TRectangle.Create(point);
   Figures[High(Figures)].GetParams();
 end;
 
@@ -243,13 +213,7 @@ procedure TRoundRectTool.FigureCreate(Point: TFloatPoint);
 begin
   GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRoundRect.Create;
-  with (Figures[High(Figures)] as TRoundRect) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TRoundRect.Create(point);
   Figures[High(Figures)].GetParams();
 end;
 
@@ -272,25 +236,13 @@ end;
 procedure TRectZoomTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRectZoom.Create;
-  with (Figures[High(Figures)] as TRectZoom) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TRectZoom.Create(point);
 end;
 
 procedure TSelectTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRectZoom.Create;
-  with (Figures[High(Figures)] as TRectZoom) do
-  begin
-    SetLength(Points, 2);
-    Points[0] := Point;
-    Points[1] := Point;
-  end;
+  Figures[High(Figures)] := TRectZoom.Create(point);
 end;
 
 procedure TScrollTool.FigureCreate(Point: TFloatPoint);
@@ -484,9 +436,12 @@ begin
 end;
 
 procedure TSelectTool.MouseUp(Point: TFloatPoint);
+var
+  i: TFigure;
 begin
-  SelectedNumber:=1;
-  Figures[0].Selected:=true;
+  SelectedNumber := length(Figures);
+  for i in figures do
+    i.Selected := True;
   FreeAndNil(Figures[High(Figures)]);
   SetLength(Figures, Length(Figures) - 1);
   Drawing := False;
