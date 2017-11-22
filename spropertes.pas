@@ -76,13 +76,15 @@ end;
 procedure TPenStyleProperty.OnChange(Sender: TObject);
 begin
   PenStyle := CasePenStyle(PenStylesBox.ItemIndex);
-  Figures[high(Figures)].GetParams();
+  if Length(Figures) > 0 then
+    Figures[high(Figures)].GetParams();
 end;
 
 procedure TBrushStyleProperty.OnChange(Sender: TObject);
 begin
   BrushStyle := CaseBrushStyle(BrushStylesBox.ItemIndex);
-  Figures[high(Figures)].GetParams();
+  if Length(Figures) > 0 then
+    Figures[high(Figures)].GetParams();
 end;
 
 procedure TSpinProperty.OnChange(Sender: TObject);
@@ -107,7 +109,7 @@ var
 begin
   Y := ARect.Top + 7;
   (Control as TComboBox).Canvas.Pen.Style := CasePenStyle(Index);
-  (Control as TComboBox).Canvas.Line(0, Y, 100, Y);
+  (Control as TComboBox).Canvas.Line(0, Y, 200, Y);
 end;
 
 procedure TBrushStyleProperty.BrushStylesBoxDrawItem(Control: TWinControl;
@@ -192,7 +194,7 @@ begin
   SpinEdit := TSpinEdit.Create(PropertyPanel);
   SpinEdit.Align := alTop;
   SpinEdit.MinValue := 1;
-  SpinEdit.MaxValue := 50;
+  SpinEdit.MaxValue := 1000000;
   SpinEdit.Value := WidthOfFigure;
   SpinEdit.Top := n * 100 + 10;
   SpinEdit.Alignment := taLeftJustify;
@@ -223,7 +225,7 @@ begin
   BrushStylesLable.Caption := 'Brush Style';
   BrushStylesLable.Align := alTop;
   BrushStylesBox := TComboBox.Create(PropertyPanel);
-  BrushStylesBox.Items.CommaText := ',,,,,,';
+  BrushStylesBox.Items.CommaText := ',,,,,,,';
   BrushStylesBox.ReadOnly := True;
   BrushStylesBox.Top := 220;
   BrushStylesBox.Style := csOwnerDrawFixed;
@@ -253,7 +255,7 @@ initialization
     RegisterProperty(TBrushStyleProperty.Create());
     RegisterProperty(TSpinProperty.Create('Radius X', @RadXOfFigure, length(Propertys)));
     RegisterProperty(TSpinProperty.Create('Radius Y', @RadYOfFigure, length(Propertys)));
-    RegisterProperty(TButtonProperty.Create('Delete',Length(Propertys)));
+    RegisterProperty(TButtonProperty.Create('Delete', Length(Propertys)));
   end;
 
 end.

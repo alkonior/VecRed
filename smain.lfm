@@ -99,14 +99,14 @@ object VecRedF: TVecRedF
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 8
-    Height = 176
+    Height = 208
     Top = 8
-    Width = 128
+    Width = 160
     Alignment = taLeftJustify
     Anchors = []
     BevelOuter = bvNone
-    ClientHeight = 176
-    ClientWidth = 128
+    ClientHeight = 208
+    ClientWidth = 160
     Color = 15921906
     ParentColor = False
     TabOrder = 1
@@ -117,9 +117,9 @@ object VecRedF: TVecRedF
       AnchorSideLeft.Control = MPanel
       AnchorSideTop.Control = ToolPanel
       AnchorSideTop.Side = asrBottom
-      Left = 14
+      Left = 17
       Height = 48
-      Top = 117
+      Top = 155
       Width = 48
       Anchors = [akTop]
       BorderSpacing.Left = 14
@@ -164,9 +164,9 @@ object VecRedF: TVecRedF
       AnchorSideLeft.Control = MPanel
       AnchorSideTop.Control = MPanel
       Left = 13
-      Height = 98
+      Height = 136
       Top = 9
-      Width = 98
+      Width = 136
       BorderSpacing.Left = 13
       BorderSpacing.Top = 9
       BevelOuter = bvNone
@@ -181,9 +181,9 @@ object VecRedF: TVecRedF
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Side = asrBottom
-      Left = 64
+      Left = 95
       Height = 23
-      Top = 136
+      Top = 168
       Width = 52
       Alignment = taRightJustify
       Anchors = [akTop]
@@ -198,9 +198,9 @@ object VecRedF: TVecRedF
     end
     object ZoomT: TLabel
       AnchorSideRight.Control = ZoomB
-      Left = 72
+      Left = 100
       Height = 19
-      Top = 117
+      Top = 144
       Width = 39
       Anchors = [akTop]
       BorderSpacing.Right = 5

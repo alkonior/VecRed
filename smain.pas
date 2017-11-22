@@ -282,7 +282,7 @@ end;
 procedure TVecRedF.PBMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
-  ChoosenTool.MouseUp(ScrnToWorld(Point(x,y)));
+  ChoosenTool.MouseUp(ScrnToWorld(Point(x, y)));
   ZoomB.Value := zoom;
   Invalidate;
 end;
@@ -300,13 +300,15 @@ end;
 procedure TVecRedF.C1Change(Sender: TObject);
 begin
   PenColor := CB1.ButtonColor;
-  Figures[high(Figures)].GetParams();
+  if Length(Figures) > 0 then
+    Figures[high(Figures)].GetParams();
 end;
 
 procedure TVecRedF.C2Change(Sender: TObject);
 begin
   BrushColor := CB2.ButtonColor;
-  Figures[high(Figures)].GetParams();
+  if Length(Figures) > 0 then
+    Figures[high(Figures)].GetParams();
 end;
 
 procedure TVecRedF.CreateButton(i: integer);
@@ -326,13 +328,16 @@ begin
   ToolBtn.Glyph := ToolIcon;
   ToolBtn.Width := 32;
   ToolBtn.Height := 32;
-  ToolBtn.Top := (i div 3) * 32;
-  ToolBtn.Left := (i mod 3) * 32;
+  ToolBtn.Top := (i div 4) * 33;
+  ToolBtn.Left := (i mod 4) * 33;
   ToolBtn.Tag := i;
   ToolBtn.GroupIndex := 1;
   ToolBtn.Down := i = 0;
   ToolBtn.OnClick := @ToolClick;
   ToolBtn.Parent := ToolPanel;
+  ToolBtn.OnMouseDown := @MPanelMouseDown;
+  ToolBtn.OnMouseMove := @MPanelMouseMove;
+  ToolBtn.OnMouseUp := @MPanelMouseUp;
 end;
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);

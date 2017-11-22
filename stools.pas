@@ -34,8 +34,9 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
-    procedure MouseUp(Point: TFloatPoint);override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
+
   TPenTool = class(TTool)
   public
     constructor Create;
@@ -43,7 +44,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
-    procedure MouseUp(Point: TFloatPoint);override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TLineTool = class(TTool)
@@ -63,7 +64,7 @@ type
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
-    procedure MouseUp(Point: TFloatPoint);  override;
+    procedure MouseUp(Point: TFloatPoint); override;
   end;
 
   TRoundRectTool = class(TTool)
@@ -318,7 +319,7 @@ begin
   LMaxPoint := MaxPoint;
   with Figures[high(Figures)] do
   begin
-    SetLength(points,Length(Points)+1);
+    SetLength(points, Length(Points) + 1);
     points[high(points)] := point;
   end;
 end;
@@ -451,7 +452,7 @@ end;
 
 procedure TPenTool.MouseUp(Point: TFloatPoint);
 begin
-    Drawing := False;
+  Drawing := False;
 end;
 
 procedure TLineTool.MouseUp(Point: TFloatPoint);
@@ -492,7 +493,7 @@ end;
 { FigureEnd }
 procedure TPenTool.FigureEnd();
 begin
-    Drawing := False;
+  Drawing := False;
 end;
 
 procedure TPolylineTool.FigureEnd();

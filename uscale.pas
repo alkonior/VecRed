@@ -46,8 +46,14 @@ procedure SetScrolBars(var Scroll1, Scroll2: TScrollBar);
 begin
   if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
   begin
-    Scroll1.SetParams(round(offset).x,round(min(minpoint * zoom / 100, LMinPoint * zoom / 100)).x - 550,round(max(maxpoint * zoom / 100, LMaxPoint * zoom / 100)).x + 550,min(round(WindowWH.x / zoom * 100), abs(Scroll1.Min - Scroll1.Max)));
-    Scroll2.SetParams(round(offset).y,round(min(minpoint * zoom / 100, LMinPoint * zoom / 100)).Y - 550,round(max(maxpoint * zoom / 100, LMaxPoint * zoom / 100)).Y + 550,min(round(WindowWH.y / zoom * 100), abs(Scroll2.Min - Scroll2.Max)));
+    Scroll1.SetParams(round(offset).x, round(min(minpoint * zoom / 100,
+      LMinPoint * zoom / 100)).x - 550, round(max(maxpoint * zoom / 100,
+      LMaxPoint * zoom / 100)).x + 550, min(round(WindowWH.x / zoom * 100),
+      abs(Scroll1.Min - Scroll1.Max)));
+    Scroll2.SetParams(round(offset).y, round(min(minpoint * zoom / 100,
+      LMinPoint * zoom / 100)).Y - 550, round(max(maxpoint * zoom / 100,
+      LMaxPoint * zoom / 100)).Y + 550, min(round(WindowWH.y / zoom * 100),
+      abs(Scroll2.Min - Scroll2.Max)));
   end
   else
   begin
@@ -180,6 +186,7 @@ begin
     4: Result := bsCross;
     5: Result := bsFDiagonal;
     6: Result := bsHorizontal;
+    7: Result := bsClear;
   end;
 end;
 
