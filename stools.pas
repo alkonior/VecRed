@@ -151,7 +151,7 @@ begin
   for i := 0 to length(Propertys) - 1 do
   begin
     if PRP[i] then
-      Propertys[i].returnPRP();
+      Propertys[i].showPRP();
   end;
 end;
 
@@ -169,7 +169,7 @@ begin
     Points[0] := Point;
     Points[1] := Point;
     C1 := PenColor;
-    W := Width;
+    W := WidthOfFigure;
     P := PenStyle;
     Selected := False;
   end;
@@ -186,7 +186,7 @@ begin
     Points[0] := Point;
     Points[1] := Point;
     C1 := PenColor;
-    W := Width;
+    W := WidthOfFigure;
     P := PenStyle;
     Selected := False;
   end;
@@ -203,7 +203,7 @@ begin
     Points[0] := Point;
     Points[1] := Point;
     C1 := PenColor;
-    W := Width;
+    W := WidthOfFigure;
     P := PenStyle;
     Selected := False;
 
@@ -220,13 +220,8 @@ begin
     SetLength(Points, 2);
     Points[0] := Point;
     Points[1] := Point;
-    C1 := PenColor;
-    C2 := BrushColor;
-    W := Width;
-    P := PenStyle;
-    B := BrushStyle;
-    Selected := False;
   end;
+  Figures[High(Figures)].GetParams();
 end;
 
 procedure TRectangleTool.FigureCreate(Point: TFloatPoint);
@@ -241,7 +236,7 @@ begin
     Points[1] := Point;
     C1 := PenColor;
     C2 := BrushColor;
-    W := Width;
+    W := WidthOfFigure;
     P := PenStyle;
     B := BrushStyle;
     Selected := False;
@@ -260,11 +255,11 @@ begin
     Points[1] := Point;
     C1 := PenColor;
     C2 := BrushColor;
-    W := Width;
+    W := WidthOfFigure;
     P := PenStyle;
     B := BrushStyle;
-    RY := RadY;
-    RX := RadX;
+    RY := RadYOfFigure;
+    RX := RadXOfFigure;
     Selected := False;
   end;
 end;

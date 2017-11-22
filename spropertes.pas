@@ -12,8 +12,7 @@ uses
 type
   TProperty = class
     procedure deletePRP(); virtual; abstract;
-    procedure returnPRP(); virtual; abstract;
-    procedure OnChange(Sender: TObject); virtual; abstract;
+    procedure showPRP(); virtual; abstract;
   end;
 
   ArrayOfProperty = array of TProperty;
@@ -25,8 +24,8 @@ type
     n: integer;
     constructor Create(s: string; t: PLongint; i: integer);
     procedure deletePRP(); override;
-    procedure returnPRP(); override;
-    procedure OnChange(Sender: TObject); override;
+    procedure showPRP(); override;
+    procedure OnChange(Sender: TObject);
   end;
 
   TPenStyleProperty = class(TProperty)
@@ -34,8 +33,8 @@ type
     PenStylesBox: TComboBox;
     constructor Create();
     procedure deletePRP(); override;
-    procedure returnPRP(); override;
-    procedure OnChange(Sender: TObject); override;
+    procedure showPRP(); override;
+    procedure OnChange(Sender: TObject);
     procedure PenStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
   end;
@@ -45,10 +44,19 @@ type
     BrushStylesBox: TComboBox;
     constructor Create();
     procedure deletePRP(); override;
-    procedure returnPRP(); override;
-    procedure OnChange(Sender: TObject); override;
+    procedure showPRP(); override;
+    procedure OnChange(Sender: TObject);
     procedure BrushStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
+  end;
+
+  TButtonProperty = class(TProperty)
+    Button: TButton;
+    n: integer;
+    constructor Create(s: string; i: integer);
+    procedure deletePRP(); override;
+    procedure showPRP(); override;
+    procedure OnClick(Sender: TObject);
   end;
 
 var
@@ -67,22 +75,14 @@ end;
 
 procedure TPenStyleProperty.OnChange(Sender: TObject);
 begin
-  if Drawing then
-  begin
-    Figures[high(Figures)].P := CasePenStyle(PenStylesBox.ItemIndex);
-    InvalidateHandler;
-  end;
   PenStyle := CasePenStyle(PenStylesBox.ItemIndex);
+  Figures[high(Figures)].GetParams();
 end;
 
 procedure TBrushStyleProperty.OnChange(Sender: TObject);
 begin
-  if Drawing then
-  begin
-    Figures[high(Figures)].B := CaseBrushStyle(BrushStylesBox.ItemIndex);
-    InvalidateHandler;
-  end;
   BrushStyle := CaseBrushStyle(BrushStylesBox.ItemIndex);
+  Figures[high(Figures)].GetParams();
 end;
 
 procedure TSpinProperty.OnChange(Sender: TObject);
@@ -91,6 +91,11 @@ begin
   if Length(Figures) > 0 then
     figures[high(figures)].getparams;
   InvalidateHandler;
+end;
+
+procedure TButtonProperty.OnClick(Sender: TObject);
+begin
+
 end;
 
 { BoxDrowItem }
@@ -138,9 +143,15 @@ begin
   BrushStylesLable.Parent := nil;
 end;
 
-{ returnPRP }
+procedure TButtonProperty.deletePRP();
+begin
+  Button.Parent := nil;
+end;
 
-procedure TSpinProperty.returnPRP();
+
+{ showPRP }
+
+procedure TSpinProperty.showPRP();
 begin
   SpinLabel.Parent := PropertyPanel;
   SpinEdit.Parent := PropertyPanel;
@@ -148,7 +159,7 @@ begin
   SpinEdit.Top := n * 100 + 10;
 end;
 
-procedure TPenStyleProperty.returnPRP();
+procedure TPenStyleProperty.showPRP();
 begin
   PenStylesBox.Parent := PropertyPanel;
   PenStylesLabel.Parent := PropertyPanel;
@@ -156,12 +167,17 @@ begin
   PenStylesBox.Top := 120;
 end;
 
-procedure TBrushStyleProperty.returnPRP();
+procedure TBrushStyleProperty.showPRP();
 begin
   BrushStylesBox.Parent := PropertyPanel;
   BrushStylesLable.Parent := PropertyPanel;
   BrushStylesLable.Top := 210;
   BrushStylesBox.Top := 220;
+end;
+
+procedure TButtonProperty.showPRP();
+begin
+  Button.Parent := PropertyPanel;
 end;
 
 { Create }
@@ -177,7 +193,7 @@ begin
   SpinEdit.Align := alTop;
   SpinEdit.MinValue := 1;
   SpinEdit.MaxValue := 50;
-  SpinEdit.Value := Width;
+  SpinEdit.Value := WidthOfFigure;
   SpinEdit.Top := n * 100 + 10;
   SpinEdit.Alignment := taLeftJustify;
   SpinEdit.OnChange := @OnChange;
@@ -217,17 +233,27 @@ begin
   BrushStylesBox.OnChange := @OnChange;
 end;
 
+constructor TButtonProperty.Create(s: string; i: integer);
+begin
+  n := i;
+  Button := TButton.Create(PropertyPanel);
+  Button.Caption := s;
+  Button.Align := alTop;
+  Button.Top := n * 100;
+  Button.OnClick := @OnClick;
+end;
 
 
 initialization
 
   begin
     PropertyPanel := TPanel.Create(nil);
-    RegisterProperty(TSpinProperty.Create('Width', @Width, length(Propertys)));
+    RegisterProperty(TSpinProperty.Create('Width', @WidthOfFigure, length(Propertys)));
     RegisterProperty(TPenStyleProperty.Create());
     RegisterProperty(TBrushStyleProperty.Create());
-    RegisterProperty(TSpinProperty.Create('Radius X', @RadX, length(Propertys)));
-    RegisterProperty(TSpinProperty.Create('Radius Y', @RadY, length(Propertys)));
+    RegisterProperty(TSpinProperty.Create('Radius X', @RadXOfFigure, length(Propertys)));
+    RegisterProperty(TSpinProperty.Create('Radius Y', @RadYOfFigure, length(Propertys)));
+    RegisterProperty(TButtonProperty.Create('Delete',Length(Propertys)));
   end;
 
 end.

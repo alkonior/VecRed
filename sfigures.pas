@@ -16,67 +16,140 @@ type
   TFigure = class
     Points: array of TFloatPoint;
     Selected: boolean;
+
+
+    procedure Draw(Canvas: TCanvas); virtual; abstract;
+    procedure GetParams(); virtual; abstract;
+  end;
+
+  TPolyline = class(TFigure)
+    C1: TColor;
+    W: integer;
+    P: TPenStyle;
+    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
+  end;
+
+  TPen = class(TFigure)
+    C1: TColor;
+    W: integer;
+    P: TPenStyle;
+    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
+  end;
+
+  TLine = class(TFigure)
+    C1: TColor;
+    W: integer;
+    P: TPenStyle;
+    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
+  end;
+
+  TRectangle = class(TFigure)
+    C1: TColor;
+    W: integer;
+    P: TPenStyle;
+    C2: TColor;
+    B: TBrushStyle;
+    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
+  end;
+
+  TEllipse = class(TFigure)
+    C1: TColor;
+    W: integer;
+    P: TPenStyle;
+    C2: TColor;
+    B: TBrushStyle;
+    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
+  end;
+
+  TRectZoom = class(TFigure)
+    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
+  end;
+
+  TRoundRect = class(TFigure)
     C1: TColor;
     W: integer;
     P: TPenStyle;
     C2: TColor;
     B: TBrushStyle;
     RY, RX: integer;
-    procedure Draw(Canvas: TCanvas); virtual; abstract;
-    procedure GetParams();
-  end;
-
-  TPolyline = class(TFigure)
     procedure Draw(Canvas: TCanvas); override;
-  end;
-
-  TPen = class(TFigure)
-    procedure Draw(Canvas: TCanvas); override;
-  end;
-
-  TLine = class(TFigure)
-    procedure Draw(Canvas: TCanvas); override;
-  end;
-
-  TRectangle = class(TFigure)
-    procedure Draw(Canvas: TCanvas); override;
-  end;
-
-  TEllipse = class(TFigure)
-    procedure Draw(Canvas: TCanvas); override;
-  end;
-
-  TRectZoom = class(TFigure)
-    procedure Draw(Canvas: TCanvas); override;
-  end;
-
-  TRoundRect = class(TFigure)
-    procedure Draw(Canvas: TCanvas); override;
+    procedure GetParams(); override;
   end;
 
 var      { Var }
   Figures: array of TFigure;
   PenColor: TColor = clBlack;
   BrushColor: TColor = clWhite;
-  Width: integer = 1;
+  WidthOfFigure: integer = 1;
   PenStyle: TPenStyle = psSolid;
   BrushStyle: TBrushStyle = bsSolid;
   Drawing: boolean = False;
-  RadX: integer = 0;
-  RadY: integer = 0;
+  RadXOfFigure: integer = 0;
+  RadYOfFigure: integer = 0;
 
 implementation
 
 { Porocedures }
-procedure Tfigure.GetParams();
+{ GetParams }
+procedure TPen.GetParams();
+begin
+  C1 := PenColor;
+  W := WidthOfFigure;
+  P := PenStyle;
+end;
+
+
+procedure TPolyline.GetParams();
+begin
+  C1 := PenColor;
+  W := WidthOfFigure;
+  P := PenStyle;
+end;
+
+procedure TLine.GetParams();
+begin
+  C1 := PenColor;
+  W := WidthOfFigure;
+  P := PenStyle;
+end;
+
+procedure TRectangle.GetParams();
 begin
   C1 := PenColor;
   C2 := BrushColor;
-  W := Width;
+  W := WidthOfFigure;
   P := PenStyle;
   B := BrushStyle;
-  RY := RadY;
-  RX := RadX;
+end;
+
+procedure TEllipse.GetParams();
+begin
+  C1 := PenColor;
+  C2 := BrushColor;
+  W := WidthOfFigure;
+  P := PenStyle;
+  B := BrushStyle;
+end;
+
+procedure TRoundRect.GetParams();
+begin
+  C1 := PenColor;
+  C2 := BrushColor;
+  W := WidthOfFigure;
+  P := PenStyle;
+  B := BrushStyle;
+  RY := RadYOfFigure;
+  RX := RadXOfFigure;
+end;
+
+procedure TRectZoom.GetParams();
+begin
 end;
 
 { Drow }

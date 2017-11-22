@@ -139,7 +139,7 @@ end;
 procedure ZoomToRect(Point1, Point2: TFloatPoint);
 var
   oldz: float;
-  mip, map, point3, point4: TFloatPoint;
+  mip, map: TFloatPoint;
 begin
   oldz := zoom;
   if (point1 = Point2) then

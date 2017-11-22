@@ -44,7 +44,7 @@ type
     procedure MPanelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure MPanelMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
-    procedure PBClick(Sender: TObject);
+    procedure PBDblClick(Sender: TObject);
     procedure PBMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
     procedure PBResize(Sender: TObject);
@@ -181,7 +181,7 @@ begin
   Mooving := False;
 end;
 
-procedure TVecRedF.PBClick(Sender: TObject);
+procedure TVecRedF.PBDblClick(Sender: TObject);
 begin
   ChoosenTool.FigureEnd();
 end;
@@ -299,22 +299,14 @@ end;
 
 procedure TVecRedF.C1Change(Sender: TObject);
 begin
-  if Drawing then
-  begin
-    Figures[high(Figures)].C1 := CB1.ButtonColor;
-    PB.Invalidate;
-  end;
   PenColor := CB1.ButtonColor;
+  Figures[high(Figures)].GetParams();
 end;
 
 procedure TVecRedF.C2Change(Sender: TObject);
 begin
-  if Drawing then
-  begin
-    Figures[high(Figures)].C2 := CB2.ButtonColor;
-    PB.Invalidate;
-  end;
   BrushColor := CB2.ButtonColor;
+  Figures[high(Figures)].GetParams();
 end;
 
 procedure TVecRedF.CreateButton(i: integer);
