@@ -269,10 +269,12 @@ begin
   MaxPoint := Max(LMaxPoint, point);
   LMinPoint := MinPoint;
   LMaxPoint := MaxPoint;
-  with Figures[high(Figures)] do
+  with Figures[high(Figures)] as TPolyline do
   begin
     SetLength(points, Length(Points) + 1);
     points[high(points)] := point;
+    minp:=min(minp,point);
+    maxp:=max(maxp,point);
   end;
 end;
 
@@ -351,10 +353,12 @@ begin
   MaxPoint := Max(LMaxPoint, point);
   LMinPoint := MinPoint;
   LMaxPoint := MaxPoint;
-  with Figures[high(Figures)] do
+  with Figures[high(Figures)] as TPolyline do
   begin
     SetLength(points, Length(points) + 1);
     points[high(points)] := point;
+    minp:=min(minp,point);
+    maxp:=max(maxp,point);
   end;
 end;
 
