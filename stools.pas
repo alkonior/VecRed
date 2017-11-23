@@ -240,9 +240,13 @@ begin
 end;
 
 procedure TSelectTool.FigureCreate(Point: TFloatPoint);
+var
+  i: TFigure;
 begin
   Setlength(Figures, length(figures) + 1);
   Figures[High(Figures)] := TRectZoom.Create(point);
+  for i in figures do
+    i.Selected := False;
 end;
 
 procedure TScrollTool.FigureCreate(Point: TFloatPoint);
@@ -273,8 +277,8 @@ begin
   begin
     SetLength(points, Length(Points) + 1);
     points[high(points)] := point;
-    minp:=min(minp,point);
-    maxp:=max(maxp,point);
+    minp := min(minp, point);
+    maxp := max(maxp, point);
   end;
 end;
 
@@ -357,8 +361,8 @@ begin
   begin
     SetLength(points, Length(points) + 1);
     points[high(points)] := point;
-    minp:=min(minp,point);
-    maxp:=max(maxp,point);
+    minp := min(minp, point);
+    maxp := max(maxp, point);
   end;
 end;
 
@@ -433,21 +437,39 @@ end;
 
 procedure TRectZoomTool.MouseUp(Point: TFloatPoint);
 begin
-  ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
-  FreeAndNil(Figures[High(Figures)]);
-  SetLength(Figures, Length(Figures) - 1);
+  if Figures[high(Figures)] is TRectZoom then
+  begin
+    ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
+    FreeAndNil(Figures[High(Figures)]);
+    SetLength(Figures, Length(Figures) - 1);
+  end;
   Drawing := False;
 end;
 
 procedure TSelectTool.MouseUp(Point: TFloatPoint);
 var
-  i: TFigure;
+  i: integer;
 begin
-  SelectedNumber := length(Figures);
-  for i in figures do
-    i.Selected := True;
-  FreeAndNil(Figures[High(Figures)]);
-  SetLength(Figures, Length(Figures) - 1);
+  if Figures[High(Figures)] is TRectZoom then
+    if (Figures[High(Figures)].points[0] * Figures[High(Figures)].points[1]) < 4 then
+      for i := Length(Figures) - 2 downto 0 do
+      begin
+        if Figures[i].PointInFigure(Point) then
+        begin
+          Figures[i].Selected := True;
+          break;
+        end;
+      end
+    else
+    begin
+      for i := 0 to Length(Figures) - 1 do
+        Figures[i].Selected := True;
+    end;
+  if Figures[high(Figures)] is TRectZoom then
+  begin
+    FreeAndNil(Figures[High(Figures)]);
+    SetLength(Figures, Length(Figures) - 1);
+  end;
   Drawing := False;
 end;
 
@@ -499,15 +521,21 @@ end;
 
 procedure TRectZoomTool.FigureEnd();
 begin
-  FreeAndNil(Figures[High(Figures)]);
-  SetLength(Figures, Length(Figures) - 1);
+  if Figures[high(Figures)] is TRectZoom then
+  begin
+    FreeAndNil(Figures[High(Figures)]);
+    SetLength(Figures, Length(Figures) - 1);
+  end;
   Drawing := False;
 end;
 
 procedure TSelectTool.FigureEnd();
 begin
-  FreeAndNil(Figures[High(Figures)]);
-  SetLength(Figures, Length(Figures) - 1);
+  if Figures[high(Figures)] is TRectZoom then
+  begin
+    FreeAndNil(Figures[High(Figures)]);
+    SetLength(Figures, Length(Figures) - 1);
+  end;
   Drawing := False;
 end;
 
