@@ -162,11 +162,11 @@ begin
   Canvas.Brush.Color := C2;
   Canvas.Pen.Style := P;
   Canvas.Brush.Style := B;
-  Canvas.RoundRect(WorldToScrn(points[0]).x + (Canvas.Pen.Width div 2),
-    WorldToScrn(points[0]).y + (Canvas.Pen.Width div 2),
-    WorldToScrn(points[1]).x - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(points[1]).y - (Canvas.Pen.Width div 2 -
-    ((Canvas.Pen.Width + 1) mod 2)), RX, RY);
+  Canvas.RoundRect(WorldToScrn(min(points[0],points[1])).x + (Canvas.Pen.Width div 2),
+    WorldToScrn(min(points[0],points[1])).y + (Canvas.Pen.Width div 2),
+    WorldToScrn(max(points[0],points[1])).x - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(points[0],points[1])).y - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)), round(RX*zoom/100), round(RY*zoom/100));
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
@@ -178,21 +178,14 @@ begin
   Canvas.Brush.Color := C2;
   Canvas.Pen.Style := P;
   Canvas.Brush.Style := B;
-  Canvas.Rectangle(WorldToScrn(points[0]).x + (Canvas.Pen.Width div 2),
-    WorldToScrn(points[0]).y + (Canvas.Pen.Width div 2),
-    WorldToScrn(points[1]).x - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(points[1]).y - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)));
+  Canvas.Rectangle(WorldToScrn(min(points[0],points[1])).x + (Canvas.Pen.Width div 2),
+    WorldToScrn(min(points[0],points[1])).y + (Canvas.Pen.Width div 2),
+    WorldToScrn(max(points[0],points[1])).x - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(points[0],points[1])).y - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)));
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
 begin
-  Canvas.Pen.Width := 1;
-  Canvas.Brush.Style := bsClear;
-  Canvas.Pen.Color := clRed;
-  Canvas.Rectangle(WorldToScrn(points[0]).x - 1,
-    WorldToScrn(points[0]).y - 1,
-    WorldToScrn(points[1]).x + 1,
-    WorldToScrn(points[1]).y + 1);
   Canvas.Pen.Width := min(W, min(abs(WorldToScrn(points[0]).x -
     WorldToScrn(points[1]).x) div 2 + 1, abs(WorldToScrn(points[0]).y -
     WorldToScrn(points[1]).y) div 2 + 1));
@@ -200,11 +193,11 @@ begin
   Canvas.Brush.Color := C2;
   Canvas.Pen.Style := P;
   Canvas.Brush.Style := B;
-  Canvas.Ellipse(WorldToScrn(points[0]).x + (Canvas.Pen.Width div 2 -
+  Canvas.Ellipse(WorldToScrn(min(points[0],points[1])).x + (Canvas.Pen.Width div 2 -
     ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(points[0]).y + (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(points[1]).x - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(points[1]).y - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)));
+    WorldToScrn(min(points[0],points[1])).y + (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(points[0],points[1])).x - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(points[0],points[1])).y - (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)));
 end;
 
 procedure TPolyline.Draw(Canvas: TCanvas);
@@ -245,17 +238,13 @@ procedure TRoundRect.DrawOutLine(Canvas: TCanvas);
 begin
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
-  Canvas.Pen.Width := W;
+  Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x - w,
-    WorldToScrn(min(points[0], points[1])).y - w,
-    WorldToScrn(max(points[0], points[1])).x + w,
-    WorldToScrn(max(points[0], points[1])).y + w, Rx, RY);
-  Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x + w,
-    WorldToScrn(min(points[0], points[1])).y + w,
-    WorldToScrn(max(points[0], points[1])).x - w,
-    WorldToScrn(max(points[0], points[1])).y - w, Rx, RY);
+  Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x - 1,
+    WorldToScrn(min(points[0], points[1])).y - 1,
+    WorldToScrn(max(points[0], points[1])).x + 1,
+    WorldToScrn(max(points[0], points[1])).y + 1,  round(RX*zoom/100), round(RY*zoom/100));
   Canvas.Pen.Mode := pmCopy;
 end;
 
@@ -263,17 +252,13 @@ procedure TRectangle.DrawOutLine(Canvas: TCanvas);
 begin
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
-  Canvas.Pen.Width := W;
+  Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.Rectangle(WorldToScrn(min(points[0], points[1])).x - w,
-    WorldToScrn(min(points[0], points[1])).y - w,
-    WorldToScrn(max(points[0], points[1])).x + w,
-    WorldToScrn(max(points[0], points[1])).y + w);
-  Canvas.Rectangle(WorldToScrn(min(points[0], points[1])).x + w,
-    WorldToScrn(min(points[0], points[1])).y + w,
-    WorldToScrn(max(points[0], points[1])).x - w,
-    WorldToScrn(max(points[0], points[1])).y - w);
+  Canvas.Rectangle(WorldToScrn(min(points[0], points[1])).x - 1,
+    WorldToScrn(min(points[0], points[1])).y - 1,
+    WorldToScrn(max(points[0], points[1])).x + 1,
+    WorldToScrn(max(points[0], points[1])).y + 1);
   Canvas.Pen.Mode := pmCopy;
 end;
 
@@ -281,48 +266,39 @@ procedure TEllipse.DrawOutLine(Canvas: TCanvas);
 begin
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
-  Canvas.Pen.Width := W;
+  Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.Ellipse(WorldToScrn(min(points[0], points[1])).x - w,
-    WorldToScrn(min(points[0], points[1])).y - w,
-    WorldToScrn(max(points[0], points[1])).x + w,
-    WorldToScrn(max(points[0], points[1])).y + w);
-  Canvas.Ellipse(WorldToScrn(min(points[0], points[1])).x + w,
-    WorldToScrn(min(points[0], points[1])).y + w,
-    WorldToScrn(max(points[0], points[1])).x - w,
-    WorldToScrn(max(points[0], points[1])).y - w);
+  Canvas.Ellipse(WorldToScrn(min(points[0], points[1])).x - 2,
+    WorldToScrn(min(points[0], points[1])).y - 2,
+    WorldToScrn(max(points[0], points[1])).x + 2,
+    WorldToScrn(max(points[0], points[1])).y + 2);
   Canvas.Pen.Mode := pmCopy;
 end;
 
 procedure TPolyline.DrawOutLine(Canvas: TCanvas);
-var
-  i: integer;
 begin
+  Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
-  Canvas.Pen.Width := W;
+  Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  for i := 0 to length(points) - 2 do
-  begin
-    Canvas.Line((WorldToScrn(Points[i]) + Tpoint.Create(0, W)),
-      WorldToScrn(points[i + 1]) + Tpoint.Create(0, W));
-    Canvas.Line(WorldToScrn(Points[i]) + Tpoint.Create(0, -W),
-      WorldToScrn(points[i + 1]) + Tpoint.Create(0, -W));
-  end;
+  Canvas.rectangle(WorldToScrn(MinP).x-2, WorldToScrn(MinP).y-2,
+    WorldToScrn(MaxP).x+2, WorldToScrn(MaxP).y+2);
   Canvas.Pen.Mode := pmCopy;
 end;
 
 procedure TLine.DrawOutLine(Canvas: TCanvas);
 begin
+  Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
-  Canvas.Pen.Width := W;
+  Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.Line(WorldToScrn(Points[0]) + Tpoint.Create(0, W),
-    WorldToScrn(points[1]) + Tpoint.Create(0, W));
-  Canvas.Line(WorldToScrn(Points[0]) + Tpoint.Create(0, -W),
-    WorldToScrn(points[1]) + Tpoint.Create(0, -W));
+  Canvas.rectangle(WorldToScrn(min(points[0],points[1])).x+2,
+    WorldToScrn(min(points[0],points[1])).y+2,
+    WorldToScrn(max(points[0],points[1])).x-2,
+    WorldToScrn(max(points[0],points[1])).y-2);
   Canvas.Pen.Mode := pmCopy;
 end;
 
