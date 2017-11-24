@@ -17,6 +17,7 @@ function Round(point: TFloatPoint): TPoint; overload;
 function Max(P1, P2: TFloatPoint): TFloatPoint; overload;
 function Min(P1, P2: TFloatPoint): TFloatPoint; overload;
 function IsPointInRect(LH, RB, P: TFloatPoint): boolean;
+function IsRectInRect(LH, RB, P1,P2: TFloatPoint): boolean;
 function IsPointInEllipse(p0, P: TFloatPoint; Rx, Ry: Float): boolean;
 function IsPointOnline(P1, P2, P: TFloatPoint): boolean;
 function CasePenStyle(Index: integer): TPenStyle;
@@ -65,6 +66,11 @@ begin
 end;
 
 { pointinfigure }
+function IsRectInRect(LH, RB, P1,P2: TFloatPoint): boolean;
+begin
+  result:=(lh.x>=p1.x)and(lh.y>=p1.y)and(rb.x<=p2.x)and(rb.y<=p2.y);
+end;
+
 function IsPointInRect(LH, RB, P: TFloatPoint): boolean;
 begin
   Result := (LH.x < P.x) and (LH.y < P.y) and (RB.x > P.x) and (RB.y > P.y);

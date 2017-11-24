@@ -450,6 +450,11 @@ procedure TSelectTool.MouseUp(Point: TFloatPoint);
 var
   i: integer;
 begin
+  for i:=0 to Length(Figures)-1 do
+  begin
+    Figures[i].Selected:=false;
+  end;
+  SelectedNumber:=0;
   if Figures[High(Figures)] is TRectZoom then
     if (Figures[High(Figures)].points[0] * Figures[High(Figures)].points[1]) < 4 then
       for i := Length(Figures) - 2 downto 0 do
@@ -457,13 +462,20 @@ begin
         if Figures[i].PointInFigure(Point) then
         begin
           Figures[i].Selected := True;
+          SelectedNumber := 1;
           break;
         end;
       end
     else
     begin
-      for i := 0 to Length(Figures) - 1 do
-        Figures[i].Selected := True;
+      for i := 0 to Length(Figures) - 2 do
+      begin
+        if Figures[i].FigureInrect(Figures[High(Figures)].points[1], Figures[High(Figures)].points[0]) then
+        begin
+          Figures[i].Selected := True;
+          SelectedNumber := SelectedNumber+1;
+        end;
+      end;
     end;
   if Figures[high(Figures)] is TRectZoom then
   begin

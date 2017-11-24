@@ -19,6 +19,7 @@ type
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
     function PointInFigure(point: TFloatPoint): boolean; virtual; abstract;
+    function FigureInrect(point1, point2: TFloatPoint): boolean; virtual; abstract;
     procedure GetParams(); virtual; abstract;
   end;
 
@@ -31,6 +32,7 @@ type
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     procedure GetParams(); override;
   end;
 
@@ -42,6 +44,7 @@ type
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     procedure GetParams(); override;
   end;
 
@@ -55,6 +58,7 @@ type
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     procedure GetParams(); override;
   end;
 
@@ -68,6 +72,7 @@ type
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     procedure GetParams(); override;
   end;
 
@@ -76,6 +81,7 @@ type
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     procedure GetParams(); override;
   end;
 
@@ -90,6 +96,7 @@ type
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     procedure GetParams(); override;
   end;
 
@@ -352,7 +359,7 @@ procedure TRectZoom.DrawOutLine(Canvas: TCanvas);
 begin
 end;
 
-{ Create }
+{ PointInFigure }
 
 function TPolyline.PointInFigure(point: TFloatPoint): boolean;
 var
@@ -402,11 +409,12 @@ begin
       (max(points[0], points[1]) - FloatPoint(rxx, 0)), point) or
       (IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy)),
       (max(points[0], points[1]) - FloatPoint(0, ryy)), point)) or
-      (IsPointInEllipse((min(points[0], points[1]) + FloatPoint(rxx, ryy)), point, rxx, ryy)) or
-      (IsPointInEllipse((max(points[0], points[1]) - FloatPoint(rxx, ryy)), point, rxx, ryy)) or
+      (IsPointInEllipse((min(points[0], points[1]) + FloatPoint(rxx, ryy)),
+      point, rxx, ryy)) or (IsPointInEllipse(
+      (max(points[0], points[1]) - FloatPoint(rxx, ryy)), point, rxx, ryy)) or
       (IsPointInEllipse((FloatPoint(min(points[0], points[1]).x, max(points[0], points[1]).y) +
       FloatPoint(rxx, -ryy)), point, rxx, ryy)) or
-      (IsPointInEllipse((FloatPoint(max(points[0], points[1]).x, min(points[0], points[1]).y) +
+      (IspointInEllipse((FloatPoint(max(points[0], points[1]).x, min(points[0], points[1]).y) +
       FloatPoint(-rxx, ryy)), point, rxx, ryy));
   end;
   if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
@@ -420,21 +428,61 @@ begin
     ((abs(points[0].y - points[1].y)) < (ryy * 2)) then
   begin
     Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx, 0)),
-      (max(points[0], points[1]) - FloatPoint(rxx, 0)), point)
-      or (IsPointInEllipse((min(points[0], points[1])+floatpoint(rxx,abs(points[1].y-points[0].y)/2)),point,rxx,abs(points[0].y-points[1].y)/2))
-      or (IsPointInEllipse(max(points[0], points[1])+floatpoint(-rxx,-(abs(points[1].y-points[0].y)/2)),point,rxx,abs(points[0].y-points[1].y)/2));
+      (max(points[0], points[1]) - FloatPoint(rxx, 0)), point) or
+      (IsPointInEllipse((min(points[0], points[1]) + floatpoint(
+      rxx, abs(points[1].y - points[0].y) / 2)), point, rxx, abs(points[0].y - points[1].y) / 2)) or
+      (IsPointInEllipse(max(points[0], points[1]) + floatpoint(
+      -rxx, -(abs(points[1].y - points[0].y) / 2)), point, rxx, abs(points[0].y - points[1].y) / 2));
   end;
   if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
     ((abs(points[0].y - points[1].y)) > (ryy * 2)) then
   begin
     Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy)),
-      (max(points[0], points[1]) - FloatPoint(0, ryy)), point)
-      or (IsPointInEllipse((min(points[0], points[1])+floatpoint(abs(points[1].x-points[0].x)/2,ryy)),point,abs(points[1].x-points[0].x)/2,ryy))
-      or (IsPointInEllipse((max(points[0], points[1])-floatpoint(abs(points[1].x-points[0].x)/2,ryy)),point,abs(points[1].x-points[0].x)/2,ryy));
-  end
+      (max(points[0], points[1]) - FloatPoint(0, ryy)), point) or
+      (IsPointInEllipse((min(points[0], points[1]) + floatpoint(
+      abs(points[1].x - points[0].x) / 2, ryy)), point, abs(points[1].x - points[0].x) / 2, ryy)) or
+      (IsPointInEllipse((max(points[0], points[1]) - floatpoint(
+      abs(points[1].x - points[0].x) / 2, ryy)), point, abs(points[1].x - points[0].x) / 2, ryy));
+  end;
 end;
 
 function TRectZoom.PointInFigure(point: TFloatPoint): boolean;
+begin
+  Result := False;
+end;
+
+{ FigureInRect }
+
+function TPolyline.FigureInRect(point1, point2: TFloatPoint): boolean;
+begin
+  result:=isrectinrect(max(point1,point2),min(point1,point2),maxp,MinP);
+end;
+
+function TLine.FigureInRect(point1, point2: TFloatPoint): boolean;
+begin
+   result:=isrectinrect(max(point1,point2),min(point1,point2),
+   max(points[0], points[1]), min(points[0], points[1]));
+end;
+
+function TRectangle.FigureInRect(point1, point2: TFloatPoint): boolean;
+begin
+   result:=isrectinrect(max(point1,point2),min(point1,point2),
+   max(points[0], points[1]), min(points[0], points[1]));
+end;
+
+function TEllipse.FigureInRect(point1, point2: TFloatPoint): boolean;
+begin
+   result:=isrectinrect(max(point1,point2),min(point1,point2),
+   max(points[0], points[1]), min(points[0], points[1]));
+end;
+
+function TRoundRect.FigureInRect(point1, point2: TFloatPoint): boolean;
+begin
+   result:=isrectinrect(max(point1,point2),min(point1,point2),
+   max(points[0], points[1]),min(points[0], points[1]));
+end;
+
+function TRectZoom.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := False;
 end;
