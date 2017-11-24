@@ -645,9 +645,11 @@ end;
 constructor TSelectTool.Create;
 begin
   Icon := 'ico/select.png';
-  nPRP := 1;
+  nPRP :=2;
   SetLength(PRP, length(Propertys));
   prp[5] := True;
+  prp[6] := True;
+  prp[7] := True;
 end;
 
 initialization
