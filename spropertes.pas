@@ -99,7 +99,7 @@ end;
 procedure TButtonProperty.OnClick(Sender: TObject);
 var
   i, j: integer;
-  f: array of TFigure;
+  f: TFigure;
 begin
   case (Sender as TButton).tag of
     0:
@@ -122,30 +122,34 @@ begin
     end;
     1:
     begin
-      j := 0;
       if SelectedNumber > 0 then
       begin
-        for i := 0 to length(Figures) - 1 do
+        for i := length(Figures) - 2 downto 0 do
         begin
+          if Figures[i].Selected then
+            if not (Figures[i + 1].Selected) then
+            begin
+              f := Figures[i + 1];
+              Figures[i + 1] := Figures[i];
+              Figures[i] := f;
+            end;
         end;
       end;
     end;
     2:
     begin
-      j := 0;
       if SelectedNumber > 0 then
       begin
-        for i := 0 to length(Figures) - 1 do
+        for i := 1 to length(Figures) - 1  do
         begin
           if Figures[i].Selected then
-            FreeAndNil(Figures[i])
-          else
-          begin
-            Figures[j] := Figures[i];
-            Inc(j);
-          end;
+            if not (Figures[i - 1].Selected) then
+            begin
+              f := Figures[i - 1];
+              Figures[i - 1] := Figures[i];
+              Figures[i] := f;
+            end;
         end;
-        SetLength(figures, j);
       end;
     end;
   end;
@@ -310,8 +314,8 @@ initialization
     RegisterProperty(TSpinProperty.Create('Radius X', @RadXOfFigure, length(Propertys)));
     RegisterProperty(TSpinProperty.Create('Radius Y', @RadYOfFigure, length(Propertys)));
     RegisterProperty(TButtonProperty.Create('Delete', Length(Propertys)));
-    RegisterProperty(TButtonProperty.Create('All Top', Length(Propertys)));
-    RegisterProperty(TButtonProperty.Create('All Bottom', Length(Propertys)));
+    RegisterProperty(TButtonProperty.Create('Figures Up', Length(Propertys)));
+    RegisterProperty(TButtonProperty.Create('Figures Down', Length(Propertys)));
   end;
 
 end.
