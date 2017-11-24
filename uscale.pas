@@ -73,7 +73,7 @@ end;
 
 function IsPointInRect(LH, RB, P: TFloatPoint): boolean;
 begin
-  Result := (LH.x < P.x) and (LH.y < P.y) and (RB.x > P.x) and (RB.y > P.y);
+  Result := (LH.x <= P.x) and (LH.y <= P.y) and (RB.x >= P.x) and (RB.y >= P.y);
 end;
 
 function IsPointInEllipse(P0, P: TFloatPoint; Rx, Ry: Float): boolean;

@@ -62,6 +62,7 @@ type
 var
   PropertyPanel: TPanel;
   Propertys: ArrayOfProperty;
+  NumberOfbuttonsOnProperty: integer;
 
 implementation
 
@@ -96,8 +97,30 @@ begin
 end;
 
 procedure TButtonProperty.OnClick(Sender: TObject);
+var
+  i, j: integer;
 begin
-
+  case (Sender as TButton).tag of
+    0:
+    begin
+      j := 0;
+      if SelectedNumber > 0 then
+      begin
+        for i := 0 to length(Figures) - 1 do
+        begin
+          if Figures[i].Selected then
+            FreeAndNil(Figures[i])
+          else
+          begin
+            Figures[j] := Figures[i];
+            Inc(j);
+          end;
+        end;
+        SetLength(figures,j);
+      end;
+    end;
+  end;
+  InvalidateHandler;
 end;
 
 { BoxDrowItem }
@@ -242,6 +265,8 @@ begin
   Button.Caption := s;
   Button.Align := alTop;
   Button.Top := n * 100;
+  Button.Tag := NumberOfbuttonsOnProperty;
+  NumberOfbuttonsOnProperty := NumberOfbuttonsOnProperty + 1;
   Button.OnClick := @OnClick;
 end;
 

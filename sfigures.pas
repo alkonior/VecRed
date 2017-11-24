@@ -399,23 +399,24 @@ function TRoundRect.PointInFigure(point: TFloatPoint): boolean;
 var
   ryy, rxx: real;
   ww: integer;
+  t1,t2,t3,t4:Boolean;
 begin
   ryy := ry / 2;
   rxx := rx / 2;
   if ((abs(points[0].x - points[1].x)) > (rxx * 2)) and
     ((abs(points[0].y - points[1].y)) > (ryy * 2)) then
   begin
-    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx, 0)),
-      (max(points[0], points[1]) - FloatPoint(rxx, 0)), point) or
-      (IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy)),
-      (max(points[0], points[1]) - FloatPoint(0, ryy)), point)) or
+    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx+1, 0)),
+      (max(points[0], points[1]) - FloatPoint(rxx+1, 0)), point) or
+      (IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy+1)),
+      (max(points[0], points[1]) - FloatPoint(0, ryy+1)), point)) or
       (IsPointInEllipse((min(points[0], points[1]) + FloatPoint(rxx, ryy)),
-      point, rxx, ryy)) or (IsPointInEllipse(
-      (max(points[0], points[1]) - FloatPoint(rxx, ryy)), point, rxx, ryy)) or
+      point, rxx-1, ryy-1)) or (IsPointInEllipse(
+      (max(points[0], points[1]) - FloatPoint(rxx, ryy)), point, rxx-1, ryy-1)) or
       (IsPointInEllipse((FloatPoint(min(points[0], points[1]).x, max(points[0], points[1]).y) +
-      FloatPoint(rxx, -ryy)), point, rxx, ryy)) or
+      FloatPoint(rxx, -ryy)), point, rxx-1, ryy-1)) or
       (IspointInEllipse((FloatPoint(max(points[0], points[1]).x, min(points[0], points[1]).y) +
-      FloatPoint(-rxx, ryy)), point, rxx, ryy));
+      FloatPoint(-rxx, ryy)), point, rxx-1, ryy-1));
   end;
   if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
     ((abs(points[0].y - points[1].y)) < (ryy * 2)) then
