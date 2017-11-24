@@ -174,7 +174,9 @@ begin
     WorldToScrn(max(points[0], points[1])).x - (Canvas.Pen.Width div
     2 - ((Canvas.Pen.Width + 1) mod 2)),
     WorldToScrn(max(points[0], points[1])).y - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)), round(RX * zoom / 100), round(RY * zoom / 100));
+    2 - ((Canvas.Pen.Width + 1) mod 2)),
+    round((RX - (Canvas.Pen.Width div 2)) * zoom / 100),
+    round((RY - (Canvas.Pen.Width div 2)) * zoom / 100));
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
@@ -248,23 +250,29 @@ end;
 { DrawOutLine }
 
 procedure TRoundRect.DrawOutLine(Canvas: TCanvas);
+var
+  Wid: integer;
 begin
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
   Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
+  wid := min(W, min(abs(WorldToScrn(points[0]).x - WorldToScrn(points[1]).x) div
+    2 + 1, abs(WorldToScrn(points[0]).y - WorldToScrn(points[1]).y) div 2 + 1));
   Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x - 1,
     WorldToScrn(min(points[0], points[1])).y - 1,
     WorldToScrn(max(points[0], points[1])).x + 1,
-    WorldToScrn(max(points[0], points[1])).y + 1, round(RX * zoom / 100),
-    round(RY * zoom / 100));
+    WorldToScrn(max(points[0], points[1])).y + 1,
+    round((RX + (Wid)) * zoom / 100),
+    round((RY + (Wid)) * zoom / 100));
   Canvas.Pen.Color := clWhite;
   Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x - 2,
     WorldToScrn(min(points[0], points[1])).y - 2,
     WorldToScrn(max(points[0], points[1])).x + 2,
-    WorldToScrn(max(points[0], points[1])).y + 2, round(RX * zoom / 100),
-    round(RY * zoom / 100));
+    WorldToScrn(max(points[0], points[1])).y + 2,
+    round((RX + Wid) * zoom / 100),
+    round((RY + Wid) * zoom / 100));
   Canvas.Pen.Mode := pmCopy;
 end;
 
@@ -375,14 +383,55 @@ end;
 
 function TEllipse.PointInFigure(point: TFloatPoint): boolean;
 begin
-  Result := IsPointInEllipse((max(points[1], points[0]) + min(points[1], points[0])) / 2,
-    point, abs((max(points[1], points[0]) - min(points[1], points[0])).x / 2),
+  Result := IsPointInEllipse((max(points[1], points[0]) + min(points[1], points[0])) /
+    2, point, abs((max(points[1], points[0]) - min(points[1], points[0])).x / 2),
     abs((max(points[1], points[0]) - min(points[1], points[0])).y / 2));
 end;
 
 function TRoundRect.PointInFigure(point: TFloatPoint): boolean;
+var
+  ryy, rxx: real;
+  ww: integer;
 begin
-  Result := False;
+  ryy := ry / 2;
+  rxx := rx / 2;
+  if ((abs(points[0].x - points[1].x)) > (rxx * 2)) and
+    ((abs(points[0].y - points[1].y)) > (ryy * 2)) then
+  begin
+    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx, 0)),
+      (max(points[0], points[1]) - FloatPoint(rxx, 0)), point) or
+      (IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy)),
+      (max(points[0], points[1]) - FloatPoint(0, ryy)), point)) or
+      (IsPointInEllipse((min(points[0], points[1]) + FloatPoint(rxx, ryy)), point, rxx, ryy)) or
+      (IsPointInEllipse((max(points[0], points[1]) - FloatPoint(rxx, ryy)), point, rxx, ryy)) or
+      (IsPointInEllipse((FloatPoint(min(points[0], points[1]).x, max(points[0], points[1]).y) +
+      FloatPoint(rxx, -ryy)), point, rxx, ryy)) or
+      (IsPointInEllipse((FloatPoint(max(points[0], points[1]).x, min(points[0], points[1]).y) +
+      FloatPoint(-rxx, ryy)), point, rxx, ryy));
+  end;
+  if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
+    ((abs(points[0].y - points[1].y)) < (ryy * 2)) then
+  begin
+    Result := IsPointInEllipse((max(points[1], points[0]) + min(points[1], points[0])) /
+      2, point, abs((max(points[1], points[0]) - min(points[1], points[0])).x / 2),
+      abs((max(points[1], points[0]) - min(points[1], points[0])).y / 2));
+  end;
+  if ((abs(points[0].x - points[1].x)) > (rxx * 2)) and
+    ((abs(points[0].y - points[1].y)) < (ryy * 2)) then
+  begin
+    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx, 0)),
+      (max(points[0], points[1]) - FloatPoint(rxx, 0)), point)
+      or (IsPointInEllipse((min(points[0], points[1])+floatpoint(rxx,abs(points[1].y-points[0].y)/2)),point,rxx,abs(points[0].y-points[1].y)/2))
+      or (IsPointInEllipse(max(points[0], points[1])+floatpoint(-rxx,-(abs(points[1].y-points[0].y)/2)),point,rxx,abs(points[0].y-points[1].y)/2));
+  end;
+  if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
+    ((abs(points[0].y - points[1].y)) > (ryy * 2)) then
+  begin
+    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy)),
+      (max(points[0], points[1]) - FloatPoint(0, ryy)), point)
+      or (IsPointInEllipse((min(points[0], points[1])+floatpoint(abs(points[1].x-points[0].x)/2,ryy)),point,abs(points[1].x-points[0].x)/2,ryy))
+      or (IsPointInEllipse((max(points[0], points[1])-floatpoint(abs(points[1].x-points[0].x)/2,ryy)),point,abs(points[1].x-points[0].x)/2,ryy));
+  end
 end;
 
 function TRectZoom.PointInFigure(point: TFloatPoint): boolean;

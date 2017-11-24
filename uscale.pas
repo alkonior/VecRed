@@ -72,8 +72,8 @@ end;
 
 function IsPointInEllipse(P0, P: TFloatPoint; Rx, Ry: Float): boolean;
 begin
-  Result := ((((p.x - p0.x) * (p.x - p0.x)) / (rx * rx) +
-    ((p.y - p0.y) * (p.y - p0.y)) / (ry * ry)) < 1);
+  Result := ((((p.x - p0.x) * (p.x - p0.x)*(ry * ry))  +
+    ((rx * rx)*(p.y - p0.y) * (p.y - p0.y))) < ((rx * rx)*(ry * ry)+1));
 end;
 
 function IsPointOnLine(P1, P2, P: TFloatPoint): boolean;
