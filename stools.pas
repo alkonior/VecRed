@@ -22,14 +22,14 @@ type
     SpinLabel: TLabel;
     SpinEdit: TSpinEdit;
     constructor Create(s: string; n: integer);
-    destructor Destroy();
+    destructor Destroy(); override;
   end;
 
   TPenStyleProperty = class(TProperty)
     PenStylesLabel: TLabel;
     PenStylesBox: TComboBox;
     constructor Create(n: integer);
-    destructor Destroy();
+    destructor Destroy(); override;
     procedure PenStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
   end;
@@ -38,7 +38,7 @@ type
     BrushStylesLable: TLabel;
     BrushStylesBox: TComboBox;
     constructor Create(n: integer);
-    destructor Destroy();
+    destructor Destroy(); override;
     procedure BrushStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
   end;
@@ -70,7 +70,8 @@ type
     procedure DeleteParams(); override;
   end;
 
-  TPenTool = class(TTool)
+
+  TLineTool = class(TTool)
   public
     PRPWidth: TSpinProperty;
     PRPPenStyle: TPenStyleProperty;
@@ -84,20 +85,11 @@ type
     procedure DeleteParams(); override;
   end;
 
-  TLineTool = class(TTool)
-  public
-    constructor Create;
-    procedure FigureCreate(Point: TFloatPoint); override;
-    procedure ChangePoint(Point: TFloatPoint); override;
-    procedure AddPoint(Point: TFloatPoint); override;
-    procedure MouseUp(Point: TFloatPoint); override;
-    procedure FigureEnd(); override;
-    procedure CreateParams(); override;
-    procedure DeleteParams(); override;
-  end;
-
   TRectangleTool = class(TTool)
   public
+    PRPWidth: TSpinProperty;
+    PRPPenStyle: TPenStyleProperty;
+    PRPBrushStyle: TBrushStyleProperty;
     constructor Create;
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -110,6 +102,9 @@ type
 
   TRoundRectTool = class(TTool)
   public
+    PRPWidth, PRPRadY, PRPRadX: TSpinProperty;
+    PRPPenStyle: TPenStyleProperty;
+    PRPBrushStyle: TBrushStyleProperty;
     constructor Create;
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -122,6 +117,9 @@ type
 
   TEllipseTool = class(TTool)
   public
+    PRPWidth: TSpinProperty;
+    PRPPenStyle: TPenStyleProperty;
+    PRPBrushStyle: TBrushStyleProperty;
     constructor Create;
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -183,7 +181,7 @@ type
 var           { Var }
   Tools: array of TTool;
   SPoint: TFloatPoint;
-  ShiftB: boolean = False;
+  ShiftButtonState: boolean = False;
   PropertyPanel: TPanel;
 
 implementation
@@ -226,56 +224,60 @@ end;
 
 procedure TPolylineTool.FigureCreate(Point: TFloatPoint);
 begin
-  {GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create(point);
-  Figures[High(Figures)].SetParams();  }
+  Figures[High(Figures)] := TPolyLine.Create(point, PRPWidth.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
+  SetLength(Figures[High(Figures)].Points, 4);
+  Figures[High(Figures)].Points[3] := Point;
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
-procedure TPenTool.FigureCreate(Point: TFloatPoint);
-begin
-  {GetMaxMin(point);
-  Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create(point);
-  Figures[High(Figures)].SetParams();}
-end;
 
 procedure TLineTool.FigureCreate(Point: TFloatPoint);
 begin
- { GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TLine.Create(point);
-  Figures[High(Figures)].SetParams();     }
+  Figures[High(Figures)] := TLine.Create(point, PRPWidth.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TEllipseTool.FigureCreate(Point: TFloatPoint);
 begin
-{  GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TEllipse.Create(point);
-  Figures[High(Figures)].SetParams();   }
+  Figures[High(Figures)] := TEllipse.Create(point, PRPWidth.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex),
+    CaseBrushStyle(PRPBrushStyle.BrushStylesBox.ItemIndex));
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TRectangleTool.FigureCreate(Point: TFloatPoint);
 begin
- { GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRectangle.Create(point);
-  Figures[High(Figures)].SetParams();    }
+  Figures[High(Figures)] := TRectangle.Create(point, PRPWidth.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex),
+    CaseBrushStyle(PRPBrushStyle.BrushStylesBox.ItemIndex));
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TRoundRectTool.FigureCreate(Point: TFloatPoint);
 begin
-  {GetMaxMin(point);
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRoundRect.Create(point);
-  Figures[High(Figures)].SetParams();  }
+  Figures[High(Figures)] := TRoundRect.Create(point, PRPWidth.SpinEdit.Value,
+    PRPRadX.SpinEdit.Value, PRPRadY.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex),
+    CaseBrushStyle(PRPBrushStyle.BrushStylesBox.ItemIndex));
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TZoomTool.FigureCreate(Point: TFloatPoint);
 begin
   spoint := WorldToScrn(point);
-  if not (ShiftB) then
+  if not (ShiftButtonState) then
     zoom := round(zoom * 1.2)
   else
     zoom := round(zoom / 1.2);
@@ -287,21 +289,20 @@ begin
   spoint := ScrnToWorld(spoint);
 end;
 
-
 procedure TRectZoomTool.FigureCreate(Point: TFloatPoint);
 begin
- { Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRectZoom.Create(point);    }
+  Setlength(Figures, length(figures) + 1);
+  Figures[High(Figures)] := TRectZoom.Create(point);
 end;
 
 procedure TSelectTool.FigureCreate(Point: TFloatPoint);
 var
   i: TFigure;
 begin
-  {Setlength(Figures, length(figures) + 1);
+  Setlength(Figures, length(figures) + 1);
   Figures[High(Figures)] := TRectZoom.Create(point);
   for i in figures do
-    i.Selected := False;  }
+    i.Selected := False;
 end;
 
 procedure TScrollTool.FigureCreate(Point: TFloatPoint);
@@ -314,201 +315,141 @@ end;
 
 procedure TPolylineTool.ChangePoint(Point: TFloatPoint);
 begin
- { MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);
-  with Figures[high(Figures)] do
+  if ShiftButtonState then
   begin
-    points[high(points)] := point;
-  end;         }
-end;
-
-procedure TPenTool.ChangePoint(Point: TFloatPoint);
-begin
-  {MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);
-  LMinPoint := MinPoint;
-  LMaxPoint := MaxPoint;
-  with Figures[high(Figures)] as TPolyline do
-  begin
-    SetLength(points, Length(Points) + 1);
-    points[high(points)] := point;
-    minp := min(minp, point);
-    maxp := max(maxp, point);
-  end;}
+    MinPoint := min(MinPoint, point);
+    MaxPoint := max(MaxPoint, point);
+    with Figures[high(Figures)] do
+    begin
+      SetLength(Points, Length(Points) + 1);
+      points[high(points)] := point;
+       Points[0]:=min(Point,Points[0]);
+      Points[1]:=max(Point,Points[1]);
+    end;
+  end
+  else
+    with Figures[high(Figures)] do
+    begin
+      points[high(points)] := point;
+    end;
 end;
 
 procedure TLineTool.ChangePoint(Point: TFloatPoint);
 begin
-  {with Figures[high(Figures)] do
+  with Figures[high(Figures)] do
   begin
     points[high(points)] := point;
   end;
-  MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point); }
 end;
 
 procedure TRectangleTool.ChangePoint(Point: TFloatPoint);
 begin
-  {MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);
   with Figures[high(Figures)] do
   begin
     points[high(points)] := point;
-  end;   }
+  end;
 end;
 
 procedure TRoundRectTool.ChangePoint(Point: TFloatPoint);
 begin
- { MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);
   with Figures[high(Figures)] do
   begin
     points[high(points)] := point;
-  end;    }
+  end;
 end;
 
 procedure TEllipseTool.ChangePoint(Point: TFloatPoint);
 begin
- { MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);
   with Figures[high(Figures)] do
   begin
     points[high(points)] := point;
-  end;   }
+  end;
 end;
 
 procedure TZoomTool.ChangePoint(Point: TFloatPoint);
 begin
-  {Offset := Offset + WorldToScrn(spoint) - WorldToScrn(point);   }
+  if length(Figures) > 0 then
+    Offset := Offset + WorldToScrn(spoint) - WorldToScrn(point);
 end;
 
 procedure TRectZoomTool.ChangePoint(Point: TFloatPoint);
 begin
-  {with Figures[high(Figures)] do
+  with Figures[high(Figures)] do
   begin
     points[high(points)] := point;
-  end;  }
+  end;
 end;
 
 procedure TSelectTool.ChangePoint(Point: TFloatPoint);
 begin
-  {with Figures[high(Figures)] do
+  with Figures[high(Figures)] do
   begin
     points[high(points)] := point;
-  end;    }
+  end;
 end;
 
 procedure TScrollTool.ChangePoint(Point: TFloatPoint);
 begin
-  {if length(Figures) > 0 then
-    Offset := Offset + WorldToScrn(spoint) - WorldToScrn(point);  }
+  if length(Figures) > 0 then
+    Offset := Offset + WorldToScrn(spoint) - WorldToScrn(point);
 end;
 
 { AddPoint }
 
 procedure TPolylineTool.AddPoint(Point: TFloatPoint);
 begin
-  {MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);
-  LMinPoint := MinPoint;
-  LMaxPoint := MaxPoint;
-  with Figures[high(Figures)] as TPolyline do
+  if not(ShiftButtonState) then
   begin
-    SetLength(points, Length(points) + 1);
-    points[high(points)] := point;
-    minp := min(minp, point);
-    maxp := max(maxp, point);
-  end;                        }
+    MinPoint := min(MinPoint, point);
+    MaxPoint := max(MaxPoint, point);
+    with Figures[high(Figures)] as TPolyline do
+    begin
+      SetLength(points, Length(points) + 1);
+      points[high(points)] := point;
+      Points[0]:=min(Point,Points[0]);
+      Points[1]:=max(Point,Points[1]);
+    end;
+  end;
 end;
 
 procedure TLineTool.AddPoint(Point: TFloatPoint);
 begin
- { Drawing := False;
-  MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);   }
+  Figures[high(Figures)].Points[1] := point;
+  Drawing := False;
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TRectangleTool.AddPoint(Point: TFloatPoint);
 begin
-  {Drawing := False;
-  MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point);   }
+  Figures[high(Figures)].Points[1] := point;
+  Drawing := False;
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TRoundRectTool.AddPoint(Point: TFloatPoint);
 begin
-  {Drawing := False;
-  MinPoint := Min(LMinPoint, point);
-  MaxPoint := Max(LMaxPoint, point); }
+  Figures[high(Figures)].Points[1] := point;
+  Drawing := False;
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TRectZoomTool.AddPoint(Point: TFloatPoint);
 begin
+  Figures[high(Figures)].Points[1] := point;
+  Drawing := False;
+  ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
+  FreeAndNil(Figures[High(Figures)]);
+  SetLength(Figures, Length(Figures) - 1);
 end;
 
 procedure TSelectTool.AddPoint(Point: TFloatPoint);
+var i:integer;
 begin
-end;
-
-procedure TEllipseTool.AddPoint(Point: TFloatPoint);
-begin
-  Drawing := False;
-end;
-
-procedure TZoomTool.AddPoint(Point: TFloatPoint);
-begin
-end;
-
-procedure TPenTool.AddPoint(Point: TFloatPoint);
-begin
-end;
-
-procedure TScrollTool.AddPoint(Point: TFloatPoint);
-begin
-end;
-
-{ MouseUp }
-
-procedure TPolylineTool.MouseUp(Point: TFloatPoint);
-begin
-end;
-
-procedure TPenTool.MouseUp(Point: TFloatPoint);
-begin
-  { Drawing := False;   }
-end;
-
-procedure TLineTool.MouseUp(Point: TFloatPoint);
-begin
-end;
-
-procedure TRectangleTool.MouseUp(Point: TFloatPoint);
-begin
-end;
-
-procedure TRoundRectTool.MouseUp(Point: TFloatPoint);
-begin
-end;
-
-procedure TRectZoomTool.MouseUp(Point: TFloatPoint);
-begin
-  {if Figures[high(Figures)] is TRectZoom then
+  if ShiftButtonState  then
   begin
-    ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
-    FreeAndNil(Figures[High(Figures)]);
-    SetLength(Figures, Length(Figures) - 1);
-  end;
-  Drawing := False;    }
-end;
-
-procedure TSelectTool.MouseUp(Point: TFloatPoint);
-var
-  i: integer;
-begin
-  {for i := 0 to Length(Figures) - 1 do
-  begin
-    Figures[i].Selected := False;
-  end;
   SelectedNumber := 0;
   if Figures[High(Figures)] is TRectZoom then
     if (Figures[High(Figures)].points[0] * Figures[High(Figures)].points[1]) < 4 then
@@ -538,7 +479,108 @@ begin
     FreeAndNil(Figures[High(Figures)]);
     SetLength(Figures, Length(Figures) - 1);
   end;
-  Drawing := False;  }
+  Drawing := False;
+  end;
+end;
+
+procedure TEllipseTool.AddPoint(Point: TFloatPoint);
+begin
+  Figures[high(Figures)].Points[1] := point;
+  Drawing := False;
+end;
+
+procedure TZoomTool.AddPoint(Point: TFloatPoint);
+begin
+end;
+
+procedure TScrollTool.AddPoint(Point: TFloatPoint);
+begin
+end;
+
+{ MouseUp }
+
+procedure TPolylineTool.MouseUp(Point: TFloatPoint);
+begin
+  if ShiftButtonState then
+    Drawing := False;
+end;
+
+procedure TLineTool.MouseUp(Point: TFloatPoint);
+begin
+  if ShiftButtonState then
+  begin
+    Figures[high(Figures)].Points[1] := point;
+    Drawing := False;
+  end;
+end;
+
+procedure TRectangleTool.MouseUp(Point: TFloatPoint);
+begin
+  if ShiftButtonState then
+  begin
+    Figures[high(Figures)].Points[1] := point;
+    Drawing := False;
+  end;
+end;
+
+procedure TRoundRectTool.MouseUp(Point: TFloatPoint);
+begin
+  if ShiftButtonState then
+  begin
+    Figures[high(Figures)].Points[1] := point;
+    Drawing := False;
+  end;
+end;
+
+procedure TRectZoomTool.MouseUp(Point: TFloatPoint);
+begin
+  if ShiftButtonState then
+    if Figures[high(Figures)] is TRectZoom then
+    begin
+      ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
+      FreeAndNil(Figures[High(Figures)]);
+      SetLength(Figures, Length(Figures) - 1);
+      Drawing:=False;
+    end;
+end;
+
+procedure TSelectTool.MouseUp(Point: TFloatPoint);
+var
+  i: integer;
+begin
+  if not(ShiftButtonState) then
+  begin
+  SelectedNumber := 0;
+  if Figures[High(Figures)] is TRectZoom then
+    if (Figures[High(Figures)].points[0] * Figures[High(Figures)].points[1]) < 4 then
+      for i := Length(Figures) - 2 downto 0 do
+      begin
+        if Figures[i].PointInFigure(Point) then
+        begin
+          Figures[i].Selected := True;
+          SelectedNumber := 1;
+          break;
+        end;
+      end
+    else
+    begin
+      for i := 0 to Length(Figures) - 2 do
+      begin
+        if Figures[i].FigureInrect(Figures[High(Figures)].points[1],
+          Figures[High(Figures)].points[0]) then
+        begin
+          Figures[i].Selected := True;
+          SelectedNumber := SelectedNumber + 1;
+        end;
+      end;
+    end;
+  if Figures[high(Figures)] is TRectZoom then
+  begin
+    FreeAndNil(Figures[High(Figures)]);
+    SetLength(Figures, Length(Figures) - 1);
+  end;
+  Drawing := False;
+  end;
 end;
 
 procedure TEllipseTool.MouseUp(Point: TFloatPoint);
@@ -547,20 +589,16 @@ end;
 
 procedure TZoomTool.MouseUp(Point: TFloatPoint);
 begin
-  {Drawing := False;  }
+  Drawing := False;
 end;
 
 procedure TScrollTool.MouseUp(Point: TFloatPoint);
 begin
-  { Drawing := False; }
+   Drawing := False;
 end;
 
 
 { FigureEnd }
-procedure TPenTool.FigureEnd();
-begin
-  Drawing := False;
-end;
 
 procedure TPolylineTool.FigureEnd();
 begin
@@ -623,24 +661,40 @@ procedure TPolylineTool.CreateParams();
 begin
   PRPWidth := TSpinProperty.Create('Width', 1);
   PRPPenStyle := TPenStyleProperty.Create(2);
-end;
-
-procedure TPenTool.CreateParams();
-begin
-  PRPWidth := TSpinProperty.Create('Width', 1);
-  PRPPenStyle := TPenStyleProperty.Create(2);
+  PropertyPanel.Height := 77;
 end;
 
 procedure TLineTool.CreateParams();
 begin
+  PRPWidth := TSpinProperty.Create('Width', 1);
+  PRPPenStyle := TPenStyleProperty.Create(2);
+  PropertyPanel.Height := 77;
 end;
 
 procedure TRectangleTool.CreateParams();
 begin
+  PRPWidth := TSpinProperty.Create('Width', 1);
+  PRPPenStyle := TPenStyleProperty.Create(2);
+  PRPBrushStyle := TBrushStyleProperty.Create(3);
+  PropertyPanel.Height := 78 + 39 - 1;
+end;
+
+procedure TEllipseTool.CreateParams();
+begin
+  PRPWidth := TSpinProperty.Create('Width', 1);
+  PRPPenStyle := TPenStyleProperty.Create(2);
+  PRPBrushStyle := TBrushStyleProperty.Create(3);
+  PropertyPanel.Height := 78 + 39 - 1;
 end;
 
 procedure TRoundRectTool.CreateParams();
 begin
+  PRPWidth := TSpinProperty.Create('Width', 1);
+  PRPPenStyle := TPenStyleProperty.Create(2);
+  PRPBrushStyle := TBrushStyleProperty.Create(3);
+  PRPRadX := TSpinProperty.Create('Rad X', 4);
+  PRPRadY := TSpinProperty.Create('Rad Y', 5);
+  PropertyPanel.Height := 78 + 39 * 3 - 3;
 end;
 
 procedure TRectZoomTool.CreateParams();
@@ -648,10 +702,6 @@ begin
 end;
 
 procedure TSelectTool.CreateParams();
-begin
-end;
-
-procedure TEllipseTool.CreateParams();
 begin
 end;
 
@@ -671,25 +721,26 @@ begin
   PRPPenStyle.Destroy();
 end;
 
-procedure TPenTool.DeleteParams();
+procedure TLineTool.DeleteParams();
 begin
   PRPWidth.Destroy();
   PRPPenStyle.Destroy();
 end;
 
-procedure TLineTool.DeleteParams();
-begin
-
-end;
-
 procedure TRectangleTool.DeleteParams();
 begin
-
+  PRPWidth.Destroy();
+  PRPPenStyle.Destroy();
+  PRPBrushStyle.Destroy();
 end;
 
 procedure TRoundRectTool.DeleteParams();
 begin
-
+  PRPWidth.Destroy();
+  PRPPenStyle.Destroy();
+  PRPRadX.Destroy();
+  PRPRadY.Destroy();
+  PRPBrushStyle.Destroy();
 end;
 
 procedure TRectZoomTool.DeleteParams();
@@ -704,7 +755,9 @@ end;
 
 procedure TEllipseTool.DeleteParams();
 begin
-
+  PRPWidth.Destroy();
+  PRPPenStyle.Destroy();
+  PRPBrushStyle.Destroy();
 end;
 
 procedure TZoomTool.DeleteParams();
@@ -759,10 +812,12 @@ begin
   BrushStylesLable.Top := 100 * n;
   BrushStylesLable.Caption := 'Brush Style';
   BrushStylesLable.Align := alTop;
+  BrushStylesLable.Parent := PropertyPanel;
   BrushStylesBox := TComboBox.Create(PropertyPanel);
   BrushStylesBox.Items.CommaText := ',,,,,,,';
   BrushStylesBox.ReadOnly := True;
   BrushStylesBox.Top := 100 * n + 50;
+  BrushStylesBox.Parent := PropertyPanel;
   BrushStylesBox.Style := csOwnerDrawFixed;
   BrushStylesBox.ItemIndex := 0;
   BrushStylesBox.Align := alTop;
@@ -771,18 +826,21 @@ end;
 
 destructor TSpinProperty.Destroy();
 begin
+  inherited Destroy;
   FreeAndNil(SpinEdit);
   FreeAndNil(SpinLabel);
 end;
 
 destructor TPenStyleProperty.Destroy();
 begin
+  inherited Destroy;
   FreeAndNil(PenStylesBox);
   FreeAndNil(PenStylesLabel);
 end;
 
 destructor TBrushStyleProperty.Destroy();
 begin
+  inherited Destroy;
   FreeAndNil(BrushStylesBox);
   FreeAndNil(BrushStylesLable);
 end;
@@ -790,11 +848,6 @@ end;
 { ToolCreate }
 
 constructor TPolylineTool.Create;
-begin
-  Icon := 'ico/polyline.png';
-end;
-
-constructor TPenTool.Create;
 begin
   Icon := 'ico/polyline.png';
 end;
@@ -840,7 +893,6 @@ begin
 end;
 
 initialization
-  RegisterTool(TPenTool.Create);
   RegisterTool(TPolylineTool.Create);
   RegisterTool(TLineTool.Create);
   RegisterTool(TRectangleTool.Create);

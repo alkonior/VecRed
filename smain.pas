@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
-  Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math, spropertes,
+  Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math,
   FPCanvas, TypInfo, Spin, SFigures, STools, Types, UScale, GraphMath;
 
 type
@@ -86,7 +86,7 @@ begin
   case key of
     VK_SHIFT:
     begin
-      ShiftB := True;
+      ShiftButtonState := True;
     end;
   end;
 end;
@@ -96,7 +96,7 @@ begin
   case key of
     VK_SHIFT:
     begin
-      ShiftB := False;
+      ShiftButtonState := False;
     end;
     VK_SPACE:
     begin
@@ -123,6 +123,7 @@ begin
   end;
   MPanel.top := 10;
   MPanel.Left := 10;
+  PropertyPanel:=TPanel.Create(VecRedF);
   PropertyPanel.Parent := VecRedF;
   PropertyPanel.AnchorSide[akTop].Side := asrBottom;
   PropertyPanel.AnchorSide[akTop].Control := MPanel;
@@ -132,12 +133,13 @@ begin
   PropertyPanel.BevelOuter := bvNone;
   PropertyPanel.Width := MPanel.Width;
   PropertyPanel.BorderWidth := 0;
+  PropertyPanel.Height := 100;
   PropertyPanel.OnMouseDown := @MPanelMouseDown;
   PropertyPanel.OnMouseMove := @MPanelMouseMove;
   PropertyPanel.OnMouseUp := @MPanelMouseUp;
   ChoosenTool := Tools[0];
   InvalidateHandler := @Invalidate;
-  ChoosenTool.PropertiesCreate();
+  ChoosenTool.CreateParams();
 end;
 
 procedure TVecRedF.DeleteALLClick(Sender: TObject);
@@ -242,22 +244,13 @@ procedure TVecRedF.ToolClick(Sender: TObject);
 var
   i: TFigure;
 begin
-  if Drawing then
-  begin
-    FreeAndNil(Figures[High(Figures)]);
-    SetLength(Figures, Length(Figures) - 1);
-    Drawing := False;
-    PB.Invalidate;
-    MaxPoint := LLMaxPoint;
-    MinPoint := LLMinPoint;
-  end;
-  SelectedNumber := 0;
+  ChoosenTool.FigureEnd();
   for i in figures do
     i.Selected := False;
   Invalidate;
+  ChoosenTool.DeleteParams();
   ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
-  DeletePRP();
-  ChoosenTool.PropertiesCreate();
+  ChoosenTool.CreateParams();
 end;
 
 procedure TVecRedF.PBMouseDown(Sender: TObject; Button: TMouseButton;
@@ -308,16 +301,12 @@ end;
 
 procedure TVecRedF.C1Change(Sender: TObject);
 begin
-  PenColor := CB1.ButtonColor;
-  if Length(Figures) > 0 then
-    Figures[high(Figures)].GetParams();
+  ColorPen:=CB1.ButtonColor;
 end;
 
 procedure TVecRedF.C2Change(Sender: TObject);
 begin
-  BrushColor := CB2.ButtonColor;
-  if Length(Figures) > 0 then
-    Figures[high(Figures)].GetParams();
+  ColorBrush:=CB2.ButtonColor;
 end;
 
 procedure TVecRedF.CreateButton(i: integer);
@@ -348,6 +337,7 @@ begin
   ToolBtn.OnMouseMove := @MPanelMouseMove;
   ToolBtn.OnMouseUp := @MPanelMouseUp;
 end;
+
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);
 var
