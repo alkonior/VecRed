@@ -33,7 +33,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="5">
       <Unit0>
         <Filename Value="VecRed.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -61,11 +61,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScale"/>
       </Unit4>
-      <Unit5>
-        <Filename Value="spropertes.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SPropertes"/>
-      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

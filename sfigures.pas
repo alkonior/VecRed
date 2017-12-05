@@ -268,15 +268,15 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 2-min(w,50),
-    WorldToScrn(min(points[0], points[1])).y - 2-min(w,50),
-    WorldToScrn(max(points[0], points[1])).x + 2+min(w,50),
-    WorldToScrn(max(points[0], points[1])).y + 2+min(w,50));
+  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 2 - min(w, 50),
+    WorldToScrn(min(points[0], points[1])).y - 2 - min(w, 50),
+    WorldToScrn(max(points[0], points[1])).x + 2 + min(w, 50),
+    WorldToScrn(max(points[0], points[1])).y + 2 + min(w, 50));
   Canvas.Pen.Color := clWhite;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 3-min(w,50),
-    WorldToScrn(min(points[0], points[1])).y - 3-min(w,50),
-    WorldToScrn(max(points[0], points[1])).x + 3+min(w,50),
-    WorldToScrn(max(points[0], points[1])).y + 3+min(w,50));
+  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 3 - min(w, 50),
+    WorldToScrn(min(points[0], points[1])).y - 3 - min(w, 50),
+    WorldToScrn(max(points[0], points[1])).x + 3 + min(w, 50),
+    WorldToScrn(max(points[0], points[1])).y + 3 + min(w, 50));
   Canvas.Pen.Mode := pmCopy;
 end;
 
@@ -287,15 +287,15 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 2-min(w,50),
-    WorldToScrn(min(points[0], points[1])).y - 2-min(w,50),
-    WorldToScrn(max(points[0], points[1])).x + 2+min(w,50),
-    WorldToScrn(max(points[0], points[1])).y + 2+min(w,50));
+  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 2 - min(w, 50),
+    WorldToScrn(min(points[0], points[1])).y - 2 - min(w, 50),
+    WorldToScrn(max(points[0], points[1])).x + 2 + min(w, 50),
+    WorldToScrn(max(points[0], points[1])).y + 2 + min(w, 50));
   Canvas.Pen.Color := clWhite;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 3-min(w,50),
-    WorldToScrn(min(points[0], points[1])).y - 3-min(w,50),
-    WorldToScrn(max(points[0], points[1])).x + 3+min(w,50),
-    WorldToScrn(max(points[0], points[1])).y + 3+min(w,50));
+  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 3 - min(w, 50),
+    WorldToScrn(min(points[0], points[1])).y - 3 - min(w, 50),
+    WorldToScrn(max(points[0], points[1])).x + 3 + min(w, 50),
+    WorldToScrn(max(points[0], points[1])).y + 3 + min(w, 50));
   Canvas.Pen.Mode := pmCopy;
 end;
 
@@ -312,9 +312,9 @@ begin
   for i := 0 to length(points) - 2 do
   begin
     Result :=
-      ((IsPointOnLine(points[i], points[i + 1], point,min(w,45))) or
-      (IsPointInEllipse(points[i], point, min(w,50), min(w,50))) or
-      (IsPointInEllipse(points[i + 1], point, min(w,50), min(w,50))));
+      ((IsPointOnLine(points[i], points[i + 1], point, min(w, 45))) or
+      (IsPointInEllipse(points[i], point, min(w, 50), min(w, 50))) or
+      (IsPointInEllipse(points[i + 1], point, min(w, 50), min(w, 50))));
     if Result then
       break;
   end;
@@ -322,9 +322,9 @@ end;
 
 function TLine.PointInFigure(point: TFloatPoint): boolean;
 begin
-  Result := ((IsPointOnLine(points[0], points[1], point,min(w,45))) or
-    (IsPointInEllipse(points[0], point, min(w,50), min(w,50))) or
-    (IsPointInEllipse(points[1], point, min(w,50), min(w,50))));
+  Result := ((IsPointOnLine(points[0], points[1], point, min(w, 45))) or
+    (IsPointInEllipse(points[0], point, min(w, 50), min(w, 50))) or
+    (IsPointInEllipse(points[1], point, min(w, 50), min(w, 50))));
 end;
 
 function TRectangle.PointInFigure(point: TFloatPoint): boolean;

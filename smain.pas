@@ -85,7 +85,7 @@ begin
     begin
       ShiftButtonState := True;
     end;
-    VK_DELETE:DeleteFigures(Sender);
+    VK_DELETE: DeleteFigures(Sender);
   end;
 end;
 
@@ -117,14 +117,16 @@ begin
   Offset := FloatPoint(0, 0);
   for i := 0 to High(Tools) do
   begin
-    if Tools[i].IsMainTool then begin
-      SetLength(AButtons,Length(AButtons)+1);
-      AButtons[High(AButtons)]:=TMyButton.Create((@Changetool),ToolPanel,i,(i div 4) * 33,(i mod 4) * 33,Tools[i].Icon);
+    if Tools[i].IsMainTool then
+    begin
+      SetLength(AButtons, Length(AButtons) + 1);
+      AButtons[High(AButtons)] :=
+        TMyButton.Create((@Changetool), ToolPanel, i, (i div 4) * 33, (i mod 4) * 33, Tools[i].Icon);
     end;
   end;
   MPanel.top := 10;
   MPanel.Left := 10;
-  PropertyPanel:=TPanel.Create(VecRedF);
+  PropertyPanel := TPanel.Create(VecRedF);
   PropertyPanel.Parent := VecRedF;
   PropertyPanel.AnchorSide[akTop].Side := asrBottom;
   PropertyPanel.AnchorSide[akTop].Control := MPanel;
@@ -289,12 +291,12 @@ end;
 
 procedure TVecRedF.C1Change(Sender: TObject);
 begin
-  ColorPen:=CB1.ButtonColor;
+  ColorPen := CB1.ButtonColor;
 end;
 
 procedure TVecRedF.C2Change(Sender: TObject);
 begin
-  ColorBrush:=CB2.ButtonColor;
+  ColorBrush := CB2.ButtonColor;
 end;
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);

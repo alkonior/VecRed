@@ -17,9 +17,9 @@ function Round(point: TFloatPoint): TPoint; overload;
 function Max(P1, P2: TFloatPoint): TFloatPoint; overload;
 function Min(P1, P2: TFloatPoint): TFloatPoint; overload;
 function IsPointInRect(LH, RB, P: TFloatPoint): boolean;
-function IsRectInRect(LH, RB, P1,P2: TFloatPoint): boolean;
+function IsRectInRect(LH, RB, P1, P2: TFloatPoint): boolean;
 function IsPointInEllipse(p0, P: TFloatPoint; Rx, Ry: Float): boolean;
-function IsPointOnline(P1, P2, P: TFloatPoint;w:integer): boolean;
+function IsPointOnline(P1, P2, P: TFloatPoint; w: integer): boolean;
 function CasePenStyle(Index: integer): TPenStyle;
 function CaseBrushStyle(Index: integer): TBrushStyle;
 procedure SetScrolBars(var Scroll1, Scroll2: TScrollBar);
@@ -61,9 +61,9 @@ begin
 end;
 
 { pointinfigure }
-function IsRectInRect(LH, RB, P1,P2: TFloatPoint): boolean;
+function IsRectInRect(LH, RB, P1, P2: TFloatPoint): boolean;
 begin
-  result:=(lh.x>=p1.x)and(lh.y>=p1.y)and(rb.x<=p2.x)and(rb.y<=p2.y);
+  Result := (lh.x >= p1.x) and (lh.y >= p1.y) and (rb.x <= p2.x) and (rb.y <= p2.y);
 end;
 
 function IsPointInRect(LH, RB, P: TFloatPoint): boolean;
@@ -73,11 +73,11 @@ end;
 
 function IsPointInEllipse(P0, P: TFloatPoint; Rx, Ry: Float): boolean;
 begin
-  Result := ((((p.x - p0.x) * (p.x - p0.x)*(ry * ry))  +
-    ((rx * rx)*(p.y - p0.y) * (p.y - p0.y))) < ((rx * rx)*(ry * ry)+1));
+  Result := ((((p.x - p0.x) * (p.x - p0.x) * (ry * ry)) +
+    ((rx * rx) * (p.y - p0.y) * (p.y - p0.y))) < ((rx * rx) * (ry * ry) + 1));
 end;
 
-function IsPointOnLine(P1, P2, P: TFloatPoint;w:integer): boolean;
+function IsPointOnLine(P1, P2, P: TFloatPoint; w: integer): boolean;
 var
   A, B, C, d: real;
 begin
@@ -91,7 +91,8 @@ begin
   C := P1.x * P2.Y - P2.x * P1.y;
   d := abs(a * p.x + b * p.Y + c);
   Result := (((p1.x > p.x) and (p2.X < p.x)) or ((p1.x < p.x) and (p2.x > p.x))) and
-    (((p1.y > p.y) and (p2.y < p.y)) or ((p1.y < p.y) and (p2.y > p.y))) and (d < ((5+w)*sqrt(a * a + b * b)));
+    (((p1.y > p.y) and (p2.y < p.y)) or ((p1.y < p.y) and (p2.y > p.y))) and
+    (d < ((5 + w) * sqrt(a * a + b * b)));
 end;
 
 { Zoom }
@@ -101,12 +102,11 @@ begin
   if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
   begin
     Scroll1.SetParams(round(offset).x,
-      round(minpoint * zoom / 100).x -
-      550, round(maxpoint * zoom / 100).x +
+      round(minpoint * zoom / 100).x - 550, round(maxpoint * zoom / 100).x +
       550, min(round(WindowWH.x / zoom * 100), abs(Scroll1.Min - Scroll1.Max)));
     Scroll2.SetParams(round(offset).y,
-      round(minpoint * zoom / 100).Y -
-      550, round(maxpoint * zoom / 100).Y +
+      round(minpoint * zoom / 100).Y - 550, round(maxpoint * zoom / 100).Y +
+
       550, min(round(WindowWH.y / zoom * 100), abs(Scroll2.Min - Scroll2.Max)));
   end
   else

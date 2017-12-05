@@ -4,13 +4,13 @@
     <PathDelim Value="\"/>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="38">
+    <Units Count="40">
       <Unit0>
         <Filename Value="VecRed.lpr"/>
         <IsPartOfProject Value="True"/>
         <WindowIndex Value="1"/>
         <CursorPos Y="18"/>
-        <UsageCount Value="101"/>
+        <UsageCount Value="119"/>
       </Unit0>
       <Unit1>
         <Filename Value="smain.pas"/>
@@ -20,9 +20,10 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="SMain"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="149"/>
-        <CursorPos X="26" Y="144"/>
-        <UsageCount Value="101"/>
+        <TopLine Value="74"/>
+        <CursorPos X="17" Y="88"/>
+        <ComponentState Value="1"/>
+        <UsageCount Value="119"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -30,51 +31,49 @@
         <Filename Value="sfigures.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SFigures"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="69"/>
-        <CursorPos X="46" Y="87"/>
-        <UsageCount Value="101"/>
+        <TopLine Value="259"/>
+        <CursorPos X="18" Y="344"/>
+        <UsageCount Value="119"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="stools.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="STools"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="88"/>
-        <CursorPos X="21" Y="240"/>
-        <UsageCount Value="101"/>
+        <TopLine Value="220"/>
+        <CursorPos X="27" Y="239"/>
+        <UsageCount Value="119"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="uscale.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScale"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="157"/>
-        <CursorPos X="28" Y="31"/>
-        <UsageCount Value="83"/>
+        <TopLine Value="13"/>
+        <CursorPos X="23" Y="42"/>
+        <UsageCount Value="101"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="spropertes.pas"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="SPropertes"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="110"/>
-        <CursorPos X="10" Y="167"/>
-        <UsageCount Value="38"/>
-        <Loaded Value="True"/>
+        <TopLine Value="139"/>
+        <CursorPos Y="159"/>
+        <UsageCount Value="40"/>
       </Unit5>
       <Unit6>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\packages\gtk2\examples\plugins\main.pas"/>
         <UnitName Value="plugin_test"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="0"/>
       </Unit6>
       <Unit7>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\rtl\objpas\types.pp"/>
@@ -82,47 +81,53 @@
         <WindowIndex Value="1"/>
         <TopLine Value="71"/>
         <CursorPos X="3" Y="83"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="3"/>
       </Unit7>
       <Unit8>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\rtl\inc\typshrdh.inc"/>
         <WindowIndex Value="1"/>
         <TopLine Value="108"/>
         <CursorPos X="25" Y="125"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="3"/>
       </Unit8>
       <Unit9>
         <Filename Value="C:\lazarus\lcl\include\rasterimage.inc"/>
         <TopLine Value="279"/>
         <CursorPos Y="302"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit9>
       <Unit10>
         <Filename Value="C:\lazarus\lcl\include\control.inc"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="2278"/>
-        <CursorPos Y="2296"/>
+        <TopLine Value="2719"/>
+        <CursorPos Y="2738"/>
         <UsageCount Value="10"/>
       </Unit10>
       <Unit11>
         <Filename Value="C:\lazarus\lcl\include\wincontrol.inc"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="5628"/>
-        <CursorPos Y="5645"/>
-        <UsageCount Value="6"/>
+        <TopLine Value="5366"/>
+        <CursorPos Y="5385"/>
+        <UsageCount Value="10"/>
       </Unit11>
       <Unit12>
         <Filename Value="C:\lazarus\lcl\lclmessageglue.pas"/>
         <UnitName Value="LCLMessageGlue"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
         <TopLine Value="91"/>
         <CursorPos Y="123"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="10"/>
       </Unit12>
       <Unit13>
         <Filename Value="C:\lazarus\lcl\interfaces\win32\win32callback.inc"/>
-        <TopLine Value="2425"/>
-        <CursorPos Y="2444"/>
-        <UsageCount Value="2"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="2540"/>
+        <CursorPos Y="2559"/>
+        <UsageCount Value="10"/>
       </Unit13>
       <Unit14>
         <Filename Value="C:\lazarus\lcl\graphics.pp"/>
@@ -130,7 +135,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="106"/>
         <CursorPos X="23" Y="114"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit14>
       <Unit15>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\packages\fcl-image\src\fpcanvas.pp"/>
@@ -138,39 +143,39 @@
         <WindowIndex Value="1"/>
         <TopLine Value="95"/>
         <CursorPos X="42" Y="111"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit15>
       <Unit16>
         <Filename Value="C:\lazarus\lcl\include\canvas.inc"/>
         <TopLine Value="944"/>
         <CursorPos Y="965"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit16>
       <Unit17>
         <Filename Value="C:\lazarus\lcl\include\graphiccontrol.inc"/>
         <WindowIndex Value="1"/>
         <TopLine Value="39"/>
         <CursorPos Y="57"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit17>
       <Unit18>
         <Filename Value="C:\lazarus\lcl\include\paintbox.inc"/>
         <WindowIndex Value="1"/>
         <TopLine Value="17"/>
         <CursorPos Y="47"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit18>
       <Unit19>
         <Filename Value="C:\lazarus\lcl\include\pen.inc"/>
         <TopLine Value="172"/>
         <CursorPos Y="198"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit19>
       <Unit20>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\packages\graph\src\win32\graph.pp"/>
         <UnitName Value="Graph"/>
         <TopLine Value="145"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit20>
       <Unit21>
         <Filename Value="C:\lazarus\fpc\2.6.4\source\packages\fcl-image\src\fpcanvas.pp"/>
@@ -178,14 +183,15 @@
         <WindowIndex Value="1"/>
         <TopLine Value="148"/>
         <CursorPos X="16" Y="159"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit21>
       <Unit22>
         <Filename Value="C:\lazarus\lcl\controls.pp"/>
         <UnitName Value="Controls"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="2243"/>
-        <CursorPos X="14" Y="2265"/>
+        <TopLine Value="1507"/>
+        <CursorPos X="15" Y="1537"/>
         <UsageCount Value="9"/>
       </Unit22>
       <Unit23>
@@ -194,19 +200,19 @@
         <WindowIndex Value="1"/>
         <TopLine Value="353"/>
         <CursorPos X="3" Y="35"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit23>
       <Unit24>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\rtl\objpas\classes\classesh.inc"/>
         <WindowIndex Value="1"/>
         <TopLine Value="2119"/>
         <CursorPos X="10" Y="2083"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit24>
       <Unit25>
         <Filename Value="smain.lfm"/>
         <WindowIndex Value="1"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit25>
       <Unit26>
@@ -214,13 +220,13 @@
         <WindowIndex Value="1"/>
         <TopLine Value="159"/>
         <CursorPos X="10" Y="180"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit26>
       <Unit27>
         <Filename Value="..\MyPaint-master\uscale.pas"/>
         <UnitName Value="UScale"/>
         <WindowIndex Value="1"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit27>
       <Unit28>
         <Filename Value="C:\lazarus\lcl\lcltype.pp"/>
@@ -228,14 +234,14 @@
         <WindowIndex Value="1"/>
         <TopLine Value="216"/>
         <CursorPos X="25" Y="541"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit28>
       <Unit29>
         <Filename Value="C:\lazarus\fpc\3.0.2\source\rtl\objpas\sysutils\sysutilh.inc"/>
         <WindowIndex Value="1"/>
         <TopLine Value="304"/>
         <CursorPos X="21" Y="320"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit29>
       <Unit30>
         <Filename Value="..\MyPaint-master\main.pas"/>
@@ -245,14 +251,14 @@
         <UnitName Value="Main"/>
         <WindowIndex Value="1"/>
         <TopLine Value="429"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit30>
       <Unit31>
         <Filename Value="C:\lazarus\lcl\include\scrollbar.inc"/>
         <WindowIndex Value="1"/>
         <TopLine Value="80"/>
         <CursorPos X="6" Y="96"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit31>
       <Unit32>
         <Filename Value="C:\lazarus\lcl\forms.pp"/>
@@ -260,7 +266,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="127"/>
         <CursorPos X="3" Y="148"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit32>
       <Unit33>
         <Filename Value="C:\lazarus\lcl\extctrls.pp"/>
@@ -268,7 +274,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="1027"/>
         <CursorPos X="9" Y="1048"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit33>
       <Unit34>
         <Filename Value="C:\lazarus\lcl\spin.pp"/>
@@ -276,7 +282,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="145"/>
         <CursorPos X="14" Y="166"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit34>
       <Unit35>
         <Filename Value="C:\lazarus\lcl\stdctrls.pp"/>
@@ -284,154 +290,179 @@
         <WindowIndex Value="1"/>
         <TopLine Value="60"/>
         <CursorPos X="3" Y="64"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit35>
       <Unit36>
         <Filename Value="C:\lazarus\fpc\2.6.4\source\rtl\objpas\math.pp"/>
         <WindowIndex Value="1"/>
         <TopLine Value="94"/>
         <CursorPos X="8" Y="101"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit36>
       <Unit37>
         <Filename Value="C:\lazarus\fpc\2.6.4\source\rtl\objpas\objpas.pp"/>
         <WindowIndex Value="1"/>
         <TopLine Value="19"/>
         <CursorPos Y="20"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
       </Unit37>
+      <Unit38>
+        <Filename Value="C:\lazarus\lcl\include\winapih.inc"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="209"/>
+        <CursorPos X="10" Y="228"/>
+        <UsageCount Value="9"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="C:\lazarus\lcl\include\speedbutton.inc"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="892"/>
+        <CursorPos Y="914"/>
+        <UsageCount Value="10"/>
+      </Unit39>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="72" Column="28" TopLine="37"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="248" TopLine="219"/>
       </Position1>
       <Position2>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="68" Column="6" TopLine="56"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="250" TopLine="219"/>
       </Position2>
       <Position3>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="65" Column="18" TopLine="60"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="1118" Column="15" TopLine="386"/>
       </Position3>
       <Position4>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="79" Column="9" TopLine="43"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="230" TopLine="210"/>
       </Position4>
       <Position5>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="70" Column="12" TopLine="33"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="232" TopLine="210"/>
       </Position5>
       <Position6>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="23" Column="17"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="234" TopLine="210"/>
       </Position6>
       <Position7>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="3" Column="25"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="240" TopLine="218"/>
       </Position7>
       <Position8>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="99" Column="17" TopLine="77"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="230" TopLine="218"/>
       </Position8>
       <Position9>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="208" Column="28" TopLine="184"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="240" TopLine="218"/>
       </Position9>
       <Position10>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="99" Column="6" TopLine="64"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="874" Column="83" TopLine="848"/>
       </Position10>
       <Position11>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="100" Column="28" TopLine="64"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="240" TopLine="220"/>
       </Position11>
       <Position12>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="93" TopLine="75"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="230" TopLine="220"/>
       </Position12>
       <Position13>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="140" TopLine="122"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="240" TopLine="220"/>
       </Position13>
       <Position14>
-        <Filename Value="spropertes.pas"/>
-        <Caret Line="167" Column="57" TopLine="163"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="242" TopLine="220"/>
       </Position14>
       <Position15>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="22" Column="56" TopLine="16"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="936" Column="14" TopLine="920"/>
       </Position15>
       <Position16>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="49" Column="5" TopLine="29"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="245" Column="37" TopLine="220"/>
       </Position16>
       <Position17>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="50" Column="5" TopLine="33"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="247" TopLine="220"/>
       </Position17>
       <Position18>
-        <Filename Value="smain.pas"/>
-        <Caret Line="182" Column="4" TopLine="169"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="777" Column="32" TopLine="760"/>
       </Position18>
       <Position19>
-        <Filename Value="smain.pas"/>
-        <Caret Line="185" Column="29" TopLine="167"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="784" Column="45" TopLine="973"/>
       </Position19>
       <Position20>
-        <Filename Value="smain.pas"/>
-        <Caret Line="183" Column="21" TopLine="171"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="20" Column="18"/>
       </Position20>
       <Position21>
-        <Filename Value="smain.pas"/>
-        <Caret Line="188" Column="18" TopLine="169"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="1205" TopLine="1173"/>
       </Position21>
       <Position22>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="159" Column="45" TopLine="140"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="235" TopLine="226"/>
       </Position22>
       <Position23>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="168" Column="33" TopLine="139"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="236" TopLine="226"/>
       </Position23>
       <Position24>
-        <Filename Value="smain.pas"/>
-        <Caret Line="116" Column="3" TopLine="86"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="240" Column="28" TopLine="226"/>
       </Position24>
       <Position25>
-        <Filename Value="smain.pas"/>
-        <Caret Line="147" Column="31" TopLine="142"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="237" TopLine="226"/>
       </Position25>
       <Position26>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="70" Column="4" TopLine="43"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="238" TopLine="226"/>
       </Position26>
       <Position27>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="137" Column="119" TopLine="103"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="239" TopLine="226"/>
       </Position27>
       <Position28>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="51" Column="74" TopLine="37"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="237" Column="39" TopLine="217"/>
       </Position28>
       <Position29>
-        <Filename Value="uscale.pas"/>
-        <Caret Line="44" Column="28" TopLine="37"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="238" Column="5" TopLine="220"/>
       </Position29>
       <Position30>
-        <Filename Value="sfigures.pas"/>
-        <Caret Line="87" Column="123" TopLine="64"/>
+        <Filename Value="stools.pas"/>
+        <Caret Line="237" TopLine="220"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <Watches Count="2">
+    <Watches Count="5">
       <Item1>
-        <Expression Value="minpoint"/>
+        <Expression Value="i"/>
       </Item1>
       <Item2>
-        <Expression Value="maxpoint"/>
+        <Expression Value="figures"/>
       </Item2>
+      <Item3>
+        <Expression Value="figures[1]"/>
+      </Item3>
+      <Item4>
+        <Expression Value="(sender as tspeedbutton).tag"/>
+      </Item4>
+      <Item5>
+        <Expression Value="sender"/>
+      </Item5>
     </Watches>
   </Debugging>
 </CONFIG>
