@@ -342,8 +342,6 @@ end;
 function TRoundRect.PointInFigure(point: TFloatPoint): boolean;
 var
   ryy, rxx: real;
-  ww: integer;
-  t1, t2, t3, t4: boolean;
 begin
   ryy := ry / 2;
   rxx := rx / 2;

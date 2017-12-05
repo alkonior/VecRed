@@ -59,7 +59,6 @@ type
       Shift: TShiftState; X, Y: integer);
     procedure PBPaint(Sender: TObject);
     procedure ToolClick(Sender: TObject);
-    procedure CreateButton(i: integer);
     procedure ZoomBChange(Sender: TObject);
 
   private
@@ -70,7 +69,6 @@ type
 
 var
   VecRedF: TVecRedF;
-  ChoosenTool: TTool;
   Mooving, ScrollB: boolean;
   cy, cx: integer;
 
@@ -119,7 +117,10 @@ begin
   Offset := FloatPoint(0, 0);
   for i := 0 to High(Tools) do
   begin
-    CreateButton(i);
+    if Tools[i].IsMainTool then begin
+      SetLength(AButtons,Length(AButtons)+1);
+      AButtons[High(AButtons)]:=TMyButton.Create((@Changetool),ToolPanel,i);
+    end;
   end;
   MPanel.top := 10;
   MPanel.Left := 10;
@@ -308,36 +309,6 @@ procedure TVecRedF.C2Change(Sender: TObject);
 begin
   ColorBrush:=CB2.ButtonColor;
 end;
-
-procedure TVecRedF.CreateButton(i: integer);
-var
-  ToolBtn: TSpeedButton;
-  ToolIcon: TBitmap;
-begin
-  ToolBtn := TSpeedButton.Create(VecRedF);
-  ToolIcon := TBitmap.Create;
-  with TPicture.Create do
-  begin
-    LoadFromFile(Tools[i].Icon);
-    ToolIcon.Assign(Graphic);
-  end;
-  ToolBtn.Transparent := True;
-  ToolIcon.Transparent := True;
-  ToolBtn.Glyph := ToolIcon;
-  ToolBtn.Width := 32;
-  ToolBtn.Height := 32;
-  ToolBtn.Top := (i div 4) * 33;
-  ToolBtn.Left := (i mod 4) * 33;
-  ToolBtn.Tag := i;
-  ToolBtn.GroupIndex := 1;
-  ToolBtn.Down := i = 0;
-  ToolBtn.OnClick := @ToolClick;
-  ToolBtn.Parent := ToolPanel;
-  ToolBtn.OnMouseDown := @MPanelMouseDown;
-  ToolBtn.OnMouseMove := @MPanelMouseMove;
-  ToolBtn.OnMouseUp := @MPanelMouseUp;
-end;
-
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);
 var
