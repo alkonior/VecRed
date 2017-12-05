@@ -197,6 +197,8 @@ type
 
 procedure Changetool(Sender: TObject);
 procedure DeleteFigures(Sender: TObject);
+procedure AllTopFigures(Sender: TObject);
+procedure AllBottomFigures(Sender: TObject);
 
 var           { Var }
   Tools: array of TTool;
@@ -232,7 +234,7 @@ begin
   if SelectedNumber > 0 then
   begin
     j := 0;
-    for i := 0 to Length(Figures) - 2 do
+    for i := 0 to Length(Figures) - 1 do
     begin
       if Figures[i].Selected then
       begin
@@ -246,6 +248,38 @@ begin
     end;
     SetLength(Figures, j);
     SelectedNumber := 0;
+  end;
+  InvalidateHandler;
+end;
+
+procedure AllTopFigures(Sender: TObject);
+var f:TFigure;
+  i:Integer;
+begin
+  for i := High(figures) downto Low(figures) do
+  begin
+    if Figures[i].Selected and (i+1 < Length(Figures)) then
+    begin
+      f := Figures[i+1];
+      Figures[i+1] := Figures[i];
+      Figures[i] := F;
+    end;
+  end;
+  InvalidateHandler;
+end;
+
+procedure AllBottomFigures(Sender: TObject);
+var f:TFigure;
+  i:Integer;
+begin
+  for i := low(figures) to high(figures) do
+  begin
+    if Figures[i].Selected and (i-1 > 0) then
+    begin
+      f := Figures[i-1];
+      Figures[i-1] := Figures[i];
+      Figures[i] := F;
+    end;
   end;
   InvalidateHandler;
 end;
@@ -776,6 +810,8 @@ end;
 procedure TSelectTool.CreateParams();
 begin
   Delete := TMyButton.Create((@DeleteFigures), PropertyPanel, 0, 0, 5, 'ico/delete.png');
+  AllBottom := TMyButton.Create((@AllBottomFigures), PropertyPanel, 0,0, 5+32, 'ico/allbottom.png');
+  AllTop := TMyButton.Create((@AllTopFigures), PropertyPanel, 0,0, 5+32*2, 'ico/alltop.png');
   PropertyPanel.Height := 35;
 end;
 
@@ -824,6 +860,8 @@ end;
 procedure TSelectTool.DeleteParams();
 begin
   Delete.Destroy();
+  Allbottom.Destroy();
+  AllTop.Destroy();
 end;
 
 procedure TEllipseTool.DeleteParams();
