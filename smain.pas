@@ -85,6 +85,7 @@ begin
     begin
       ShiftButtonState := True;
     end;
+    VK_DELETE:DeleteFigures(Sender);
   end;
 end;
 

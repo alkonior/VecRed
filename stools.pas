@@ -18,7 +18,7 @@ type
     Button: TSpeedButton;
     Proc: TProc;
     procedure OnClick(Sender: TObject);
-    constructor Create(PR: TProc; Panel: TPanel; i,top,left: integer;s:String);
+    constructor Create(PR: TProc; Panel: TPanel; i, top, left: integer; s: string);
     destructor Destroy(); override;
   end;
 
@@ -170,9 +170,9 @@ type
 
   TSelectTool = class(TTool)
   public
-    Delete:TMyButton;
-    AllTop:TMyButton;
-    Allbottom:TMyButton;
+    Delete: TMyButton;
+    AllTop: TMyButton;
+    Allbottom: TMyButton;
     constructor Create;
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -210,7 +210,8 @@ implementation
 
 { Porocedures }
 procedure Changetool(Sender: TObject);
-var i:TFigure;
+var
+  i: TFigure;
 begin
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
   begin
@@ -223,8 +224,30 @@ begin
     ChoosenTool.CreateParams();
   end;
 end;
+
 procedure DeleteFigures(Sender: TObject);
+var
+  i, j: integer;
 begin
+  if SelectedNumber > 0 then
+  begin
+    j := 0;
+    for i := 0 to Length(Figures) - 2 do
+    begin
+      if Figures[i].Selected then
+      begin
+        FreeAndNil(Figures[i]);
+      end
+      else
+      begin
+        Figures[j] := Figures[i];
+        Inc(j);
+      end;
+    end;
+    SetLength(Figures, j);
+    SelectedNumber := 0;
+  end;
+  InvalidateHandler;
 end;
 
 { BoxDrowItem }
@@ -642,13 +665,13 @@ end;
 
 procedure TPolylineTool.FigureEnd();
 begin
-  if Length(Figures)>0 then
-  if Figures[High(Figures)] is TPolyline then
-  with Figures[High(Figures)] as TPolyline do
-  begin
-    Points[0]:=min(Points[0],Points[High(Points)]);
-    Points[1]:=max(Points[1],Points[High(Points)]);
-  end;
+  if Length(Figures) > 0 then
+    if Figures[High(Figures)] is TPolyline then
+      with Figures[High(Figures)] as TPolyline do
+      begin
+        Points[0] := min(Points[0], Points[High(Points)]);
+        Points[1] := max(Points[1], Points[High(Points)]);
+      end;
   Drawing := False;
 end;
 
@@ -674,23 +697,23 @@ end;
 
 procedure TRectZoomTool.FigureEnd();
 begin
-  if Length(Figures)>0 then
-  if Figures[high(Figures)] is TRectZoom then
-  begin
-    FreeAndNil(Figures[High(Figures)]);
-    SetLength(Figures, Length(Figures) - 1);
-  end;
+  if Length(Figures) > 0 then
+    if Figures[high(Figures)] is TRectZoom then
+    begin
+      FreeAndNil(Figures[High(Figures)]);
+      SetLength(Figures, Length(Figures) - 1);
+    end;
   Drawing := False;
 end;
 
 procedure TSelectTool.FigureEnd();
 begin
-  if Length(Figures)>0 then
-  if Figures[high(Figures)] is TRectZoom then
-  begin
-    FreeAndNil(Figures[High(Figures)]);
-    SetLength(Figures, Length(Figures) - 1);
-  end;
+  if Length(Figures) > 0 then
+    if Figures[high(Figures)] is TRectZoom then
+    begin
+      FreeAndNil(Figures[High(Figures)]);
+      SetLength(Figures, Length(Figures) - 1);
+    end;
   Drawing := False;
 end;
 
@@ -752,8 +775,8 @@ end;
 
 procedure TSelectTool.CreateParams();
 begin
-  Delete:=TMyButton.Create((@DeleteFigures),PropertyPanel,0,0,5,'ico/delete.png');
-  PropertyPanel.Height:=35;
+  Delete := TMyButton.Create((@DeleteFigures), PropertyPanel, 0, 0, 5, 'ico/delete.png');
+  PropertyPanel.Height := 35;
 end;
 
 procedure TZoomTool.CreateParams();
@@ -950,7 +973,7 @@ begin
 end;
 
 { TMyButton }
-constructor TMyButton.Create(PR: TProc; Panel: TPanel; i,top,left: integer;s:string);
+constructor TMyButton.Create(PR: TProc; Panel: TPanel; i, top, left: integer; s: string);
 var
   ToolIcon: TBitmap;
 begin
