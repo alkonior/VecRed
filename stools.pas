@@ -173,6 +173,23 @@ type
     Delete: TMyButton;
     AllTop: TMyButton;
     Allbottom: TMyButton;
+    Select2: TMyButton;
+    constructor Create;
+    procedure FigureCreate(Point: TFloatPoint); override;
+    procedure ChangePoint(Point: TFloatPoint); override;
+    procedure AddPoint(Point: TFloatPoint); override;
+    procedure MouseUp(Point: TFloatPoint); override;
+    procedure FigureEnd(); override;
+    procedure CreateParams(); override;
+    procedure DeleteParams(); override;
+  end;
+
+  TSelect2Tool = class(TTool)
+  public
+    Delete: TMyButton;
+    AllTop: TMyButton;
+    Allbottom: TMyButton;
+    Select2: TMyButton;
     constructor Create;
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -197,8 +214,9 @@ type
 
 procedure Changetool(Sender: TObject);
 procedure DeleteFigures(Sender: TObject);
-procedure AllTopFigures(Sender: TObject);
-procedure AllBottomFigures(Sender: TObject);
+procedure AllUpFigures(Sender: TObject);
+procedure AllDownFigures(Sender: TObject);
+procedure VariationOfSelect(Sender: TObject);
 
 var           { Var }
   Tools: array of TTool;
@@ -211,6 +229,19 @@ var           { Var }
 implementation
 
 { Porocedures }
+procedure VariationOfSelect(Sender: TObject);
+var
+  t: integer;
+begin
+  if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
+  begin
+    t := (Sender as TSpeedButton).Tag;
+    ChoosenTool.DeleteParams();
+    ChoosenTool := Tools[t];
+    ChoosenTool.CreateParams();
+  end;
+end;
+
 procedure Changetool(Sender: TObject);
 var
   i: TFigure;
@@ -252,32 +283,34 @@ begin
   InvalidateHandler;
 end;
 
-procedure AllTopFigures(Sender: TObject);
-var f:TFigure;
-  i:Integer;
+procedure AllUpFigures(Sender: TObject);
+var
+  f: TFigure;
+  i: integer;
 begin
   for i := High(figures) downto Low(figures) do
   begin
-    if Figures[i].Selected and (i+1 < Length(Figures)) then
+    if Figures[i].Selected and (i + 1 < Length(Figures)) then
     begin
-      f := Figures[i+1];
-      Figures[i+1] := Figures[i];
+      f := Figures[i + 1];
+      Figures[i + 1] := Figures[i];
       Figures[i] := F;
     end;
   end;
   InvalidateHandler;
 end;
 
-procedure AllBottomFigures(Sender: TObject);
-var f:TFigure;
-  i:Integer;
+procedure AllDownFigures(Sender: TObject);
+var
+  f: TFigure;
+  i: integer;
 begin
   for i := low(figures) to high(figures) do
   begin
-    if Figures[i].Selected and (i-1 > 0) then
+    if Figures[i].Selected and (i - 1 > 0) then
     begin
-      f := Figures[i-1];
-      Figures[i-1] := Figures[i];
+      f := Figures[i - 1];
+      Figures[i - 1] := Figures[i];
       Figures[i] := F;
     end;
   end;
@@ -401,6 +434,12 @@ begin
     i.Selected := False;
 end;
 
+procedure TSelect2Tool.FigureCreate(Point: TFloatPoint);
+begin
+  Setlength(Figures, length(figures) + 1);
+  Figures[High(Figures)] := TRectZoom.Create(point);
+end;
+
 procedure TScrollTool.FigureCreate(Point: TFloatPoint);
 begin
   SPoint := Point;
@@ -477,6 +516,14 @@ begin
 end;
 
 procedure TSelectTool.ChangePoint(Point: TFloatPoint);
+begin
+  with Figures[high(Figures)] do
+  begin
+    points[high(points)] := point;
+  end;
+end;
+
+procedure TSelect2Tool.ChangePoint(Point: TFloatPoint);
 begin
   with Figures[high(Figures)] do
   begin
@@ -580,6 +627,51 @@ begin
   end;
 end;
 
+procedure TSelect2Tool.AddPoint(Point: TFloatPoint);
+var
+  i: integer;
+begin
+  if ShiftButtonState then
+  begin
+    SelectedNumber := 0;
+    if Figures[High(Figures)] is TRectZoom then
+      if (Figures[High(Figures)].points[0] * Figures[High(Figures)].points[1]) < 4 then
+        for i := Length(Figures) - 2 downto 0 do
+        begin
+          if Figures[i].PointInFigure(Point) then
+          begin
+            Figures[i].Selected := not (Figures[i].Selected);
+            if Figures[i].Selected then
+              SelectedNumber := SelectedNumber + 1
+            else
+              SelectedNumber := SelectedNumber - 1;
+            break;
+          end;
+        end
+      else
+      begin
+        for i := 0 to Length(Figures) - 2 do
+        begin
+          if Figures[i].FigureInrect(Figures[High(Figures)].points[1],
+            Figures[High(Figures)].points[0]) then
+          begin
+            Figures[i].Selected := not (Figures[i].Selected);
+            if Figures[i].Selected then
+              SelectedNumber := SelectedNumber + 1
+            else
+              SelectedNumber := SelectedNumber - 1;
+          end;
+        end;
+      end;
+    if Figures[high(Figures)] is TRectZoom then
+    begin
+      FreeAndNil(Figures[High(Figures)]);
+      SetLength(Figures, Length(Figures) - 1);
+    end;
+    Drawing := False;
+  end;
+end;
+
 procedure TEllipseTool.AddPoint(Point: TFloatPoint);
 begin
   Figures[high(Figures)].Points[1] := point;
@@ -612,6 +704,15 @@ begin
 end;
 
 procedure TRectangleTool.MouseUp(Point: TFloatPoint);
+begin
+  if ShiftButtonState then
+  begin
+    Figures[high(Figures)].Points[1] := point;
+    Drawing := False;
+  end;
+end;
+
+procedure TEllipseTool.MouseUp(Point: TFloatPoint);
 begin
   if ShiftButtonState then
   begin
@@ -680,8 +781,49 @@ begin
   end;
 end;
 
-procedure TEllipseTool.MouseUp(Point: TFloatPoint);
+procedure TSelect2Tool.MouseUp(Point: TFloatPoint);
+var
+  i: integer;
 begin
+  if not (ShiftButtonState) then
+  begin
+    SelectedNumber := 0;
+    if Figures[High(Figures)] is TRectZoom then
+      if (Figures[High(Figures)].points[0] * Figures[High(Figures)].points[1]) < 4 then
+        for i := Length(Figures) - 2 downto 0 do
+        begin
+          if Figures[i].PointInFigure(Point) then
+          begin
+            Figures[i].Selected := not (Figures[i].Selected);
+            if Figures[i].Selected then
+              SelectedNumber := SelectedNumber + 1
+            else
+              SelectedNumber := SelectedNumber - 1;
+            break;
+          end;
+        end
+      else
+      begin
+        for i := 0 to Length(Figures) - 2 do
+        begin
+          if Figures[i].FigureInrect(Figures[High(Figures)].points[1],
+            Figures[High(Figures)].points[0]) then
+          begin
+            Figures[i].Selected := not (Figures[i].Selected);
+            if Figures[i].Selected then
+              SelectedNumber := SelectedNumber + 1
+            else
+              SelectedNumber := SelectedNumber - 1;
+          end;
+        end;
+      end;
+    if Figures[high(Figures)] is TRectZoom then
+    begin
+      FreeAndNil(Figures[High(Figures)]);
+      SetLength(Figures, Length(Figures) - 1);
+    end;
+    Drawing := False;
+  end;
 end;
 
 procedure TZoomTool.MouseUp(Point: TFloatPoint);
@@ -751,6 +893,17 @@ begin
   Drawing := False;
 end;
 
+procedure TSelect2Tool.FigureEnd();
+begin
+  if Length(Figures) > 0 then
+    if Figures[high(Figures)] is TRectZoom then
+    begin
+      FreeAndNil(Figures[High(Figures)]);
+      SetLength(Figures, Length(Figures) - 1);
+    end;
+  Drawing := False;
+end;
+
 procedure TZoomTool.FigureEnd();
 begin
   Drawing := False;
@@ -810,9 +963,26 @@ end;
 procedure TSelectTool.CreateParams();
 begin
   Delete := TMyButton.Create((@DeleteFigures), PropertyPanel, 0, 0, 5, 'ico/delete.png');
-  AllBottom := TMyButton.Create((@AllBottomFigures), PropertyPanel, 0,0, 5+32, 'ico/allbottom.png');
-  AllTop := TMyButton.Create((@AllTopFigures), PropertyPanel, 0,0, 5+32*2, 'ico/alltop.png');
-  PropertyPanel.Height := 35;
+  Select2 := TMyButton.Create((@VariationOfSelect), PropertyPanel,
+    Length(Tools) - 1, 33, 5, 'ico/select2.png');
+  AllBottom := TMyButton.Create((@AllDownFigures), PropertyPanel, 0,
+    0, 5 + 33, 'ico/allbottom.png');
+  AllTop := TMyButton.Create((@AllUpFigures), PropertyPanel, 0, 0,
+    5 + 33 * 2, 'ico/alltop.png');
+  PropertyPanel.Height := 70;
+end;
+
+procedure TSelect2Tool.CreateParams();
+begin
+  Delete := TMyButton.Create((@DeleteFigures), PropertyPanel, 0, 0,
+    5, 'ico/delete.png');
+  Select2 := TMyButton.Create((@VariationOfSelect), PropertyPanel,
+    Length(Tools) - 1, 33, 5, 'ico/select2.png');
+  AllBottom := TMyButton.Create((@AllDownFigures), PropertyPanel, 0,
+    0, 5 + 33, 'ico/allbottom.png');
+  AllTop := TMyButton.Create((@AllUpFigures), PropertyPanel, 0, 0,
+    5 + 33 * 2, 'ico/alltop.png');
+  PropertyPanel.Height := 70;
 end;
 
 procedure TZoomTool.CreateParams();
@@ -862,6 +1032,15 @@ begin
   Delete.Destroy();
   Allbottom.Destroy();
   AllTop.Destroy();
+  Select2.Destroy();
+end;
+
+procedure TSelect2Tool.DeleteParams();
+begin
+  Delete.Destroy();
+  Allbottom.Destroy();
+  AllTop.Destroy();
+  Select2.Destroy();
 end;
 
 procedure TEllipseTool.DeleteParams();
@@ -1010,6 +1189,12 @@ begin
   IsMainTool := True;
 end;
 
+constructor TSelect2Tool.Create;
+begin
+  IsMainTool := False;
+end;
+
+
 { TMyButton }
 constructor TMyButton.Create(PR: TProc; Panel: TPanel; i, top, left: integer; s: string);
 var
@@ -1058,4 +1243,5 @@ initialization
   RegisterTool(TRectZoomTool.Create);
   RegisterTool(TScrollTool.Create);
   RegisterTool(TSelectTool.Create);
+  RegisterTool(TSelect2Tool.Create);
 end.
