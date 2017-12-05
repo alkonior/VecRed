@@ -58,7 +58,6 @@ type
     procedure PBMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure PBPaint(Sender: TObject);
-    procedure ToolClick(Sender: TObject);
     procedure ZoomBChange(Sender: TObject);
 
   private
@@ -119,7 +118,7 @@ begin
   begin
     if Tools[i].IsMainTool then begin
       SetLength(AButtons,Length(AButtons)+1);
-      AButtons[High(AButtons)]:=TMyButton.Create((@Changetool),ToolPanel,i);
+      AButtons[High(AButtons)]:=TMyButton.Create((@Changetool),ToolPanel,i,(i div 4) * 33,(i mod 4) * 33,Tools[i].Icon);
     end;
   end;
   MPanel.top := 10;
@@ -239,19 +238,6 @@ end;
 procedure TVecRedF.SpravkaClick(Sender: TObject);
 begin
   ShowMessage('Это векторный редактор. Он рисует. Александр Дзюба');
-end;
-
-procedure TVecRedF.ToolClick(Sender: TObject);
-var
-  i: TFigure;
-begin
-  ChoosenTool.FigureEnd();
-  for i in figures do
-    i.Selected := False;
-  Invalidate;
-  ChoosenTool.DeleteParams();
-  ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
-  ChoosenTool.CreateParams();
 end;
 
 procedure TVecRedF.PBMouseDown(Sender: TObject; Button: TMouseButton;

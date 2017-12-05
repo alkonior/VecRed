@@ -18,7 +18,7 @@ type
     Button: TSpeedButton;
     Proc: TProc;
     procedure OnClick(Sender: TObject);
-    constructor Create(PR: TProc; Panel: TPanel; i: integer);
+    constructor Create(PR: TProc; Panel: TPanel; i,top,left: integer;s:String);
     destructor Destroy(); override;
   end;
 
@@ -170,6 +170,9 @@ type
 
   TSelectTool = class(TTool)
   public
+    Delete:TMyButton;
+    AllTop:TMyButton;
+    Allbottom:TMyButton;
     constructor Create;
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -193,6 +196,7 @@ type
   end;
 
 procedure Changetool(Sender: TObject);
+procedure DeleteFigures(Sender: TObject);
 
 var           { Var }
   Tools: array of TTool;
@@ -218,6 +222,9 @@ begin
     ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
     ChoosenTool.CreateParams();
   end;
+end;
+procedure DeleteFigures(Sender: TObject);
+begin
 end;
 
 { BoxDrowItem }
@@ -635,6 +642,13 @@ end;
 
 procedure TPolylineTool.FigureEnd();
 begin
+  if Length(Figures)>0 then
+  if Figures[High(Figures)] is TPolyline then
+  with Figures[High(Figures)] as TPolyline do
+  begin
+    Points[0]:=min(Points[0],Points[High(Points)]);
+    Points[1]:=max(Points[1],Points[High(Points)]);
+  end;
   Drawing := False;
 end;
 
@@ -660,6 +674,7 @@ end;
 
 procedure TRectZoomTool.FigureEnd();
 begin
+  if Length(Figures)>0 then
   if Figures[high(Figures)] is TRectZoom then
   begin
     FreeAndNil(Figures[High(Figures)]);
@@ -670,6 +685,7 @@ end;
 
 procedure TSelectTool.FigureEnd();
 begin
+  if Length(Figures)>0 then
   if Figures[high(Figures)] is TRectZoom then
   begin
     FreeAndNil(Figures[High(Figures)]);
@@ -736,6 +752,8 @@ end;
 
 procedure TSelectTool.CreateParams();
 begin
+  Delete:=TMyButton.Create((@DeleteFigures),PropertyPanel,0,0,5,'ico/delete.png');
+  PropertyPanel.Height:=35;
 end;
 
 procedure TZoomTool.CreateParams();
@@ -782,6 +800,7 @@ end;
 
 procedure TSelectTool.DeleteParams();
 begin
+  Delete.Destroy();
 end;
 
 procedure TEllipseTool.DeleteParams();
@@ -931,7 +950,7 @@ begin
 end;
 
 { TMyButton }
-constructor TMyButton.Create(PR: TProc; Panel: TPanel; i: integer);
+constructor TMyButton.Create(PR: TProc; Panel: TPanel; i,top,left: integer;s:string);
 var
   ToolIcon: TBitmap;
 begin
@@ -939,7 +958,7 @@ begin
   ToolIcon := TBitmap.Create;
   with TPicture.Create do
   begin
-    LoadFromFile(Tools[i].Icon);
+    LoadFromFile(s);
     ToolIcon.Assign(Graphic);
   end;
   Button.Transparent := True;
@@ -947,8 +966,8 @@ begin
   Button.Glyph := ToolIcon;
   Button.Width := 32;
   Button.Height := 32;
-  Button.Top := (i div 4) * 33;
-  Button.Left := (i mod 4) * 33;
+  Button.Top := top;
+  Button.Left := left;
   Button.Tag := i;
   Button.GroupIndex := 1;
   Button.Down := i = 0;
@@ -966,7 +985,6 @@ destructor TMyButton.Destroy();
 begin
   inherited Destroy;
   FreeAndNil(Button);
-  FreeAndNil(proc);
 end;
 
 initialization
