@@ -8,7 +8,9 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math,
   FPCanvas, TypInfo, Spin, graphMath;
+type
 
+    PFloatPoint= ^TFloatPoint;
 function FloatPoint(Point: TPoint): TFloatPoint; overload;
 function WorldToScrn(P: TFloatPoint): TPoint;
 function ScrnToWorld(P: TPoint): TFloatPoint;
@@ -39,7 +41,6 @@ var
   WindowLWH: TPoint;
   ScrollLWH: TPoint;
   InvalidateHandler: procedure of object;
-
 implementation
 
 { operator }
