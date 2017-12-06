@@ -121,7 +121,7 @@ begin
     begin
       SetLength(AButtons, Length(AButtons) + 1);
       AButtons[High(AButtons)] :=
-        TMyButton.Create((@Changetool), ToolPanel, i, (i div 4) * 33, (i mod 4) * 33, Tools[i].Icon);
+        TMyButton.Create((@ChangeMainTool), ToolPanel, i, ((Length(AButtons)-1) div 4) * 33, ((Length(AButtons)-1) mod 4) * 33, Tools[i].Icon);
     end;
   end;
   MPanel.top := 10;

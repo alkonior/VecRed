@@ -313,8 +313,8 @@ begin
   begin
     Result :=
       ((IsPointOnLine(points[i], points[i + 1], point, min(w, 45))) or
-      (IsPointInEllipse(points[i], point, min(w, 50), min(w, 50))) or
-      (IsPointInEllipse(points[i + 1], point, min(w, 50), min(w, 50))));
+      (IsPointInEllipse(points[i], point, min(w, 50), min(w, 50)+5)) or
+      (IsPointInEllipse(points[i + 1], point, min(w, 50), min(w, 50)+5)));
     if Result then
       break;
   end;
@@ -323,8 +323,8 @@ end;
 function TLine.PointInFigure(point: TFloatPoint): boolean;
 begin
   Result := ((IsPointOnLine(points[0], points[1], point, min(w, 45))) or
-    (IsPointInEllipse(points[0], point, min(w, 50), min(w, 50))) or
-    (IsPointInEllipse(points[1], point, min(w, 50), min(w, 50))));
+    (IsPointInEllipse(points[0], point, min(w, 50), min(w, 50)+5)) or
+    (IsPointInEllipse(points[1], point, min(w, 50), min(w, 50)+5)));
 end;
 
 function TRectangle.PointInFigure(point: TFloatPoint): boolean;

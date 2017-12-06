@@ -12,6 +12,12 @@ uses
 { Classes }
 
 type
+
+  TSPoint = record
+    Point: TFloatPoint;
+    YPoint: ^TFloatPoint;
+  end;
+
   TProc = procedure(Sender: TObject);
 
   TMyButton = class
@@ -59,7 +65,7 @@ type
   TTool = class
     Icon: string;
     IsMainTool: boolean;
-    Number:integer;
+    Number: integer;
     procedure FigureCreate(Point: TFloatPoint); virtual; abstract;
     procedure ChangePoint(Point: TFloatPoint); virtual; abstract;
     procedure AddPoint(Point: TFloatPoint); virtual; abstract;
@@ -67,16 +73,18 @@ type
     procedure FigureEnd(); virtual; abstract;
     procedure CreateParams(); virtual; abstract;
     procedure DeleteParams(); virtual; abstract;
-    procedure CreateParams(Tool:TTool); virtual;abstract;
+    procedure CreateParams(Tool: TTool); virtual; abstract;
   end;
 
   { STools }
 
-  TPolylineTool = class(TTool)
+  TMultylineTool = class(TTool)
   public
     PRPWidth: TSpinProperty;
     PRPPenStyle: TPenStyleProperty;
-    constructor Create(n:integer);
+    PenTool: TMyButton;
+    PolylineTool: TMyButton;
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -86,12 +94,36 @@ type
     procedure DeleteParams(); override;
   end;
 
+  TPenTool = class(TMultylineTool)
+  public
+    constructor Create(n: integer);
+    procedure FigureCreate(Point: TFloatPoint); override;
+    procedure ChangePoint(Point: TFloatPoint); override;
+    procedure AddPoint(Point: TFloatPoint); override;
+    procedure MouseUp(Point: TFloatPoint); override;
+    procedure FigureEnd(); override;
+    procedure CreateParams(Tool: TTool); override;
+    procedure DeleteParams(); override;
+  end;
+
+  TPolylineTool = class(TMultylineTool)
+  public
+    constructor Create(n: integer);
+    procedure FigureCreate(Point: TFloatPoint); override;
+    procedure ChangePoint(Point: TFloatPoint); override;
+    procedure AddPoint(Point: TFloatPoint); override;
+    procedure MouseUp(Point: TFloatPoint); override;
+    procedure FigureEnd(); override;
+    procedure CreateParams(Tool: TTool); override;
+    procedure DeleteParams(); override;
+  end;
+
 
   TLineTool = class(TTool)
   public
     PRPWidth: TSpinProperty;
     PRPPenStyle: TPenStyleProperty;
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -106,7 +138,7 @@ type
     PRPWidth: TSpinProperty;
     PRPPenStyle: TPenStyleProperty;
     PRPBrushStyle: TBrushStyleProperty;
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -121,7 +153,7 @@ type
     PRPWidth, PRPRadY, PRPRadX: TSpinProperty;
     PRPPenStyle: TPenStyleProperty;
     PRPBrushStyle: TBrushStyleProperty;
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -136,7 +168,7 @@ type
     PRPWidth: TSpinProperty;
     PRPPenStyle: TPenStyleProperty;
     PRPBrushStyle: TBrushStyleProperty;
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -148,7 +180,7 @@ type
 
   TZoomTool = class(TTool)
   public
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -160,7 +192,7 @@ type
 
   TRectZoomTool = class(TTool)
   public
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -176,7 +208,7 @@ type
     AllTop: TMyButton;
     Allbottom: TMyButton;
     Select2: TMyButton;
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -186,21 +218,21 @@ type
     procedure DeleteParams(); override;
   end;
 
-  TSelect2Tool = class(TSelectTool)
+  TDesignatorTool = class(TSelectTool)
   public
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
     procedure MouseUp(Point: TFloatPoint); override;
     procedure FigureEnd(); override;
-    procedure CreateParams(Tool:TTool);override;
+    procedure CreateParams(Tool: TTool); override;
     procedure DeleteParams(); override;
   end;
 
   TScrollTool = class(TTool)
   public
-    constructor Create(n:integer);
+    constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
     procedure AddPoint(Point: TFloatPoint); override;
@@ -210,11 +242,11 @@ type
     procedure DeleteParams(); override;
   end;
 
-procedure Changetool(Sender: TObject);
+procedure ChangeMainTool(Sender: TObject);
 procedure DeleteFigures(Sender: TObject);
 procedure AllUpFigures(Sender: TObject);
 procedure AllDownFigures(Sender: TObject);
-procedure VariationOfSelect(Sender: TObject);
+procedure ChangeDependentTool(Sender: TObject);
 
 var           { Var }
   Tools: array of TTool;
@@ -223,22 +255,24 @@ var           { Var }
   ShiftButtonState: boolean = False;
   PropertyPanel: TPanel;
   ChoosenTool: TTool;
+  SelectedPoints: array of TSPoint;
 
 implementation
 
 { Porocedures }
-procedure VariationOfSelect(Sender: TObject);
-var t:TTool;
+procedure ChangeDependentTool(Sender: TObject);
+var
+  t: TTool;
 begin
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
   begin
-    t:=ChoosenTool;
+    t := ChoosenTool;
     ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
-    (ChoosenTool).CreateParams((t as TSelectTool));
+    (ChoosenTool).CreateParams((t));
   end;
 end;
 
-procedure Changetool(Sender: TObject);
+procedure ChangeMainTool(Sender: TObject);
 var
   i: TFigure;
 begin
@@ -347,6 +381,28 @@ end;
 
 { FigureCreate }
 
+procedure TMultylineTool.FigureCreate(Point: TFloatPoint);
+begin
+  Setlength(Figures, length(figures) + 1);
+  Figures[High(Figures)] := TPolyLine.Create(point, PRPWidth.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
+  SetLength(Figures[High(Figures)].Points, 4);
+  Figures[High(Figures)].Points[3] := Point;
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
+end;
+
+procedure TPenTool.FigureCreate(Point: TFloatPoint);
+begin
+  Setlength(Figures, length(figures) + 1);
+  Figures[High(Figures)] := TPolyLine.Create(point, PRPWidth.SpinEdit.Value,
+    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
+  SetLength(Figures[High(Figures)].Points, 4);
+  Figures[High(Figures)].Points[3] := Point;
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
+end;
+
 procedure TPolylineTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
@@ -430,7 +486,7 @@ begin
     i.Selected := False;
 end;
 
-procedure TSelect2Tool.FigureCreate(Point: TFloatPoint);
+procedure TDesignatorTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
   Figures[High(Figures)] := TRectZoom.Create(point);
@@ -444,7 +500,7 @@ end;
 
 { ChangePoint }
 
-procedure TPolylineTool.ChangePoint(Point: TFloatPoint);
+procedure TMultylineTool.ChangePoint(Point: TFloatPoint);
 begin
   if ShiftButtonState then
   begin
@@ -463,6 +519,27 @@ begin
     begin
       points[high(points)] := point;
     end;
+end;
+
+procedure TPenTool.ChangePoint(Point: TFloatPoint);
+begin
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
+  with Figures[high(Figures)] do
+  begin
+    SetLength(Points, Length(Points) + 1);
+    points[high(points)] := point;
+    Points[0] := min(Point, Points[0]);
+    Points[1] := max(Point, Points[1]);
+  end;
+end;
+
+procedure TPolylineTool.ChangePoint(Point: TFloatPoint);
+begin
+  with Figures[high(Figures)] do
+  begin
+    points[high(points)] := point;
+  end;
 end;
 
 procedure TLineTool.ChangePoint(Point: TFloatPoint);
@@ -519,7 +596,7 @@ begin
   end;
 end;
 
-procedure TSelect2Tool.ChangePoint(Point: TFloatPoint);
+procedure TDesignatorTool.ChangePoint(Point: TFloatPoint);
 begin
   with Figures[high(Figures)] do
   begin
@@ -535,7 +612,7 @@ end;
 
 { AddPoint }
 
-procedure TPolylineTool.AddPoint(Point: TFloatPoint);
+procedure TMultylineTool.AddPoint(Point: TFloatPoint);
 begin
   if not (ShiftButtonState) then
   begin
@@ -549,6 +626,25 @@ begin
       Points[1] := max(Point, Points[1]);
     end;
   end;
+end;
+
+procedure TPolylineTool.AddPoint(Point: TFloatPoint);
+begin
+
+  MinPoint := min(MinPoint, point);
+  MaxPoint := max(MaxPoint, point);
+  with Figures[high(Figures)] as TPolyline do
+  begin
+    SetLength(points, Length(points) + 1);
+    points[high(points)] := point;
+    Points[0] := min(Point, Points[0]);
+    Points[1] := max(Point, Points[1]);
+  end;
+
+end;
+
+procedure TPenTool.AddPoint(Point: TFloatPoint);
+begin
 end;
 
 procedure TLineTool.AddPoint(Point: TFloatPoint);
@@ -623,7 +719,7 @@ begin
   end;
 end;
 
-procedure TSelect2Tool.AddPoint(Point: TFloatPoint);
+procedure TDesignatorTool.AddPoint(Point: TFloatPoint);
 var
   i: integer;
 begin
@@ -683,10 +779,19 @@ end;
 
 { MouseUp }
 
-procedure TPolylineTool.MouseUp(Point: TFloatPoint);
+procedure TMultylineTool.MouseUp(Point: TFloatPoint);
 begin
   if ShiftButtonState then
     Drawing := False;
+end;
+
+procedure TPenTool.MouseUp(Point: TFloatPoint);
+begin
+    Drawing := False;
+end;
+
+procedure TPolyLineTool.MouseUp(Point: TFloatPoint);
+begin
 end;
 
 procedure TLineTool.MouseUp(Point: TFloatPoint);
@@ -776,7 +881,7 @@ begin
   end;
 end;
 
-procedure TSelect2Tool.MouseUp(Point: TFloatPoint);
+procedure TDesignatorTool.MouseUp(Point: TFloatPoint);
 var
   i: integer;
 begin
@@ -833,6 +938,31 @@ end;
 
 { FigureEnd }
 
+procedure TMultylineTool.FigureEnd();
+begin
+  if Length(Figures) > 0 then
+    if Figures[High(Figures)] is TPolyline then
+      with Figures[High(Figures)] as TPolyline do
+      begin
+        Points[0] := min(Points[0], Points[High(Points)]);
+        Points[1] := max(Points[1], Points[High(Points)]);
+      end;
+  Drawing := False;
+end;
+
+procedure TPenTool.FigureEnd();
+begin
+  if Length(Figures) > 0 then
+    if Figures[High(Figures)] is TPolyline then
+      with Figures[High(Figures)] as TPolyline do
+      begin
+        Points[0] := min(Points[0], Points[High(Points)]);
+        Points[1] := max(Points[1], Points[High(Points)]);
+      end;
+  Drawing := False;
+end;
+
+
 procedure TPolylineTool.FigureEnd();
 begin
   if Length(Figures) > 0 then
@@ -844,6 +974,7 @@ begin
       end;
   Drawing := False;
 end;
+
 
 procedure TLineTool.FigureEnd();
 begin
@@ -887,7 +1018,7 @@ begin
   Drawing := False;
 end;
 
-procedure TSelect2Tool.FigureEnd();
+procedure TDesignatorTool.FigureEnd();
 begin
   if Length(Figures) > 0 then
     if Figures[high(Figures)] is TRectZoom then
@@ -910,11 +1041,15 @@ end;
 
 { CreateParams }
 
-procedure TPolylineTool.CreateParams();
+procedure TMultylineTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1);
-  PRPPenStyle := TPenStyleProperty.Create(2);
-  PropertyPanel.Height := 77;
+  PenTool := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
+    Number + 1, 80, 5, 'ico/pen.png');
+   PolylineTool := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
+    Number + 2, 80, 5+35, 'ico/polyline.png');
+  PRPWidth := TSpinProperty.Create('Width', 2);
+  PRPPenStyle := TPenStyleProperty.Create(3);
+  PropertyPanel.Height := 115;
 end;
 
 procedure TLineTool.CreateParams();
@@ -957,8 +1092,8 @@ end;
 procedure TSelectTool.CreateParams();
 begin
   Delete := TMyButton.Create((@DeleteFigures), PropertyPanel, 0, 0, 5, 'ico/delete.png');
-  Select2 := TMyButton.Create((@VariationOfSelect), PropertyPanel,
-    Number+1, 33, 5, 'ico/select2.png');
+  Select2 := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
+    Number + 1, 33, 5, 'ico/select2.png');
   AllBottom := TMyButton.Create((@AllDownFigures), PropertyPanel, 0,
     0, 5 + 33, 'ico/allbottom.png');
   AllTop := TMyButton.Create((@AllUpFigures), PropertyPanel, 0, 0,
@@ -966,13 +1101,28 @@ begin
   PropertyPanel.Height := 70;
 end;
 
-procedure TSelect2Tool.CreateParams(Tool:TTool);
+procedure TDesignatorTool.CreateParams(Tool: TTool);
 begin
   Delete := (Tool as TSelectTool).Delete;
   Select2 := (Tool as TSelectTool).Select2;
-  Allbottom:= (Tool as TSelectTool).Allbottom;
+  Allbottom := (Tool as TSelectTool).Allbottom;
   AllTop := (Tool as TSelectTool).AllTop;
-  PropertyPanel.Height := 70;
+end;
+
+procedure TPolylineTool.CreateParams(Tool: TTool);
+begin
+  PenTool := (Tool as TMultylineTool).PenTool;
+  PolyLineTool := (Tool as TMultylineTool).PolyLineTool;
+  PRPPenStyle := (Tool as TMultylineTool).PRPPenStyle;
+  PRPWidth := (Tool as TMultylineTool).PRPWidth;
+end;
+
+procedure TPenTool.CreateParams(Tool: TTool);
+begin
+  PenTool := (Tool as TMultylineTool).PenTool;
+  PolyLineTool := (Tool as TMultylineTool).PolyLineTool;
+  PRPPenStyle := (Tool as TMultylineTool).PRPPenStyle;
+  PRPWidth := (Tool as TMultylineTool).PRPWidth;
 end;
 
 procedure TZoomTool.CreateParams();
@@ -985,10 +1135,12 @@ end;
 
 { DeleteParams }
 
-procedure TPolylineTool.DeleteParams();
+procedure TMultylineTool.DeleteParams();
 begin
   PRPWidth.Destroy();
   PRPPenStyle.Destroy();
+  PenTool.Destroy();
+  PolylineTool.Destroy();
 end;
 
 procedure TLineTool.DeleteParams();
@@ -1025,12 +1177,28 @@ begin
   Select2.Destroy();
 end;
 
-procedure TSelect2Tool.DeleteParams();
+procedure TDesignatorTool.DeleteParams();
 begin
   Delete.Destroy();
   Allbottom.Destroy();
   AllTop.Destroy();
   Select2.Destroy();
+end;
+
+procedure TPolylineTool.DeleteParams();
+begin
+  PRPWidth.Destroy();
+  PRPPenStyle.Destroy();
+  PenTool.Destroy();
+  PolylineTool.Destroy();
+end;
+
+procedure TPenTool.DeleteParams();
+begin
+  PRPWidth.Destroy();
+  PRPPenStyle.Destroy();
+  PenTool.Destroy();
+  PolylineTool.Destroy();
 end;
 
 procedure TEllipseTool.DeleteParams();
@@ -1125,72 +1293,84 @@ end;
 
 { ToolCreate }
 
-constructor TPolylineTool.Create(n:integer);
+constructor TMultylineTool.Create(n: integer);
 begin
-  Number:=n;
-  Icon := 'ico/polyline.png';
+  Number := n;
+  Icon := 'ico/multyline.png';
   IsMainTool := True;
 end;
 
-constructor TLineTool.Create(n:integer);
+constructor TLineTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/line.png';
   IsMainTool := True;
 end;
 
-constructor TRectangleTool.Create(n:integer);
+constructor TRectangleTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/rectangle.png';
   IsMainTool := True;
 end;
 
-constructor TEllipseTool.Create(n:integer);
+constructor TEllipseTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/ellipse.png';
   IsMainTool := True;
 end;
 
-constructor TZoomTool.Create(n:integer);
+constructor TZoomTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/zoom.png';
   IsMainTool := True;
 end;
 
-constructor TScrollTool.Create(n:integer);
+constructor TScrollTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/Scroll.png';
   IsMainTool := True;
 end;
 
-constructor TRectZoomTool.Create(n:integer);
+constructor TRectZoomTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/rectzoom.png';
   IsMainTool := True;
 end;
 
-constructor TRoundRectTool.Create(n:integer);
+constructor TRoundRectTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/RoundRectangle.png';
   IsMainTool := True;
 end;
 
-constructor TSelectTool.Create(n:integer);
+constructor TSelectTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
   Icon := 'ico/select.png';
   IsMainTool := True;
 end;
 
-constructor TSelect2Tool.Create(n:integer);
+constructor TDesignatorTool.Create(n: integer);
 begin
-  Number:=n;
+  Number := n;
+  IsMainTool := False;
+end;
+
+constructor TPenTool.Create(n: integer);
+begin
+  Number := n;
+  IsMainTool := False;
+end;
+
+constructor TPolylineTool.Create(n: integer);
+begin
+  Number := n;
   IsMainTool := False;
 end;
 
@@ -1234,6 +1414,8 @@ begin
 end;
 
 initialization
+  RegisterTool(TMultylineTool.Create(length(Tools)));
+  RegisterTool(TPenTool.Create(length(Tools)));
   RegisterTool(TPolylineTool.Create(length(Tools)));
   RegisterTool(TLineTool.Create(length(Tools)));
   RegisterTool(TRectangleTool.Create(length(Tools)));
@@ -1243,5 +1425,5 @@ initialization
   RegisterTool(TRectZoomTool.Create(length(Tools)));
   RegisterTool(TScrollTool.Create(length(Tools)));
   RegisterTool(TSelectTool.Create(length(Tools)));
-  RegisterTool(TSelect2Tool.Create(length(Tools)));
+  RegisterTool(TDesignatorTool.Create(length(Tools)));
 end.
