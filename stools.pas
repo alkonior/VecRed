@@ -32,7 +32,7 @@ type
   TSpinProperty = class(TProperty)
     SpinLabel: TLabel;
     SpinEdit: TSpinEdit;
-    constructor Create(s: string; n, Amin, Amax: integer);
+    constructor Create(s: string; n: integer);
     destructor Destroy(); override;
   end;
 
@@ -649,13 +649,13 @@ begin
     begin
       for i in Figures do
         if i.Selected then
-          i.move((WorldToScrn(point) - WorldToScrn(spoint)));
+          i.move((WorldToScrn(point) - WorldToScrn(spoint))*100/zoom);
       InvalidateHandler;
       SPoint := point;
     end
     else
     begin
-      STpoint^ := STpoint^ + WorldToScrn(point) - WorldToScrn(spoint);
+      STpoint^ := STpoint^ + (WorldToScrn(point) - WorldToScrn(spoint))*100/zoom;
       SPoint := point;
       for i in Figures do
         i.move(FloatPoint(0, 0));
@@ -1218,21 +1218,21 @@ begin
     Number + 1, 80, 5, 'ico/pen.png');
   PolylineTool := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
     Number + 2, 80, 5 + 35, 'ico/polyline.png');
-  PRPWidth := TSpinProperty.Create('Width', 2, 1, 50);
+  PRPWidth := TSpinProperty.Create('Width', 2);
   PRPPenStyle := TPenStyleProperty.Create(3);
   PropertyPanel.Height := 115;
 end;
 
 procedure TLineTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1, 1, 50);
+  PRPWidth := TSpinProperty.Create('Width', 1);
   PRPPenStyle := TPenStyleProperty.Create(2);
   PropertyPanel.Height := 77;
 end;
 
 procedure TRectangleTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1, 1, 50);
+  PRPWidth := TSpinProperty.Create('Width', 1);
   PRPPenStyle := TPenStyleProperty.Create(2);
   PRPBrushStyle := TBrushStyleProperty.Create(3);
   PropertyPanel.Height := 78 + 39 - 1;
@@ -1240,7 +1240,7 @@ end;
 
 procedure TEllipseTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1, 1, 50);
+  PRPWidth := TSpinProperty.Create('Width', 1);
   PRPPenStyle := TPenStyleProperty.Create(2);
   PRPBrushStyle := TBrushStyleProperty.Create(3);
   PropertyPanel.Height := 78 + 39 - 1;
@@ -1248,11 +1248,11 @@ end;
 
 procedure TRoundRectTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1, 1, 50);
+  PRPWidth := TSpinProperty.Create('Width', 1);
   PRPPenStyle := TPenStyleProperty.Create(2);
   PRPBrushStyle := TBrushStyleProperty.Create(3);
-  PRPRadX := TSpinProperty.Create('Rad X', 4, 1, 500);
-  PRPRadY := TSpinProperty.Create('Rad Y', 5, 1, 500);
+  PRPRadX := TSpinProperty.Create('Rad X', 4);
+  PRPRadY := TSpinProperty.Create('Rad Y', 5);
   PropertyPanel.Height := 78 + 39 * 3 - 3;
 end;
 
@@ -1418,7 +1418,7 @@ begin
 end;
 
 { PRPCreateDestroy }
-constructor TSpinProperty.Create(s: string; n, Amin, Amax: integer);
+constructor TSpinProperty.Create(s: string; n: integer);
 begin
   SpinLabel := TLabel.Create(PropertyPanel);
   SpinLabel.Caption := s;
@@ -1428,8 +1428,8 @@ begin
   SpinEdit := TSpinEdit.Create(PropertyPanel);
   SpinEdit.Align := alTop;
   SpinEdit.Parent := PropertyPanel;
-  SpinEdit.MinValue := Amin;
-  SpinEdit.MaxValue := Amax;
+  SpinEdit.MinValue := 1;
+  SpinEdit.MaxValue := 10000;
   SpinEdit.Value := 1;
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
