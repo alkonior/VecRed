@@ -41,10 +41,11 @@ type
     PS: TPenStyle;
     procedure SetW(i: integer);
   published
-    property PenColor: TColor read PC write PC default clBlack;
-    property Width: integer read W write SetW default 1;
+     property PenColor: TColor read PC write PC default clBlack;
+    property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    constructor Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+    constructor Create(c1:Tcolor; Wd:integer;PStyle: TPenStyle;
+      point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -61,10 +62,12 @@ type
     PS: TPenStyle;
     procedure SetW(i: integer);
   published
-    property PenColor: TColor read PC write PC default clBlack;
+     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    constructor Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+
+    constructor Create(c1:Tcolor; Wd:integer;PStyle: TPenStyle;
+      point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -86,8 +89,8 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
-    constructor Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle);
+    constructor Create(c1,c2:Tcolor; Wd:integer;PStyle: TPenStyle; BStyle: TBrushStyle;
+      point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -104,13 +107,14 @@ type
     BS: TBrushStyle;
     BC: TColor;
  published
+   property PenColor: TColor read PC write PC default clBlack;
     property BrushColor: TColor read BC write BC default clBlack;
-    property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
-    constructor Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle);
+
+    constructor Create(c1,c2:Tcolor; Wd:integer;PStyle: TPenStyle; BStyle: TBrushStyle;
+      point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -139,16 +143,16 @@ type
     RY: integer;
     BC: TColor;
   published
-    property BrushColor: TColor read BC write BC default clBlack;
     property PenColor: TColor read PC write PC default clBlack;
+    property BrushColor: TColor read BC write BC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
     property RadiusX: integer read RX write RX;
     property RadiusY: integer read RY write RY;
 
-    constructor Create(c1,c2:Tcolor;point: TFloatPoint; Wd, RadX, RadY: integer;
-      PStyle: TPenStyle; BStyle: TBrushStyle);
+    constructor Create(c1,c2:Tcolor; Wd:integer;PStyle: TPenStyle; BStyle: TBrushStyle; RadX, RadY: integer;
+      point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -781,7 +785,7 @@ end;
 
 { Create }
 
-constructor TPolyline.Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+constructor TPolyline.Create(c1:Tcolor; Wd: integer; PStyle: TPenStyle;point: TFloatPoint);
 begin
   SetLength(P, 3);
   P[0] := Point;
@@ -792,7 +796,7 @@ begin
   PC := c1;
 end;
 
-constructor TLine.Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+constructor TLine.Create(c1:Tcolor; Wd: integer; PStyle: TPenStyle;point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -802,8 +806,8 @@ begin
   PC := C1;
 end;
 
-constructor TRectangle.Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer;
-  PStyle: TPenStyle; BStyle: TBrushStyle);
+constructor TRectangle.Create(c1,c2:Tcolor; Wd: integer; PStyle: TPenStyle;
+  bstyle:TBrushStyle; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -815,8 +819,8 @@ begin
   BC := C2;
 end;
 
-constructor TEllipse.Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer;
-  PStyle: TPenStyle; BStyle: TBrushStyle);
+constructor TEllipse.Create(c1,c2:Tcolor; Wd: integer; PStyle: TPenStyle;
+  bstyle:TBrushStyle; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -834,8 +838,8 @@ begin
   P[1] := Point;
 end;
 
-constructor TRoundRect.Create(c1,c2:Tcolor;point: TFloatPoint; Wd, RadX, RadY: integer;
-  PStyle: TPenStyle; BStyle: TBrushStyle);
+constructor TRoundRect.Create(c1,c2:Tcolor; Wd: integer; PStyle: TPenStyle;
+  bstyle:TBrushStyle;RadX,RadY:integer; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
