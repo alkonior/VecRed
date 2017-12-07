@@ -14,11 +14,10 @@ type
   { TVecRedF }
 
   TVecRedF = class(TForm)
-    CB1: TColorButton;
-    CB2: TColorButton;
     CloseB: TMenuItem;
     ColorPanel: TPanel;
     MMenu: TMainMenu;
+    CustomPanel: TPanel;
     Reset: TMenuItem;
     Options: TMenuItem;
     MenuItem3: TMenuItem;
@@ -32,8 +31,6 @@ type
     PBPanel: TPanel;
     ZoomB: TSpinEdit;
     ZoomT: TLabel;
-    procedure C1Change(Sender: TObject);
-    procedure C2Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DeleteALLClick(Sender: TObject);
     procedure CloseBClick(Sender: TObject);
@@ -71,6 +68,7 @@ var
   Mooving, ScrollB: boolean;
   cy, cx: integer;
 
+
 implementation
 
 {$R *.lfm}
@@ -107,6 +105,7 @@ procedure TVecRedF.FormCreate(Sender: TObject);
 var
   i: integer;
 begin
+  ColorPanelTool := ColorPanel;
   WindowWH := Point(PB.Width, PB.Height);
   WindowLWH := WindowWH;
   ScrollLWH := Round(WindowWH);
@@ -121,25 +120,38 @@ begin
     begin
       SetLength(AButtons, Length(AButtons) + 1);
       AButtons[High(AButtons)] :=
-        TMyButton.Create((@ChangeMainTool), ToolPanel, i, ((Length(AButtons)-1) div 4) * 33, ((Length(AButtons)-1) mod 4) * 33, Tools[i].Icon);
+        TMyButton.Create((@ChangeMainTool), ToolPanel, i,
+        ((Length(AButtons) - 1) div 4) * 33, ((Length(AButtons) - 1) mod 4) *
+        33, Tools[i].Icon);
     end;
   end;
   MPanel.top := 10;
   MPanel.Left := 10;
+  ButtonPanel := TPanel.Create(VecRedF);
+  ButtonPanel.Parent := CustomPanel;
+  ButtonPanel.AnchorSide[akTop].Side := asrTop;
+  ButtonPanel.AnchorSide[akTop].Control := CustomPanel;
+  ButtonPanel.AnchorSide[akLeft].Side := asrLeft;
+  ButtonPanel.AnchorSide[akleft].Control := MPanel;
+  ButtonPanel.BevelInner := bvNone;
+  ButtonPanel.BevelOuter := bvNone;
+  ButtonPanel.BorderWidth := 0;
+
+
   PropertyPanel := TPanel.Create(VecRedF);
-  PropertyPanel.Parent := VecRedF;
+  PropertyPanel.Parent := CustomPanel;
   PropertyPanel.AnchorSide[akTop].Side := asrBottom;
-  PropertyPanel.AnchorSide[akTop].Control := MPanel;
+  PropertyPanel.AnchorSide[akTop].Control :=  ButtonPanel;
   PropertyPanel.AnchorSide[akLeft].Side := asrLeft;
-  PropertyPanel.AnchorSide[akleft].Control := MPanel;
+  PropertyPanel.AnchorSide[akleft].Control :=  ButtonPanel;
   PropertyPanel.BevelInner := bvNone;
   PropertyPanel.BevelOuter := bvNone;
-  PropertyPanel.Width := MPanel.Width;
   PropertyPanel.BorderWidth := 0;
-  PropertyPanel.Height := 100;
   PropertyPanel.OnMouseDown := @MPanelMouseDown;
   PropertyPanel.OnMouseMove := @MPanelMouseMove;
   PropertyPanel.OnMouseUp := @MPanelMouseUp;
+
+  ButtonPanel.Color:=MPanel.Color;
   ChoosenTool := Tools[0];
   InvalidateHandler := @Invalidate;
   ChoosenTool.CreateParams();
@@ -287,16 +299,6 @@ begin
   for i in Figures do
     if i.Selected then
       i.drawoutline(pb.Canvas);
-end;
-
-procedure TVecRedF.C1Change(Sender: TObject);
-begin
-  ColorPen := CB1.ButtonColor;
-end;
-
-procedure TVecRedF.C2Change(Sender: TObject);
-begin
-  ColorBrush := CB2.ButtonColor;
 end;
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);

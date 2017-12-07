@@ -8,9 +8,11 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math,
   FPCanvas, TypInfo, Spin, graphMath;
+
 type
 
-    PFloatPoint= ^TFloatPoint;
+  PFloatPoint = ^TFloatPoint;
+
 function FloatPoint(Point: TPoint): TFloatPoint; overload;
 function WorldToScrn(P: TFloatPoint): TPoint;
 function ScrnToWorld(P: TPoint): TFloatPoint;
@@ -41,6 +43,7 @@ var
   WindowLWH: TPoint;
   ScrollLWH: TPoint;
   InvalidateHandler: procedure of object;
+
 implementation
 
 { operator }
@@ -107,7 +110,6 @@ begin
       550, min(round(WindowWH.x / zoom * 100), abs(Scroll1.Min - Scroll1.Max)));
     Scroll2.SetParams(round(offset).y,
       round(minpoint * zoom / 100).Y - 550, round(maxpoint * zoom / 100).Y +
-
       550, min(round(WindowWH.y / zoom * 100), abs(Scroll2.Min - Scroll2.Max)));
   end
   else

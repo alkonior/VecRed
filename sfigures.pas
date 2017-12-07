@@ -1,6 +1,7 @@
+
 unit SFigures;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$TYPEINFO ON}
 
 interface
 
@@ -12,10 +13,18 @@ uses
 type
   { Classes }
   { TFigure }
+  ManyPoints = array of TFloatPoint;
 
   TFigure = class
-    Points: array of TFloatPoint;
-    Selected: boolean;
+  protected
+    P: ManyPoints;
+    S: boolean;
+    function GetPoint(Index: integer): TFloatPoint;
+    procedure Setpoint(Index: integer; Value: TFloatPoint);
+  public
+    property Selected: boolean read S write S default False;
+    property Points: ManyPoints read P write P;
+    procedure SetLengthPoints(l: integer);
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
@@ -25,16 +34,17 @@ type
   end;
 
   TPolyline = class(TFigure)
+  {$M+}
   private
     PC: TColor;
     W: integer;
     PS: TPenStyle;
-    procedure SetW(i:integer);
-  public
+    procedure SetW(i: integer);
+  published
     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write SetW default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    constructor Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+    constructor Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -44,16 +54,17 @@ type
   end;
 
   TLine = class(TFigure)
+  {$M+}
   private
     PC: TColor;
     W: integer;
     PS: TPenStyle;
-    procedure SetW(i:integer);
-  public
+    procedure SetW(i: integer);
+  published
     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    constructor Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+    constructor Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -69,13 +80,13 @@ type
     W: integer;
     PS: TPenStyle;
     BS: TBrushStyle;
-  public
+  published
     property PenColor: TColor read PC write PC default clBlack;
     property BrushColor: TColor read BC write BC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
-    constructor Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
+    constructor Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
       BStyle: TBrushStyle);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
@@ -92,13 +103,13 @@ type
     PS: TPenStyle;
     BS: TBrushStyle;
     BC: TColor;
-  public
+ published
     property BrushColor: TColor read BC write BC default clBlack;
     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
-    constructor Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
+    constructor Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
       BStyle: TBrushStyle);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
@@ -127,7 +138,7 @@ type
     RX: integer;
     RY: integer;
     BC: TColor;
-  public
+  published
     property BrushColor: TColor read BC write BC default clBlack;
     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
@@ -136,7 +147,7 @@ type
     property RadiusX: integer read RX write RX;
     property RadiusY: integer read RY write RY;
 
-    constructor Create(point: TFloatPoint; Wd, RadX, RadY: integer;
+    constructor Create(c1,c2:Tcolor;point: TFloatPoint; Wd, RadX, RadY: integer;
       PStyle: TPenStyle; BStyle: TBrushStyle);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
@@ -150,68 +161,68 @@ var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
   SelectedNumber: integer = 0;
-  ColorPen: TColor = clBlack;
-  ColorBrush: TColor = clWhite;
   ShowPoits: boolean = False;
 
 implementation
 
 { Porocedures }
+procedure TFigure.SetLengthPoints(l: integer);
+begin
+  SetLength(P, l);
+end;
+
 { Drow }
 
 procedure TRoundRect.Draw(Canvas: TCanvas);
 begin
-  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(points[0]).x -
-    WorldToScrn(points[1]).x) div 2 + 1, abs(WorldToScrn(points[0]).y -
-    WorldToScrn(points[1]).y) div 2 + 1));
+  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(P[0]).x - WorldToScrn(P[1]).x) div
+    2 + 1, abs(WorldToScrn(P[0]).y - WorldToScrn(P[1]).y) div 2 + 1));
   Canvas.Pen.Color := PC;
   Canvas.Brush.Color := BC;
   Canvas.Pen.Style := PS;
   Canvas.Brush.Style := BS;
-  Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x + (Canvas.Pen.Width div 2),
-    WorldToScrn(min(points[0], points[1])).y + (Canvas.Pen.Width div 2),
-    WorldToScrn(max(points[0], points[1])).x - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(max(points[0], points[1])).y - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)),
+  Canvas.RoundRect(WorldToScrn(min(P[0], P[1])).x + (Canvas.Pen.Width div 2),
+    WorldToScrn(min(P[0], P[1])).y + (Canvas.Pen.Width div 2),
+    WorldToScrn(max(P[0], P[1])).x - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(P[0], P[1])).y - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)),
     round((RY - (Canvas.Pen.Width div 2)) * zoom / 100),
     round((RX - (Canvas.Pen.Width div 2)) * zoom / 100));
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
 begin
-  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(points[0]).x -
-    WorldToScrn(points[1]).x) div 2 + 1, abs(WorldToScrn(points[0]).y -
-    WorldToScrn(points[1]).y) div 2 + 1));
+  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(P[0]).x - WorldToScrn(P[1]).x) div
+    2 + 1, abs(WorldToScrn(P[0]).y - WorldToScrn(P[1]).y) div 2 + 1));
   Canvas.Pen.Color := PC;
   Canvas.Brush.Color := BC;
   Canvas.Pen.Style := PS;
   Canvas.Brush.Style := BS;
-  Canvas.Rectangle(WorldToScrn(min(points[0], points[1])).x + (Canvas.Pen.Width div 2),
-    WorldToScrn(min(points[0], points[1])).y + (Canvas.Pen.Width div 2),
-    WorldToScrn(max(points[0], points[1])).x - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(max(points[0], points[1])).y - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)));
+  Canvas.Rectangle(WorldToScrn(min(P[0], P[1])).x + (Canvas.Pen.Width div 2),
+    WorldToScrn(min(P[0], P[1])).y + (Canvas.Pen.Width div 2),
+    WorldToScrn(max(P[0], P[1])).x - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(P[0], P[1])).y - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)));
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
 begin
-  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(points[0]).x -
-    WorldToScrn(points[1]).x) div 2 + 1, abs(WorldToScrn(points[0]).y -
-    WorldToScrn(points[1]).y) div 2 + 1));
+  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(P[0]).x - WorldToScrn(P[1]).x) div
+    2 + 1, abs(WorldToScrn(P[0]).y - WorldToScrn(P[1]).y) div 2 + 1));
   Canvas.Pen.Color := PC;
   Canvas.Brush.Color := BC;
   Canvas.Pen.Style := PS;
   Canvas.Brush.Style := BS;
-  Canvas.Ellipse(WorldToScrn(min(points[0], points[1])).x +
+  Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x +
     (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(min(points[0], points[1])).y + (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(max(points[0], points[1])).x - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(max(points[0], points[1])).y - (Canvas.Pen.Width div
-    2 - ((Canvas.Pen.Width + 1) mod 2)));
+    WorldToScrn(min(P[0], P[1])).y + (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(P[0], P[1])).x - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)),
+    WorldToScrn(max(P[0], P[1])).y - (Canvas.Pen.Width div 2 -
+    ((Canvas.Pen.Width + 1) mod 2)));
 end;
 
 procedure TPolyline.Draw(Canvas: TCanvas);
@@ -221,9 +232,9 @@ begin
   Canvas.Pen.Color := PC;
   Canvas.Pen.Width := W;
   Canvas.Pen.Style := PS;
-  for i := 2 to length(points) - 2 do
+  for i := 2 to length(P) - 2 do
   begin
-    Canvas.Line(WorldToScrn(Points[i]), WorldToScrn(points[i + 1]));
+    Canvas.Line(WorldToScrn(P[i]), WorldToScrn(P[i + 1]));
   end;
 end;
 
@@ -232,7 +243,7 @@ begin
   Canvas.Pen.Color := PC;
   Canvas.Pen.Width := W;
   Canvas.Pen.Style := PS;
-  Canvas.Line(WorldToScrn(Points[0]), WorldToScrn(points[1]));
+  Canvas.Line(WorldToScrn(P[0]), WorldToScrn(P[1]));
 end;
 
 procedure TRectZoom.Draw(Canvas: TCanvas);
@@ -241,8 +252,8 @@ begin
   Canvas.Pen.Color := clBlack;
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Style := psDashDot;
-  Canvas.Rectangle(WorldToScrn(points[0]).x, WorldToScrn(points[0]).y,
-    WorldToScrn(points[1]).x, WorldToScrn(points[1]).y);
+  Canvas.Rectangle(WorldToScrn(P[0]).x, WorldToScrn(P[0]).y,
+    WorldToScrn(P[1]).x, WorldToScrn(P[1]).y);
   Canvas.Brush.Style := bsSolid;
 end;
 
@@ -250,40 +261,40 @@ end;
 
 procedure TRoundRect.move(point: TFloatPoint);
 begin
-  points[0] := Points[0] + point;
-  points[1] := Points[1] + point;
+  P[0] := P[0] + point;
+  P[1] := P[1] + point;
 end;
 
 procedure TRectangle.move(point: TFloatPoint);
 begin
-  points[0] := Points[0] + point;
-  points[1] := Points[1] + point;
+  P[0] := P[0] + point;
+  P[1] := P[1] + point;
 end;
 
 procedure TEllipse.move(point: TFloatPoint);
 begin
-  points[0] := Points[0] + point;
-  points[1] := Points[1] + point;
+  P[0] := P[0] + point;
+  P[1] := P[1] + point;
 end;
 
 procedure TPolyline.move(point: TFloatPoint);
 var
   i: integer;
 begin
-  points[0] := FloatPoint(100000000, 10000000);
-  points[1] := FloatPoint(-100000000, -10000000);
-  for i := 2 to Length(Points) - 1 do
+  P[0] := FloatPoint(100000000, 10000000);
+  P[1] := FloatPoint(-100000000, -10000000);
+  for i := 2 to Length(P) - 1 do
   begin
-    Points[i] := Points[i] + point;
-    points[0] := min(Points[0], Points[i]);
-    points[1] := max(Points[1], Points[i]);
+    P[i] := P[i] + point;
+    P[0] := min(P[0], P[i]);
+    P[1] := max(P[1], P[i]);
   end;
 end;
 
 procedure TLine.move(point: TFloatPoint);
 begin
-  points[0] := Points[0] + point;
-  points[1] := Points[1] + point;
+  P[0] := P[0] + point;
+  P[1] := P[1] + point;
 end;
 
 procedure TRectZoom.move(point: TFloatPoint);
@@ -301,41 +312,41 @@ begin
   Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  wid := min(W, min(abs(WorldToScrn(points[0]).x - WorldToScrn(points[1]).x) div
-    2 + 1, abs(WorldToScrn(points[0]).y - WorldToScrn(points[1]).y) div 2 + 1));
-  Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x - 1,
-    WorldToScrn(min(points[0], points[1])).y - 1,
-    WorldToScrn(max(points[0], points[1])).x + 1,
-    WorldToScrn(max(points[0], points[1])).y + 1,
+  wid := min(W, min(abs(WorldToScrn(P[0]).x - WorldToScrn(P[1]).x) div
+    2 + 1, abs(WorldToScrn(P[0]).y - WorldToScrn(P[1]).y) div 2 + 1));
+  Canvas.RoundRect(WorldToScrn(min(P[0], P[1])).x - 1,
+    WorldToScrn(min(P[0], P[1])).y - 1,
+    WorldToScrn(max(P[0], P[1])).x + 1,
+    WorldToScrn(max(P[0], P[1])).y + 1,
     round((RY + (Wid)) * zoom / 100),
     round((RX + (Wid)) * zoom / 100));
   Canvas.Pen.Color := clWhite;
-  Canvas.RoundRect(WorldToScrn(min(points[0], points[1])).x - 2,
-    WorldToScrn(min(points[0], points[1])).y - 2,
-    WorldToScrn(max(points[0], points[1])).x + 2,
-    WorldToScrn(max(points[0], points[1])).y + 2,
+  Canvas.RoundRect(WorldToScrn(min(P[0], P[1])).x - 2,
+    WorldToScrn(min(P[0], P[1])).y - 2,
+    WorldToScrn(max(P[0], P[1])).x + 2,
+    WorldToScrn(max(P[0], P[1])).y + 2,
     round((RY + Wid) * zoom / 100),
     round((RX + Wid) * zoom / 100));
   Canvas.Pen.Color := (clWhite xor clRed);
   if ShowPoits then
   begin
     Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(Points[0], Points[1])).x - 5,
-      WorldToScrn(min(Points[0], Points[1])).y - 5,
-      WorldToScrn(min(Points[0], Points[1])).x + 5,
-      WorldToScrn(min(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(Points[0], Points[1])).x - 5,
-      WorldToScrn(max(Points[0], Points[1])).y - 5,
-      WorldToScrn(max(Points[0], Points[1])).x + 5,
-      WorldToScrn(max(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(Points[0], Points[1])).x - 5,
-      WorldToScrn(max(Points[0], Points[1])).y - 5,
-      WorldToScrn(min(Points[0], Points[1])).x + 5,
-      WorldToScrn(max(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(Points[0], Points[1])).x - 5,
-      WorldToScrn(min(Points[0], Points[1])).y - 5,
-      WorldToScrn(max(Points[0], Points[1])).x + 5,
-      WorldToScrn(min(Points[0], Points[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
+      WorldToScrn(min(P[0], P[1])).y - 5,
+      WorldToScrn(min(P[0], P[1])).x + 5,
+      WorldToScrn(min(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
+      WorldToScrn(max(P[0], P[1])).y - 5,
+      WorldToScrn(max(P[0], P[1])).x + 5,
+      WorldToScrn(max(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
+      WorldToScrn(max(P[0], P[1])).y - 5,
+      WorldToScrn(min(P[0], P[1])).x + 5,
+      WorldToScrn(max(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
+      WorldToScrn(min(P[0], P[1])).y - 5,
+      WorldToScrn(max(P[0], P[1])).x + 5,
+      WorldToScrn(min(P[0], P[1])).y + 5);
   end;
   Canvas.Pen.Mode := pmCopy;
 end;
@@ -347,35 +358,35 @@ begin
   Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.Rectangle(WorldToScrn(min(points[0], points[1])).x - 1,
-    WorldToScrn(min(points[0], points[1])).y - 1,
-    WorldToScrn(max(points[0], points[1])).x + 1,
-    WorldToScrn(max(points[0], points[1])).y + 1);
+  Canvas.Rectangle(WorldToScrn(min(P[0], P[1])).x - 1,
+    WorldToScrn(min(P[0], P[1])).y - 1,
+    WorldToScrn(max(P[0], P[1])).x + 1,
+    WorldToScrn(max(P[0], P[1])).y + 1);
   Canvas.Pen.Color := clWhite;
-  Canvas.Rectangle(WorldToScrn(min(points[0], points[1])).x - 2,
-    WorldToScrn(min(points[0], points[1])).y - 2,
-    WorldToScrn(max(points[0], points[1])).x + 2,
-    WorldToScrn(max(points[0], points[1])).y + 2);
+  Canvas.Rectangle(WorldToScrn(min(P[0], P[1])).x - 2,
+    WorldToScrn(min(P[0], P[1])).y - 2,
+    WorldToScrn(max(P[0], P[1])).x + 2,
+    WorldToScrn(max(P[0], P[1])).y + 2);
   Canvas.Pen.Color := (clWhite xor clRed);
   if ShowPoits then
   begin
     Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(Points[0], Points[1])).x - 5,
-      WorldToScrn(min(Points[0], Points[1])).y - 5,
-      WorldToScrn(min(Points[0], Points[1])).x + 5,
-      WorldToScrn(min(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(Points[0], Points[1])).x - 5,
-      WorldToScrn(max(Points[0], Points[1])).y - 5,
-      WorldToScrn(max(Points[0], Points[1])).x + 5,
-      WorldToScrn(max(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(Points[0], Points[1])).x - 5,
-      WorldToScrn(max(Points[0], Points[1])).y - 5,
-      WorldToScrn(min(Points[0], Points[1])).x + 5,
-      WorldToScrn(max(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(Points[0], Points[1])).x - 5,
-      WorldToScrn(min(Points[0], Points[1])).y - 5,
-      WorldToScrn(max(Points[0], Points[1])).x + 5,
-      WorldToScrn(min(Points[0], Points[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
+      WorldToScrn(min(P[0], P[1])).y - 5,
+      WorldToScrn(min(P[0], P[1])).x + 5,
+      WorldToScrn(min(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
+      WorldToScrn(max(P[0], P[1])).y - 5,
+      WorldToScrn(max(P[0], P[1])).x + 5,
+      WorldToScrn(max(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
+      WorldToScrn(max(P[0], P[1])).y - 5,
+      WorldToScrn(min(P[0], P[1])).x + 5,
+      WorldToScrn(max(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
+      WorldToScrn(min(P[0], P[1])).y - 5,
+      WorldToScrn(max(P[0], P[1])).x + 5,
+      WorldToScrn(min(P[0], P[1])).y + 5);
   end;
   Canvas.Pen.Mode := pmCopy;
 end;
@@ -387,35 +398,35 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.Ellipse(WorldToScrn(min(points[0], points[1])).x - 2,
-    WorldToScrn(min(points[0], points[1])).y - 2,
-    WorldToScrn(max(points[0], points[1])).x + 2,
-    WorldToScrn(max(points[0], points[1])).y + 2);
+  Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 2,
+    WorldToScrn(min(P[0], P[1])).y - 2,
+    WorldToScrn(max(P[0], P[1])).x + 2,
+    WorldToScrn(max(P[0], P[1])).y + 2);
   Canvas.Pen.Color := clWhite;
-  Canvas.Ellipse(WorldToScrn(min(points[0], points[1])).x - 4,
-    WorldToScrn(min(points[0], points[1])).y - 4,
-    WorldToScrn(max(points[0], points[1])).x + 4,
-    WorldToScrn(max(points[0], points[1])).y + 4);
+  Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 4,
+    WorldToScrn(min(P[0], P[1])).y - 4,
+    WorldToScrn(max(P[0], P[1])).x + 4,
+    WorldToScrn(max(P[0], P[1])).y + 4);
   Canvas.Pen.Color := (clWhite xor clRed);
   if ShowPoits then
   begin
     Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(Points[0], Points[1])).x - 5,
-      WorldToScrn(min(Points[0], Points[1])).y - 5,
-      WorldToScrn(min(Points[0], Points[1])).x + 5,
-      WorldToScrn(min(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(Points[0], Points[1])).x - 5,
-      WorldToScrn(max(Points[0], Points[1])).y - 5,
-      WorldToScrn(max(Points[0], Points[1])).x + 5,
-      WorldToScrn(max(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(Points[0], Points[1])).x - 5,
-      WorldToScrn(max(Points[0], Points[1])).y - 5,
-      WorldToScrn(min(Points[0], Points[1])).x + 5,
-      WorldToScrn(max(Points[0], Points[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(Points[0], Points[1])).x - 5,
-      WorldToScrn(min(Points[0], Points[1])).y - 5,
-      WorldToScrn(max(Points[0], Points[1])).x + 5,
-      WorldToScrn(min(Points[0], Points[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
+      WorldToScrn(min(P[0], P[1])).y - 5,
+      WorldToScrn(min(P[0], P[1])).x + 5,
+      WorldToScrn(min(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
+      WorldToScrn(max(P[0], P[1])).y - 5,
+      WorldToScrn(max(P[0], P[1])).x + 5,
+      WorldToScrn(max(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
+      WorldToScrn(max(P[0], P[1])).y - 5,
+      WorldToScrn(min(P[0], P[1])).x + 5,
+      WorldToScrn(max(P[0], P[1])).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
+      WorldToScrn(min(P[0], P[1])).y - 5,
+      WorldToScrn(max(P[0], P[1])).x + 5,
+      WorldToScrn(min(P[0], P[1])).y + 5);
   end;
   Canvas.Pen.Mode := pmCopy;
 end;
@@ -429,24 +440,24 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 2 - min(W, 50),
-    WorldToScrn(min(points[0], points[1])).y - 2 - min(W, 50),
-    WorldToScrn(max(points[0], points[1])).x + 2 + min(W, 50),
-    WorldToScrn(max(points[0], points[1])).y + 2 + min(W, 50));
+  Canvas.rectangle(WorldToScrn(min(P[0], P[1])).x - 2 - min(W, 50),
+    WorldToScrn(min(P[0], P[1])).y - 2 - min(W, 50),
+    WorldToScrn(max(P[0], P[1])).x + 2 + min(W, 50),
+    WorldToScrn(max(P[0], P[1])).y + 2 + min(W, 50));
   Canvas.Pen.Color := clWhite;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 3 - min(W, 50),
-    WorldToScrn(min(points[0], points[1])).y - 3 - min(W, 50),
-    WorldToScrn(max(points[0], points[1])).x + 3 + min(W, 50),
-    WorldToScrn(max(points[0], points[1])).y + 3 + min(W, 50));
+  Canvas.rectangle(WorldToScrn(min(P[0], P[1])).x - 3 - min(W, 50),
+    WorldToScrn(min(P[0], P[1])).y - 3 - min(W, 50),
+    WorldToScrn(max(P[0], P[1])).x + 3 + min(W, 50),
+    WorldToScrn(max(P[0], P[1])).y + 3 + min(W, 50));
   Canvas.Pen.Color := (clWhite xor clRed);
   if ShowPoits then
   begin
     Canvas.Pen.Width := 2;
-    for i := 2 to length(points) - 1 do
-      Canvas.Ellipse(WorldToScrn(Points[i]).x - 5,
-        WorldToScrn(Points[i]).y - 5,
-        WorldToScrn(Points[i]).x + 5,
-        WorldToScrn(Points[i]).y + 5);
+    for i := 2 to length(P) - 1 do
+      Canvas.Ellipse(WorldToScrn(P[i]).x - 5,
+        WorldToScrn(P[i]).y - 5,
+        WorldToScrn(P[i]).x + 5,
+        WorldToScrn(P[i]).y + 5);
   end;
   Canvas.Pen.Mode := pmCopy;
 end;
@@ -458,28 +469,28 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 2 - min(W, 50),
-    WorldToScrn(min(points[0], points[1])).y - 2 - min(W, 50),
-    WorldToScrn(max(points[0], points[1])).x + 2 + min(W, 50),
-    WorldToScrn(max(points[0], points[1])).y + 2 + min(W, 50));
+  Canvas.rectangle(WorldToScrn(min(P[0], P[1])).x - 2 - min(W, 50),
+    WorldToScrn(min(P[0], P[1])).y - 2 - min(W, 50),
+    WorldToScrn(max(P[0], P[1])).x + 2 + min(W, 50),
+    WorldToScrn(max(P[0], P[1])).y + 2 + min(W, 50));
   Canvas.Pen.Color := clWhite;
-  Canvas.rectangle(WorldToScrn(min(points[0], points[1])).x - 3 - min(W, 50),
-    WorldToScrn(min(points[0], points[1])).y - 3 - min(W, 50),
-    WorldToScrn(max(points[0], points[1])).x + 3 + min(W, 50),
-    WorldToScrn(max(points[0], points[1])).y + 3 + min(W, 50));
+  Canvas.rectangle(WorldToScrn(min(P[0], P[1])).x - 3 - min(W, 50),
+    WorldToScrn(min(P[0], P[1])).y - 3 - min(W, 50),
+    WorldToScrn(max(P[0], P[1])).x + 3 + min(W, 50),
+    WorldToScrn(max(P[0], P[1])).y + 3 + min(W, 50));
   Canvas.Pen.Color := clRed;
   Canvas.Pen.Mode := pmCopy;
   if ShowPoits then
   begin
     Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(Points[0]).x - 5,
-      WorldToScrn(Points[0]).y - 5,
-      WorldToScrn(Points[0]).x + 5,
-      WorldToScrn(Points[0]).y + 5);
-    Canvas.Ellipse(WorldToScrn(Points[1]).x - 5,
-      WorldToScrn(Points[1]).y - 5,
-      WorldToScrn(Points[1]).x + 5,
-      WorldToScrn(Points[1]).y + 5);
+    Canvas.Ellipse(WorldToScrn(P[0]).x - 5,
+      WorldToScrn(P[0]).y - 5,
+      WorldToScrn(P[0]).x + 5,
+      WorldToScrn(P[0]).y + 5);
+    Canvas.Ellipse(WorldToScrn(P[1]).x - 5,
+      WorldToScrn(P[1]).y - 5,
+      WorldToScrn(P[1]).x + 5,
+      WorldToScrn(P[1]).y + 5);
   end;
   Canvas.Pen.Mode := pmCopy;
 end;
@@ -494,12 +505,12 @@ function TPolyline.PointInFigure(point: TFloatPoint): boolean;
 var
   i: integer;
 begin
-  for i := 0 to length(points) - 2 do
+  for i := 0 to length(P) - 2 do
   begin
     Result :=
-      ((IsPointOnLine(points[i], points[i + 1], point, min(W, 45))) or
-      (IsPointInEllipse(points[i], point, min(W, 50), min(W, 50) + 5)) or
-      (IsPointInEllipse(points[i + 1], point, min(W, 50), min(W, 50) + 5)));
+      ((IsPointOnLine(P[i], P[i + 1], point, min(W, 45))) or
+      (IsPointInEllipse(P[i], point, min(W, 50), min(W, 50) + 5)) or
+      (IsPointInEllipse(P[i + 1], point, min(W, 50), min(W, 50) + 5)));
     if Result then
       break;
   end;
@@ -507,21 +518,21 @@ end;
 
 function TLine.PointInFigure(point: TFloatPoint): boolean;
 begin
-  Result := ((IsPointOnLine(points[0], points[1], point, min(W, 45))) or
-    (IsPointInEllipse(points[0], point, min(W, 50), min(W, 50) + 5)) or
-    (IsPointInEllipse(points[1], point, min(W, 50), min(W, 50) + 5)));
+  Result := ((IsPointOnLine(P[0], P[1], point, min(W, 45))) or
+    (IsPointInEllipse(P[0], point, min(W, 50), min(W, 50) + 5)) or
+    (IsPointInEllipse(P[1], point, min(W, 50), min(W, 50) + 5)));
 end;
 
 function TRectangle.PointInFigure(point: TFloatPoint): boolean;
 begin
-  Result := IsPointInRect(min(points[0], points[1]), max(points[0], points[1]), point);
+  Result := IsPointInRect(min(P[0], P[1]), max(P[0], P[1]), point);
 end;
 
 function TEllipse.PointInFigure(point: TFloatPoint): boolean;
 begin
-  Result := IsPointInEllipse((max(points[1], points[0]) + min(points[1], points[0])) /
-    2, point, abs((max(points[1], points[0]) - min(points[1], points[0])).x / 2),
-    abs((max(points[1], points[0]) - min(points[1], points[0])).y / 2));
+  Result := IsPointInEllipse((max(P[1], P[0]) + min(P[1], P[0])) /
+    2, point, abs((max(P[1], P[0]) - min(P[1], P[0])).x / 2), abs(
+    (max(P[1], P[0]) - min(P[1], P[0])).y / 2));
 end;
 
 function TRoundRect.PointInFigure(point: TFloatPoint): boolean;
@@ -530,51 +541,48 @@ var
 begin
   ryy := RX / 2;
   rxx := RY / 2;
-  if ((abs(points[0].x - points[1].x)) > (rxx * 2)) and
-    ((abs(points[0].y - points[1].y)) > (ryy * 2)) then
+  if ((abs(P[0].x - P[1].x)) > (rxx * 2)) and
+    ((abs(P[0].y - P[1].y)) > (ryy * 2)) then
   begin
-    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx + 1, 0)),
-      (max(points[0], points[1]) - FloatPoint(rxx + 1, 0)), point) or
-      (IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy + 1)),
-      (max(points[0], points[1]) - FloatPoint(0, ryy + 1)), point)) or
-      (IsPointInEllipse((min(points[0], points[1]) + FloatPoint(rxx, ryy)),
+    Result := IsPointInRect((min(P[0], P[1]) + FloatPoint(rxx + 1, 0)),
+      (max(P[0], P[1]) - FloatPoint(rxx + 1, 0)), point) or
+      (IsPointInRect((min(P[0], P[1]) + FloatPoint(0, ryy + 1)),
+      (max(P[0], P[1]) - FloatPoint(0, ryy + 1)), point)) or
+      (IsPointInEllipse((min(P[0], P[1]) + FloatPoint(rxx, ryy)),
       point, rxx - 1, ryy - 1)) or (IsPointInEllipse(
-      (max(points[0], points[1]) - FloatPoint(rxx, ryy)), point, rxx - 1, ryy - 1)) or
-      (IsPointInEllipse((FloatPoint(min(points[0], points[1]).x,
-      max(points[0], points[1]).y) + FloatPoint(rxx, -ryy)), point, rxx - 1, ryy - 1)) or
-      (IspointInEllipse((FloatPoint(max(points[0], points[1]).x,
-      min(points[0], points[1]).y) + FloatPoint(-rxx, ryy)), point, rxx - 1, ryy - 1));
+      (max(P[0], P[1]) - FloatPoint(rxx, ryy)), point, rxx - 1, ryy - 1)) or
+      (IsPointInEllipse((FloatPoint(min(P[0], P[1]).x, max(P[0], P[1]).y) +
+      FloatPoint(rxx, -ryy)), point, rxx - 1, ryy - 1)) or
+      (IspointInEllipse((FloatPoint(max(P[0], P[1]).x, min(P[0], P[1]).y) +
+      FloatPoint(-rxx, ryy)), point, rxx - 1, ryy - 1));
   end;
-  if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
-    ((abs(points[0].y - points[1].y)) < (ryy * 2)) then
+  if ((abs(P[0].x - P[1].x)) < (rxx * 2)) and
+    ((abs(P[0].y - P[1].y)) < (ryy * 2)) then
   begin
-    Result := IsPointInEllipse((max(points[1], points[0]) + min(points[1], points[0])) /
-      2, point, abs((max(points[1], points[0]) - min(points[1], points[0])).x / 2),
-      abs((max(points[1], points[0]) - min(points[1], points[0])).y / 2));
+    Result := IsPointInEllipse((max(P[1], P[0]) + min(P[1], P[0])) /
+      2, point, abs((max(P[1], P[0]) - min(P[1], P[0])).x / 2), abs(
+      (max(P[1], P[0]) - min(P[1], P[0])).y / 2));
   end;
-  if ((abs(points[0].x - points[1].x)) > (rxx * 2)) and
-    ((abs(points[0].y - points[1].y)) < (ryy * 2)) then
+  if ((abs(P[0].x - P[1].x)) > (rxx * 2)) and
+    ((abs(P[0].y - P[1].y)) < (ryy * 2)) then
   begin
-    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(rxx, 0)),
-      (max(points[0], points[1]) - FloatPoint(rxx, 0)), point) or
-      (IsPointInEllipse((min(points[0], points[1]) + floatpoint(
-      rxx, abs(points[1].y - points[0].y) / 2)), point, rxx,
-      abs(points[0].y - points[1].y) / 2)) or
-      (IsPointInEllipse(max(points[0], points[1]) + floatpoint(
-      -rxx, -(abs(points[1].y - points[0].y) / 2)), point, rxx,
-      abs(points[0].y - points[1].y) / 2));
+    Result := IsPointInRect((min(P[0], P[1]) + FloatPoint(rxx, 0)),
+      (max(P[0], P[1]) - FloatPoint(rxx, 0)), point) or
+      (IsPointInEllipse((min(P[0], P[1]) + floatpoint(
+      rxx, abs(P[1].y - P[0].y) / 2)), point, rxx, abs(P[0].y - P[1].y) / 2)) or
+      (IsPointInEllipse(max(P[0], P[1]) + floatpoint(
+      -rxx, -(abs(P[1].y - P[0].y) / 2)), point, rxx, abs(P[0].y - P[1].y) / 2));
   end;
-  if ((abs(points[0].x - points[1].x)) < (rxx * 2)) and
-    ((abs(points[0].y - points[1].y)) > (ryy * 2)) then
+  if ((abs(P[0].x - P[1].x)) < (rxx * 2)) and
+    ((abs(P[0].y - P[1].y)) > (ryy * 2)) then
   begin
-    Result := IsPointInRect((min(points[0], points[1]) + FloatPoint(0, ryy)),
-      (max(points[0], points[1]) - FloatPoint(0, ryy)), point) or
-      (IsPointInEllipse((min(points[0], points[1]) + floatpoint(
-      abs(points[1].x - points[0].x) / 2, ryy)), point,
-      abs(points[1].x - points[0].x) / 2, ryy)) or
-      (IsPointInEllipse((max(points[0], points[1]) -
-      floatpoint(abs(points[1].x - points[0].x) / 2, ryy)), point,
-      abs(points[1].x - points[0].x) / 2, ryy));
+    Result := IsPointInRect((min(P[0], P[1]) + FloatPoint(0, ryy)),
+      (max(P[0], P[1]) - FloatPoint(0, ryy)), point) or
+      (IsPointInEllipse((min(P[0], P[1]) + floatpoint(
+      abs(P[1].x - P[0].x) / 2, ryy)), point, abs(P[1].x - P[0].x) / 2, ryy)) or
+      (IsPointInEllipse((max(P[0], P[1]) -
+      floatpoint(abs(P[1].x - P[0].x) / 2, ryy)), point,
+      abs(P[1].x - P[0].x) / 2, ryy));
   end;
 end;
 
@@ -588,31 +596,31 @@ end;
 function TPolyline.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(points[0], points[1]), min(points[0], points[1]));
+    max(P[0], P[1]), min(P[0], P[1]));
 end;
 
 function TLine.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(points[0], points[1]), min(points[0], points[1]));
+    max(P[0], P[1]), min(P[0], P[1]));
 end;
 
 function TRectangle.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(points[0], points[1]), min(points[0], points[1]));
+    max(P[0], P[1]), min(P[0], P[1]));
 end;
 
 function TEllipse.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(points[0], points[1]), min(points[0], points[1]));
+    max(P[0], P[1]), min(P[0], P[1]));
 end;
 
 function TRoundRect.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(points[0], points[1]), min(points[0], points[1]));
+    max(P[0], P[1]), min(P[0], P[1]));
 end;
 
 function TRectZoom.FigureInRect(point1, point2: TFloatPoint): boolean;
@@ -627,20 +635,20 @@ var
   i: integer;
 begin
   Result := nil;
-  for i := 2 to Length(Points) - 1 do
+  for i := 2 to Length(P) - 1 do
   begin
-    if IsPointInEllipse(points[i], point, 5, 5) then
-      Result := @points[i];
+    if IsPointInEllipse(P[i], point, 5, 5) then
+      Result := @P[i];
   end;
 end;
 
 function TLine.CheckPoint(point: TFloatPoint): PFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(points[0], point, 5, 5) then
-    Result := @points[0];
-  if IsPointInEllipse(points[1], point, 5, 5) then
-    Result := @points[1];
+  if IsPointInEllipse(P[0], point, 5, 5) then
+    Result := @P[0];
+  if IsPointInEllipse(P[1], point, 5, 5) then
+    Result := @P[1];
 end;
 
 function TRectangle.CheckPoint(point: TFloatPoint): PFloatPoint;
@@ -648,39 +656,39 @@ var
   p1, p2: TFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(min(points[0], points[1]), point, 5, 5) then
+  if IsPointInEllipse(min(P[0], P[1]), point, 5, 5) then
   begin
-    p1 := min(points[0], points[1]);
-    p2 := max(points[0], points[1]);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[0];
+    p1 := min(P[0], P[1]);
+    p2 := max(P[0], P[1]);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[0];
   end;
-  if IsPointInEllipse(max(points[0], points[1]), point, 5, 5) then
+  if IsPointInEllipse(max(P[0], P[1]), point, 5, 5) then
   begin
-    p1 := min(points[0], points[1]);
-    p2 := max(points[0], points[1]);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[1];
+    p1 := min(P[0], P[1]);
+    p2 := max(P[0], P[1]);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[1];
   end;
-  if IsPointInEllipse(floatpoint(min(points[0], points[1]).x,
-    max(points[0], points[1]).y), point, 5, 5) then
+  if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
+    point, 5, 5) then
   begin
-    p1 := floatpoint(min(points[0], points[1]).x, max(points[0], points[1]).y);
-    p2 := floatpoint(max(points[0], points[1]).x, min(points[0], points[1]).y);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[0];
+    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
+    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[0];
   end;
-  if IsPointInEllipse(floatpoint(max(points[0], points[1]).x,
-    min(points[0], points[1]).y), point, 5, 5) then
+  if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
+    point, 5, 5) then
   begin
-    p1 := floatpoint(min(points[0], points[1]).x, max(points[0], points[1]).y);
-    p2 := floatpoint(max(points[0], points[1]).x, min(points[0], points[1]).y);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[1];
+    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
+    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[1];
   end;
 end;
 
@@ -689,39 +697,39 @@ var
   p1, p2: TFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(min(points[0], points[1]), point, 5, 5) then
+  if IsPointInEllipse(min(P[0], P[1]), point, 5, 5) then
   begin
-    p1 := min(points[0], points[1]);
-    p2 := max(points[0], points[1]);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[0];
+    p1 := min(P[0], P[1]);
+    p2 := max(P[0], P[1]);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[0];
   end;
-  if IsPointInEllipse(max(points[0], points[1]), point, 5, 5) then
+  if IsPointInEllipse(max(P[0], P[1]), point, 5, 5) then
   begin
-    p1 := min(points[0], points[1]);
-    p2 := max(points[0], points[1]);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[1];
+    p1 := min(P[0], P[1]);
+    p2 := max(P[0], P[1]);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[1];
   end;
-  if IsPointInEllipse(floatpoint(min(points[0], points[1]).x,
-    max(points[0], points[1]).y), point, 5, 5) then
+  if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
+    point, 5, 5) then
   begin
-    p1 := floatpoint(min(points[0], points[1]).x, max(points[0], points[1]).y);
-    p2 := floatpoint(max(points[0], points[1]).x, min(points[0], points[1]).y);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[0];
+    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
+    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[0];
   end;
-  if IsPointInEllipse(floatpoint(max(points[0], points[1]).x,
-    min(points[0], points[1]).y), point, 5, 5) then
+  if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
+    point, 5, 5) then
   begin
-    p1 := floatpoint(min(points[0], points[1]).x, max(points[0], points[1]).y);
-    p2 := floatpoint(max(points[0], points[1]).x, min(points[0], points[1]).y);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[1];
+    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
+    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[1];
   end;
 end;
 
@@ -730,39 +738,39 @@ var
   p1, p2: TFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(min(points[0], points[1]), point, 5, 5) then
+  if IsPointInEllipse(min(P[0], P[1]), point, 5, 5) then
   begin
-    p1 := min(points[0], points[1]);
-    p2 := max(points[0], points[1]);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[0];
+    p1 := min(P[0], P[1]);
+    p2 := max(P[0], P[1]);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[0];
   end;
-  if IsPointInEllipse(max(points[0], points[1]), point, 5, 5) then
+  if IsPointInEllipse(max(P[0], P[1]), point, 5, 5) then
   begin
-    p1 := min(points[0], points[1]);
-    p2 := max(points[0], points[1]);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[1];
+    p1 := min(P[0], P[1]);
+    p2 := max(P[0], P[1]);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[1];
   end;
-  if IsPointInEllipse(floatpoint(min(points[0], points[1]).x,
-    max(points[0], points[1]).y), point, 5, 5) then
+  if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
+    point, 5, 5) then
   begin
-    p1 := floatpoint(min(points[0], points[1]).x, max(points[0], points[1]).y);
-    p2 := floatpoint(max(points[0], points[1]).x, min(points[0], points[1]).y);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[0];
+    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
+    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[0];
   end;
-  if IsPointInEllipse(floatpoint(max(points[0], points[1]).x,
-    min(points[0], points[1]).y), point, 5, 5) then
+  if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
+    point, 5, 5) then
   begin
-    p1 := floatpoint(min(points[0], points[1]).x, max(points[0], points[1]).y);
-    p2 := floatpoint(max(points[0], points[1]).x, min(points[0], points[1]).y);
-    points[0] := p1;
-    points[1] := p2;
-    Result := @points[1];
+    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
+    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
+    P[0] := p1;
+    P[1] := p2;
+    Result := @P[1];
   end;
 end;
 
@@ -773,82 +781,96 @@ end;
 
 { Create }
 
-constructor TPolyline.Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+constructor TPolyline.Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
 begin
-  SetLength(Points, 3);
-  Points[0] := Point;
-  Points[1] := Point;
-  Points[2] := Point;
+  SetLength(P, 3);
+  P[0] := Point;
+  P[1] := Point;
+  P[2] := Point;
   W := min(wd, 50);
   PS := PStyle;
-  PC := ColorPen;
+  PC := c1;
 end;
 
-constructor TLine.Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
+constructor TLine.Create(c1:Tcolor;point: TFloatPoint; Wd: integer; PStyle: TPenStyle);
 begin
-  SetLength(Points, 2);
-  Points[0] := Point;
-  Points[1] := Point;
+  SetLength(P, 2);
+  P[0] := Point;
+  P[1] := Point;
   W := min(Wd, 50);
   PS := PStyle;
-  PC := ColorPen;
+  PC := C1;
 end;
 
-constructor TRectangle.Create(point: TFloatPoint; Wd: integer;
+constructor TRectangle.Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer;
   PStyle: TPenStyle; BStyle: TBrushStyle);
 begin
-  SetLength(Points, 2);
-  Points[0] := Point;
-  Points[1] := Point;
+  SetLength(P, 2);
+  P[0] := Point;
+  P[1] := Point;
   W := Wd;
   PS := PStyle;
   BS := BStyle;
-  PC := ColorPen;
-  BC := ColorBrush;
+  PC := C1;
+  BC := C2;
 end;
 
-constructor TEllipse.Create(point: TFloatPoint; Wd: integer; PStyle: TPenStyle;
-  BStyle: TBrushStyle);
+constructor TEllipse.Create(c1,c2:Tcolor;point: TFloatPoint; Wd: integer;
+  PStyle: TPenStyle; BStyle: TBrushStyle);
 begin
-  SetLength(Points, 2);
-  Points[0] := Point;
-  Points[1] := Point;
+  SetLength(P, 2);
+  P[0] := Point;
+  P[1] := Point;
   W := Wd;
   PS := PStyle;
-  PC := ColorPen;
-  BC := ColorBrush;
+  PC := C1;
+  BC := C2;
 end;
 
 constructor TRectZoom.Create(point: TFloatPoint);
 begin
-  SetLength(Points, 2);
-  Points[0] := Point;
-  Points[1] := Point;
+  SetLength(P, 2);
+  P[0] := Point;
+  P[1] := Point;
 end;
 
-constructor TRoundRect.Create(point: TFloatPoint; Wd, RadX, RadY: integer;
+constructor TRoundRect.Create(c1,c2:Tcolor;point: TFloatPoint; Wd, RadX, RadY: integer;
   PStyle: TPenStyle; BStyle: TBrushStyle);
 begin
-  SetLength(Points, 2);
-  Points[0] := Point;
-  Points[1] := Point;
+  SetLength(P, 2);
+  P[0] := Point;
+  P[1] := Point;
   W := Wd;
   PS := PStyle;
   BS := BStyle;
   RY := RadX;
   RX := RadY;
-  PC := ColorPen;
-  BC := ColorBrush;
+  PC := C1;
+  BC := C2;
 end;
 
-procedure TLine.SetW(i:integer);
+procedure TLine.SetW(i: integer);
 begin
-  w:=min(i,50);
+  w := min(i, 50);
 end;
 
-procedure TpolyLine.SetW(i:integer);
+procedure TpolyLine.SetW(i: integer);
 begin
-  w:=min(i,50);
+  w := min(i, 50);
 end;
+
+function TFigure.GetPoint(Index: integer): TFloatPoint;
+begin
+  Result := P[Index];
+end;
+
+procedure TFigure.Setpoint(Index: integer; Value: TFloatPoint);
+begin
+  P[Index] := Value;
+end;
+
+
+
+
 
 end.

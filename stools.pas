@@ -25,6 +25,8 @@ type
   { TProperty }
 
   TProperty = class
+    Res: variant;
+    destructor Destroy; virtual;abstract;overload;
   end;
 
   ArrayOfProperty = array of TProperty;
@@ -32,15 +34,24 @@ type
   TSpinProperty = class(TProperty)
     SpinLabel: TLabel;
     SpinEdit: TSpinEdit;
-    constructor Create(s: string; n: integer);
-    destructor Destroy(); override;
+    procedure OnChange(Sender: TObject);
+    constructor Create(s: string; n: integer; Panel: TPanel);
+    destructor Destroy; override;overload;
+  end;
+
+   TColorProperty = class(TProperty)
+    SpinEdit: TColorButton;
+    procedure OnChange(Sender: TObject);
+    constructor Create(s: string; n: integer; Panel: TPanel);
+    destructor Destroy; override;overload;
   end;
 
   TPenStyleProperty = class(TProperty)
     PenStylesLabel: TLabel;
     PenStylesBox: TComboBox;
-    constructor Create(n: integer);
-    destructor Destroy(); override;
+    constructor Create(s: string;n: integer; Panel: TPanel);
+    destructor Destroy; override;overload;
+    procedure OnChange(Sender: TObject);
     procedure PenStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
   end;
@@ -48,8 +59,9 @@ type
   TBrushStyleProperty = class(TProperty)
     BrushStylesLable: TLabel;
     BrushStylesBox: TComboBox;
-    constructor Create(n: integer);
-    destructor Destroy(); override;
+    constructor Create(s: string;n: integer; Panel: TPanel);
+    destructor Destroy; override;overload;
+    procedure OnChange(Sender: TObject);
     procedure BrushStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
   end;
@@ -57,9 +69,11 @@ type
   { TTool }
 
   TTool = class
+    Figure: TClass;
     Icon: string;
     IsMainTool: boolean;
     Number: integer;
+    Propertys: ArrayOfProperty;
     procedure FigureCreate(Point: TFloatPoint); virtual; abstract;
     procedure ChangePoint(Point: TFloatPoint); virtual; abstract;
     procedure AddPoint(Point: TFloatPoint); virtual; abstract;
@@ -74,8 +88,6 @@ type
 
   TMultylineTool = class(TTool)
   public
-    PRPWidth: TSpinProperty;
-    PRPPenStyle: TPenStyleProperty;
     PenTool: TMyButton;
     PolylineTool: TMyButton;
     constructor Create(n: integer);
@@ -115,8 +127,6 @@ type
 
   TLineTool = class(TTool)
   public
-    PRPWidth: TSpinProperty;
-    PRPPenStyle: TPenStyleProperty;
     constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -129,8 +139,7 @@ type
 
   TRectangleTool = class(TTool)
   public
-    PRPWidth: TSpinProperty;
-    PRPPenStyle: TPenStyleProperty;
+
     PRPBrushStyle: TBrushStyleProperty;
     constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
@@ -144,9 +153,6 @@ type
 
   TRoundRectTool = class(TTool)
   public
-    PRPWidth, PRPRadY, PRPRadX: TSpinProperty;
-    PRPPenStyle: TPenStyleProperty;
-    PRPBrushStyle: TBrushStyleProperty;
     constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -159,9 +165,6 @@ type
 
   TEllipseTool = class(TTool)
   public
-    PRPWidth: TSpinProperty;
-    PRPPenStyle: TPenStyleProperty;
-    PRPBrushStyle: TBrushStyleProperty;
     constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -256,6 +259,7 @@ procedure DeleteFigures(Sender: TObject);
 procedure AllUpFigures(Sender: TObject);
 procedure AllDownFigures(Sender: TObject);
 procedure ChangeDependentTool(Sender: TObject);
+procedure MakeParams(cl: Tclass; var AP: ArrayOfProperty);
 
 var           { Var }
   Tools: array of TTool;
@@ -264,16 +268,49 @@ var           { Var }
   ShiftButtonState: boolean = False;
   PropertyPanel: TPanel;
   ChoosenTool: TTool;
-
+  ColorPanelTool: TPanel;
+  ButtonPanel:TPanel;
 
 implementation
 
 { Porocedures }
+procedure MakeParams(cl: Tclass; var AP: ArrayOfProperty);
+var
+  n, i: integer;
+  p: PPropList;
+  s: string;
+begin
+  n := GetPropList(cl, p);
+  SetLength(AP, n);
+  for i := 0 to n - 1 do
+  begin
+    s := p^[i]^.PropType^.Name;
+    case s of
+      'TGraphicsColor':
+      begin
+         Ap[i] := TColorProperty.Create(p^[i]^.Name, i, ColorPanelTool);
+      end;
+      'LongInt':
+      begin
+        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i + 2, PropertyPanel);
+      end;
+      'TFPPenStyle':
+      begin
+        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i + 2, PropertyPanel);
+      end;
+      'TFPBrushStyle':
+      begin
+        Ap[i] := TBrushStyleProperty.Create(p^[i]^.Name, i + 2, PropertyPanel);
+      end;
+    end;
+  end;
+end;
+
 procedure ChangeDependentTool(Sender: TObject);
 var
   t: TTool;
 begin
-  ShowPoits:=False;
+  ShowPoits := False;
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
   begin
     t := ChoosenTool;
@@ -287,7 +324,7 @@ procedure ChangeMainTool(Sender: TObject);
 var
   i: TFigure;
 begin
-  ShowPoits:=False;
+  ShowPoits := False;
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
   begin
     ChoosenTool.FigureEnd();
@@ -398,9 +435,9 @@ end;
 procedure TMultylineTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create(point, PRPWidth.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
-  SetLength(Figures[High(Figures)].Points, 4);
+  Figures[High(Figures)]:=TPolyline.Create(Propertys[0].Res,point
+  ,Propertys[1].res,Propertys[2].res);
+  Figures[High(Figures)].SetLengthPoints(4);
   Figures[High(Figures)].Points[3] := Point;
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
@@ -409,9 +446,9 @@ end;
 procedure TPenTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create(point, PRPWidth.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
-  SetLength(Figures[High(Figures)].Points, 4);
+  Figures[High(Figures)]:=TPolyline.Create(Propertys[0].Res,point
+  ,Propertys[1].res,Propertys[2].res);
+  Figures[High(Figures)].SetLengthPoints(4);
   Figures[High(Figures)].Points[3] := Point;
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
@@ -420,9 +457,9 @@ end;
 procedure TPolylineTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyLine.Create(point, PRPWidth.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
-  SetLength(Figures[High(Figures)].Points, 4);
+  Figures[High(Figures)]:=TPolyline.Create(Propertys[0].Res,point
+  ,Propertys[1].res,Propertys[2].res);
+  Figures[High(Figures)].SetLengthPoints(4);
   Figures[High(Figures)].Points[3] := Point;
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
@@ -431,8 +468,8 @@ end;
 procedure TLineTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TLine.Create(point, PRPWidth.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex));
+  Figures[High(Figures)]:=TLine.Create(Propertys[0].Res,point
+  ,Propertys[1].res,Propertys[2].res);
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
 end;
@@ -440,9 +477,8 @@ end;
 procedure TEllipseTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TEllipse.Create(point, PRPWidth.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex),
-    CaseBrushStyle(PRPBrushStyle.BrushStylesBox.ItemIndex));
+  Figures[High(Figures)]:=TEllipse.Create(Propertys[0].Res,Propertys[1].Res,point
+  ,Propertys[2].res,Propertys[3].res,Propertys[4].Res);
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
 end;
@@ -450,9 +486,8 @@ end;
 procedure TRectangleTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRectangle.Create(point, PRPWidth.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex),
-    CaseBrushStyle(PRPBrushStyle.BrushStylesBox.ItemIndex));
+  Figures[High(Figures)]:=TRectangle.Create(Propertys[0].Res,Propertys[1].Res,point
+  ,Propertys[2].res,Propertys[3].res,Propertys[4].Res);
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
 end;
@@ -460,10 +495,8 @@ end;
 procedure TRoundRectTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TRoundRect.Create(point, PRPWidth.SpinEdit.Value,
-    PRPRadX.SpinEdit.Value, PRPRadY.SpinEdit.Value,
-    CasePenStyle(PRPPenStyle.PenStylesBox.ItemIndex),
-    CaseBrushStyle(PRPBrushStyle.BrushStylesBox.ItemIndex));
+  Figures[High(Figures)]:=TRoundRect.Create(Propertys[0].Res,Propertys[1].Res,point
+  ,Propertys[2].res,Propertys[3].res,Propertys[4].Res,Propertys[5].Res,Propertys[6].Res);
   MinPoint := min(MinPoint, point);
   MaxPoint := max(MaxPoint, point);
 end;
@@ -546,7 +579,8 @@ begin
     MaxPoint := max(MaxPoint, point);
     with Figures[high(Figures)] do
     begin
-      SetLength(Points, Length(Points) + 1);
+      Figures[High(Figures)].SetLengthPoints(
+        (length(Figures[High(Figures)].Points) + 1));
       points[high(points)] := point;
       Points[0] := min(Point, Points[0]);
       Points[1] := max(Point, Points[1]);
@@ -565,7 +599,7 @@ begin
   MaxPoint := max(MaxPoint, point);
   with Figures[high(Figures)] do
   begin
-    SetLength(Points, Length(Points) + 1);
+    Figures[High(Figures)].SetLengthPoints((length(Figures[High(Figures)].Points) + 1));
     points[high(points)] := point;
     Points[0] := min(Point, Points[0]);
     Points[1] := max(Point, Points[1]);
@@ -649,13 +683,13 @@ begin
     begin
       for i in Figures do
         if i.Selected then
-          i.move((WorldToScrn(point) - WorldToScrn(spoint))*100/zoom);
+          i.move((WorldToScrn(point) - WorldToScrn(spoint)) * 100 / zoom);
       InvalidateHandler;
       SPoint := point;
     end
     else
     begin
-      STpoint^ := STpoint^ + (WorldToScrn(point) - WorldToScrn(spoint))*100/zoom;
+      STpoint^ := STpoint^ + (WorldToScrn(point) - WorldToScrn(spoint)) * 100 / zoom;
       SPoint := point;
       for i in Figures do
         i.move(FloatPoint(0, 0));
@@ -688,7 +722,8 @@ begin
     MaxPoint := max(MaxPoint, point);
     with Figures[high(Figures)] as TPolyline do
     begin
-      SetLength(points, Length(points) + 1);
+      Figures[High(Figures)].SetLengthPoints(
+        (length(Figures[High(Figures)].Points) + 1));
       points[high(points)] := point;
       Points[0] := min(Point, Points[0]);
       Points[1] := max(Point, Points[1]);
@@ -702,7 +737,7 @@ begin
   MaxPoint := max(MaxPoint, point);
   with Figures[high(Figures)] as TPolyline do
   begin
-    SetLength(points, Length(points) + 1);
+    Figures[High(Figures)].SetLengthPoints((length(Figures[High(Figures)].Points) + 1));
     points[high(points)] := point;
     Points[0] := min(Point, Points[0]);
     Points[1] := max(Point, Points[1]);
@@ -1214,64 +1249,66 @@ end;
 
 procedure TMultylineTool.CreateParams();
 begin
-  PenTool := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
-    Number + 1, 80, 5, 'ico/pen.png');
-  PolylineTool := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
-    Number + 2, 80, 5 + 35, 'ico/polyline.png');
-  PRPWidth := TSpinProperty.Create('Width', 2);
-  PRPPenStyle := TPenStyleProperty.Create(3);
-  PropertyPanel.Height := 115;
+  MakeParams(Figure, Propertys);
+  PenTool := TMyButton.Create((@ChangeDependentTool), ButtonPanel,
+    Number + 1, 5, 0, 'ico/pen.png');
+  PolylineTool := TMyButton.Create((@ChangeDependentTool), ButtonPanel,
+    Number + 2, 5,  35, 'ico/polyline.png');
+  ButtonPanel.Height:=40;
+  PropertyPanel.Height:=39*Length(Propertys);
 end;
 
 procedure TLineTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1);
-  PRPPenStyle := TPenStyleProperty.Create(2);
+  MakeParams(Figure, Propertys);
   PropertyPanel.Height := 77;
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TRectangleTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1);
-  PRPPenStyle := TPenStyleProperty.Create(2);
-  PRPBrushStyle := TBrushStyleProperty.Create(3);
+  MakeParams(Figure, Propertys);
   PropertyPanel.Height := 78 + 39 - 1;
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TEllipseTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1);
-  PRPPenStyle := TPenStyleProperty.Create(2);
-  PRPBrushStyle := TBrushStyleProperty.Create(3);
-  PropertyPanel.Height := 78 + 39 - 1;
+  MakeParams(Figure, Propertys);
+
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TRoundRectTool.CreateParams();
 begin
-  PRPWidth := TSpinProperty.Create('Width', 1);
-  PRPPenStyle := TPenStyleProperty.Create(2);
-  PRPBrushStyle := TBrushStyleProperty.Create(3);
-  PRPRadX := TSpinProperty.Create('Rad X', 4);
-  PRPRadY := TSpinProperty.Create('Rad Y', 5);
-  PropertyPanel.Height := 78 + 39 * 3 - 3;
+  MakeParams(Figure, Propertys);
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TRectZoomTool.CreateParams();
 begin
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TSelectTool.CreateParams();
 begin
-  Delete := TMyButton.Create((@DeleteFigures), PropertyPanel, 0, 0, 5, 'ico/delete.png');
-  Designator := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
+  Delete := TMyButton.Create((@DeleteFigures), ButtonPanel, 0, 0,
+  5, 'ico/delete.png');
+  Designator := TMyButton.Create((@ChangeDependentTool), ButtonPanel,
     Number + 1, 33, 5, 'ico/select2.png');
-  Changepoints := TMyButton.Create((@ChangeDependentTool), PropertyPanel,
+  Changepoints := TMyButton.Create((@ChangeDependentTool), ButtonPanel,
     Number + 2, 33, 5 + 33, 'ico/round.png');
-  AllBottom := TMyButton.Create((@AllDownFigures), PropertyPanel, 0,
+  AllBottom := TMyButton.Create((@AllDownFigures), ButtonPanel, 0,
     0, 5 + 33, 'ico/allbottom.png');
-  AllTop := TMyButton.Create((@AllUpFigures), PropertyPanel, 0, 0,
+  AllTop := TMyButton.Create((@AllUpFigures), ButtonPanel, 0, 0,
     5 + 33 * 2, 'ico/alltop.png');
-  PropertyPanel.Height := 70;
+  ButtonPanel.Height:=70;
+  PropertyPanel.Height:=45*Length(Propertys)
 end;
 
 procedure TDesignatorTool.CreateParams(Tool: TTool);
@@ -1281,6 +1318,8 @@ begin
   Changepoints := (Tool as TSelectTool).Changepoints;
   Allbottom := (Tool as TSelectTool).Allbottom;
   AllTop := (Tool as TSelectTool).AllTop;
+  ButtonPanel.Height:=70;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TChangePointsTool.CreateParams(Tool: TTool);
@@ -1290,6 +1329,8 @@ begin
   Allbottom := (Tool as TSelectTool).Allbottom;
   AllTop := (Tool as TSelectTool).AllTop;
   Changepoints := (Tool as TSelectTool).Changepoints;
+  ButtonPanel.Height:=70;
+  PropertyPanel.Height:=39*Length(Propertys);
   if SelectedNumber > 0 then
   begin
     ShowPoits := True;
@@ -1299,58 +1340,64 @@ end;
 
 procedure TPolylineTool.CreateParams(Tool: TTool);
 begin
+  Propertys:=tool.Propertys;
   PenTool := (Tool as TMultylineTool).PenTool;
   PolyLineTool := (Tool as TMultylineTool).PolyLineTool;
-  PRPPenStyle := (Tool as TMultylineTool).PRPPenStyle;
-  PRPWidth := (Tool as TMultylineTool).PRPWidth;
 end;
 
 procedure TPenTool.CreateParams(Tool: TTool);
 begin
   PenTool := (Tool as TMultylineTool).PenTool;
   PolyLineTool := (Tool as TMultylineTool).PolyLineTool;
-  PRPPenStyle := (Tool as TMultylineTool).PRPPenStyle;
-  PRPWidth := (Tool as TMultylineTool).PRPWidth;
+  Propertys:=tool.Propertys;
 end;
 
 procedure TZoomTool.CreateParams();
 begin
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 procedure TScrollTool.CreateParams();
 begin
+   ButtonPanel.Height:=0;
+  PropertyPanel.Height:=39*Length(Propertys)
 end;
 
 { DeleteParams }
 
 procedure TMultylineTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
   PenTool.Destroy();
   PolylineTool.Destroy();
+  for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
 end;
 
 procedure TLineTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
+  for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
 end;
 
 procedure TRectangleTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
-  PRPBrushStyle.Destroy();
+  for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
 end;
 
 procedure TRoundRectTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
-  PRPRadX.Destroy();
-  PRPRadY.Destroy();
-  PRPBrushStyle.Destroy();
+   for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
 end;
 
 procedure TRectZoomTool.DeleteParams();
@@ -1387,26 +1434,31 @@ begin
 end;
 
 procedure TPolylineTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
+  for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
   PenTool.Destroy();
   PolylineTool.Destroy();
 end;
 
 procedure TPenTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
+  for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
   PenTool.Destroy();
   PolylineTool.Destroy();
 end;
 
 procedure TEllipseTool.DeleteParams();
+var i:TProperty;
 begin
-  PRPWidth.Destroy();
-  PRPPenStyle.Destroy();
-  PRPBrushStyle.Destroy();
+   for i in Propertys do
+  i.Destroy;
+  SetLength(Propertys,0);
 end;
 
 procedure TZoomTool.DeleteParams();
@@ -1418,78 +1470,97 @@ begin
 end;
 
 { PRPCreateDestroy }
-constructor TSpinProperty.Create(s: string; n: integer);
+constructor TSpinProperty.Create(s: string; n: integer; Panel: Tpanel);
 begin
-  SpinLabel := TLabel.Create(PropertyPanel);
+  SpinLabel := TLabel.Create(Panel);
   SpinLabel.Caption := s;
   SpinLabel.Align := alTop;
   SpinLabel.Top := n * 100;
-  SpinLabel.Parent := PropertyPanel;
-  SpinEdit := TSpinEdit.Create(PropertyPanel);
+  SpinLabel.Parent := Panel;
+  SpinEdit := TSpinEdit.Create(Panel);
   SpinEdit.Align := alTop;
-  SpinEdit.Parent := PropertyPanel;
+  SpinEdit.Parent := Panel;
   SpinEdit.MinValue := 1;
   SpinEdit.MaxValue := 10000;
   SpinEdit.Value := 1;
+  SpinEdit.Width:=130;
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
+  SpinEdit.OnChange:=@OnChange;
 end;
 
-constructor TPenStyleProperty.Create(n: integer);
+constructor TColorProperty.Create(s: string; n: integer; Panel: Tpanel);
 begin
-  PenStylesLabel := TLabel.Create(PropertyPanel);
+  SpinEdit := TColorButton.Create(Panel);
+  SpinEdit.Align := alTop;
+  SpinEdit.Parent := Panel;
+  SpinEdit.Width := 32;
+  SpinEdit.Height := 32;
+  SpinEdit.left := n * 100 + 50;
+  SpinEdit.OnColorChanged:=@OnChange;
+end;
+
+constructor TPenStyleProperty.Create(s: string;n: integer;Panel: TPanel);
+begin
+  PenStylesLabel := TLabel.Create(Panel);
   PenStylesLabel.Top := 100 * n;
-  PenStylesLabel.Caption := 'Pen Style';
+  PenStylesLabel.Caption := s;
   PenStyleslabel.Align := alTop;
-  PenStylesLabel.Parent := PropertyPanel;
-  PenStylesBox := TComboBox.Create(PropertyPanel);
+  PenStylesLabel.Parent := Panel;
+  PenStylesBox := TComboBox.Create(Panel);
   PenStylesBox.Align := alTop;
   PenStylesBox.ReadOnly := True;
   PenStylesBox.Top := 100 * n + 50;
   PenStylesBox.Items.CommaText := ',,,,';
   PenStylesBox.Style := csOwnerDrawFixed;
   PenStylesBox.ItemIndex := 0;
-  PenStylesBox.Parent := PropertyPanel;
+  PenStylesBox.Width:=130;
+  PenStylesBox.Parent := Panel;
   PenStylesBox.OnDrawItem := @PenStylesBoxDrawItem;
+  PenStylesBox.OnChange:=@OnChange;
 end;
 
-constructor TBrushStyleProperty.Create(n: integer);
+constructor TBrushStyleProperty.Create(s: string;n: integer;Panel: TPanel);
 begin
-  BrushStylesLable := TLabel.Create(PropertyPanel);
+  BrushStylesLable := TLabel.Create(Panel);
   BrushStylesLable.Top := 100 * n;
-  BrushStylesLable.Caption := 'Brush Style';
+  BrushStylesLable.Caption := s;
   BrushStylesLable.Align := alTop;
-  BrushStylesLable.Parent := PropertyPanel;
-  BrushStylesBox := TComboBox.Create(PropertyPanel);
+  BrushStylesLable.Parent := Panel;
+  BrushStylesBox := TComboBox.Create(Panel);
   BrushStylesBox.Items.CommaText := ',,,,,,,';
   BrushStylesBox.ReadOnly := True;
   BrushStylesBox.Top := 100 * n + 50;
-  BrushStylesBox.Parent := PropertyPanel;
+  BrushStylesBox.Parent := Panel;
+  BrushStylesBox.Width:=130;
   BrushStylesBox.Style := csOwnerDrawFixed;
   BrushStylesBox.ItemIndex := 0;
   BrushStylesBox.Align := alTop;
   BrushStylesBox.OnDrawItem := @BrushStylesBoxDrawItem;
+  BrushStylesBox.OnChange:=@OnChange;
 end;
 
-destructor TSpinProperty.Destroy();
+destructor TSpinProperty.Destroy;
 begin
-  inherited Destroy;
   FreeAndNil(SpinEdit);
   FreeAndNil(SpinLabel);
 end;
 
-destructor TPenStyleProperty.Destroy();
+destructor TPenStyleProperty.Destroy;
 begin
-  inherited Destroy;
   FreeAndNil(PenStylesBox);
   FreeAndNil(PenStylesLabel);
 end;
 
-destructor TBrushStyleProperty.Destroy();
+destructor TBrushStyleProperty.Destroy;
 begin
-  inherited Destroy;
   FreeAndNil(BrushStylesBox);
   FreeAndNil(BrushStylesLable);
+end;
+
+destructor TColorProperty.Destroy;
+begin
+  FreeAndNil(SpinEdit);
 end;
 
 { ToolCreate }
@@ -1499,6 +1570,7 @@ begin
   Number := n;
   Icon := 'ico/multyline.png';
   IsMainTool := True;
+  Figure := TPolyline;
 end;
 
 constructor TLineTool.Create(n: integer);
@@ -1506,6 +1578,7 @@ begin
   Number := n;
   Icon := 'ico/line.png';
   IsMainTool := True;
+  Figure := TPolyline;
 end;
 
 constructor TRectangleTool.Create(n: integer);
@@ -1513,6 +1586,7 @@ begin
   Number := n;
   Icon := 'ico/rectangle.png';
   IsMainTool := True;
+  Figure := TRectangle;
 end;
 
 constructor TEllipseTool.Create(n: integer);
@@ -1520,6 +1594,7 @@ begin
   Number := n;
   Icon := 'ico/ellipse.png';
   IsMainTool := True;
+  Figure := TEllipse;
 end;
 
 constructor TZoomTool.Create(n: integer);
@@ -1527,6 +1602,7 @@ begin
   Number := n;
   Icon := 'ico/zoom.png';
   IsMainTool := True;
+  Figure := TFigure;
 end;
 
 constructor TScrollTool.Create(n: integer);
@@ -1534,6 +1610,7 @@ begin
   Number := n;
   Icon := 'ico/Scroll.png';
   IsMainTool := True;
+  Figure := TFigure;
 end;
 
 constructor TRectZoomTool.Create(n: integer);
@@ -1541,6 +1618,7 @@ begin
   Number := n;
   Icon := 'ico/rectzoom.png';
   IsMainTool := True;
+  Figure := TRectZoom;
 end;
 
 constructor TRoundRectTool.Create(n: integer);
@@ -1548,6 +1626,7 @@ begin
   Number := n;
   Icon := 'ico/RoundRectangle.png';
   IsMainTool := True;
+  Figure := TRoundRect;
 end;
 
 constructor TSelectTool.Create(n: integer);
@@ -1555,30 +1634,35 @@ begin
   Number := n;
   Icon := 'ico/select.png';
   IsMainTool := True;
+  Figure := TRectZoom;
 end;
 
 constructor TDesignatorTool.Create(n: integer);
 begin
   Number := n;
   IsMainTool := False;
+  Figure := TRectZoom;
 end;
 
 constructor TChangePointsTool.Create(n: integer);
 begin
   Number := n;
   IsMainTool := False;
+  Figure := TRectZoom;
 end;
 
 constructor TPenTool.Create(n: integer);
 begin
   Number := n;
   IsMainTool := False;
+  Figure := TPolyline;
 end;
 
 constructor TPolylineTool.Create(n: integer);
 begin
   Number := n;
   IsMainTool := False;
+  Figure := TPolyline;
 end;
 
 
@@ -1618,6 +1702,26 @@ destructor TMyButton.Destroy();
 begin
   inherited Destroy;
   FreeAndNil(Button);
+end;
+
+procedure TSpinProperty.OnChange(Sender: TObject);
+begin
+  res := (Sender as TSpinEdit).Value;
+end;
+
+procedure TColorProperty.OnChange(Sender: TObject);
+begin
+  res := (Sender as TColorButton).ButtonColor;
+end;
+
+procedure TBrushStyleProperty.OnChange(Sender: TObject);
+begin
+  res := CaseBrushStyle((Sender as TComboBox).ItemIndex);
+end;
+
+procedure TpenStyleProperty.OnChange(Sender: TObject);
+begin
+  res := CasePenStyle((Sender as TComboBox).ItemIndex);
 end;
 
 initialization
