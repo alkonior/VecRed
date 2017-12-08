@@ -19,15 +19,19 @@ type
   protected
     P: ManyPoints;
     S: boolean;
+    CL: TClass;
     function GetPoint(Index: integer): TFloatPoint;
     procedure Setpoint(Index: integer; Value: TFloatPoint);
   public
     property Selected: boolean read S write S default False;
     property Points: ManyPoints read P write P;
+    property ClassOfFigure: TClass read CL write CL;
+
     procedure SetLengthPoints(l: integer);
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); virtual; abstract;
     function PointInFigure(point: TFloatPoint): boolean; virtual; abstract;
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual; abstract;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual; abstract;
@@ -41,14 +45,14 @@ type
     PS: TPenStyle;
     procedure SetW(i: integer);
   published
-     property PenColor: TColor read PC write PC default clBlack;
+    property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    constructor Create(c1:Tcolor; Wd:integer;PStyle: TPenStyle;
-      point: TFloatPoint);
+    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -62,15 +66,15 @@ type
     PS: TPenStyle;
     procedure SetW(i: integer);
   published
-     property PenColor: TColor read PC write PC default clBlack;
+    property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
 
-    constructor Create(c1:Tcolor; Wd:integer;PStyle: TPenStyle;
-      point: TFloatPoint);
+    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -89,11 +93,12 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
-    constructor Create(c1,c2:Tcolor; Wd:integer;PStyle: TPenStyle; BStyle: TBrushStyle;
-      point: TFloatPoint);
+    constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
+      BStyle: TBrushStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -106,18 +111,19 @@ type
     PS: TPenStyle;
     BS: TBrushStyle;
     BC: TColor;
- published
-   property PenColor: TColor read PC write PC default clBlack;
+  published
+    property PenColor: TColor read PC write PC default clBlack;
     property BrushColor: TColor read BC write BC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
 
-    constructor Create(c1,c2:Tcolor; Wd:integer;PStyle: TPenStyle; BStyle: TBrushStyle;
-      point: TFloatPoint);
+    constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
+      BStyle: TBrushStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -128,6 +134,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -136,12 +143,13 @@ type
   TRoundRect = class(TFigure)
   private
     PC: TColor;
+    BC: TColor;
     W: integer;
     PS: TPenStyle;
     BS: TBrushStyle;
     RX: integer;
     RY: integer;
-    BC: TColor;
+
   published
     property PenColor: TColor read PC write PC default clBlack;
     property BrushColor: TColor read BC write BC default clBlack;
@@ -151,11 +159,12 @@ type
     property RadiusX: integer read RX write RX;
     property RadiusY: integer read RY write RY;
 
-    constructor Create(c1,c2:Tcolor; Wd:integer;PStyle: TPenStyle; BStyle: TBrushStyle; RadX, RadY: integer;
-      point: TFloatPoint);
+    constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
+      BStyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -785,7 +794,8 @@ end;
 
 { Create }
 
-constructor TPolyline.Create(c1:Tcolor; Wd: integer; PStyle: TPenStyle;point: TFloatPoint);
+constructor TPolyline.Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle;
+  point: TFloatPoint);
 begin
   SetLength(P, 3);
   P[0] := Point;
@@ -794,9 +804,10 @@ begin
   W := min(wd, 50);
   PS := PStyle;
   PC := c1;
+  CL := TPolyline;
 end;
 
-constructor TLine.Create(c1:Tcolor; Wd: integer; PStyle: TPenStyle;point: TFloatPoint);
+constructor TLine.Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -804,10 +815,11 @@ begin
   W := min(Wd, 50);
   PS := PStyle;
   PC := C1;
+  CL := TLine;
 end;
 
-constructor TRectangle.Create(c1,c2:Tcolor; Wd: integer; PStyle: TPenStyle;
-  bstyle:TBrushStyle; point: TFloatPoint);
+constructor TRectangle.Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
+  bstyle: TBrushStyle; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -817,10 +829,11 @@ begin
   BS := BStyle;
   PC := C1;
   BC := C2;
+  CL := TRectangle;
 end;
 
-constructor TEllipse.Create(c1,c2:Tcolor; Wd: integer; PStyle: TPenStyle;
-  bstyle:TBrushStyle; point: TFloatPoint);
+constructor TEllipse.Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
+  bstyle: TBrushStyle; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -829,6 +842,7 @@ begin
   PS := PStyle;
   PC := C1;
   BC := C2;
+  CL := TEllipse;
 end;
 
 constructor TRectZoom.Create(point: TFloatPoint);
@@ -838,8 +852,8 @@ begin
   P[1] := Point;
 end;
 
-constructor TRoundRect.Create(c1,c2:Tcolor; Wd: integer; PStyle: TPenStyle;
-  bstyle:TBrushStyle;RadX,RadY:integer; point: TFloatPoint);
+constructor TRoundRect.Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
+  bstyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint);
 begin
   SetLength(P, 2);
   P[0] := Point;
@@ -851,6 +865,7 @@ begin
   RX := RadY;
   PC := C1;
   BC := C2;
+  Cl := TRoundRect;
 end;
 
 procedure TLine.SetW(i: integer);
@@ -873,6 +888,53 @@ begin
   P[Index] := Value;
 end;
 
+procedure Tline.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+begin
+  PC := a1;
+  W := a2;
+  PS := a3;
+end;
+
+procedure TPolyline.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+begin
+  PC := a1;
+  W := a2;
+  PS := a3;
+end;
+
+procedure TRectangle.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+begin
+  PC := a1;
+  BC := a2;
+  W := a3;
+  PS := a4;
+  BS := a5;
+end;
+
+procedure TEllipse.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+begin
+  PC := a1;
+  BC := a2;
+  W := a3;
+  PS := a4;
+  BS := a5;
+end;
+
+procedure TRoundrect.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+begin
+  PC := a1;
+  BC := a2;
+  W := a3;
+  PS := a4;
+  BS := a5;
+  RX := a6;
+  RY := a7;
+end;
+
+procedure TRectZoom.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+begin
+
+end;
 
 
 
