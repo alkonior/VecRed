@@ -447,15 +447,15 @@ begin
       end;
       'LongInt':
       begin
-        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i + 2, PropertyPanel);
+        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i , PropertyPanel);
       end;
       'TFPPenStyle':
       begin
-        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i + 2, PropertyPanel);
+        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i , PropertyPanel);
       end;
       'TFPBrushStyle':
       begin
-        Ap[i] := TBrushStyleProperty.Create(p^[i]^.Name, i + 2, PropertyPanel);
+        Ap[i] := TBrushStyleProperty.Create(p^[i]^.Name, i, PropertyPanel);
       end;
     end;
   end;
@@ -628,8 +628,7 @@ end;
 procedure TMultylineTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyline.Create(Propertys[0].Res,
-    Propertys[1].res, Propertys[2].res, point);
+  Figures[High(Figures)] := TPolyline.Create(Propertys[0].Res, Propertys[1].res, Propertys[2].res, point);
   Figures[High(Figures)].SetLengthPoints(4);
   Figures[High(Figures)].Points[3] := Point;
   MinPoint := min(MinPoint, point);
@@ -1772,7 +1771,7 @@ begin
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
   SpinEdit.OnChange := @OnChange;
-
+  res:=SpinEdit.Value;
 end;
 
 constructor TColorProperty.Create(s: string; n: integer; Panel: Tpanel);
@@ -1784,7 +1783,7 @@ begin
   Button.Height := 32;
   Button.left := n * 100 + 50;
   Button.OnColorChanged := @OnChange;
-
+  res:=Button.ButtonColor;
 end;
 
 constructor TPenStyleProperty.Create(s: string; n: integer; Panel: TPanel);
@@ -1805,7 +1804,7 @@ begin
   PenStylesBox.Parent := Panel;
   PenStylesBox.OnDrawItem := @PenStylesBoxDrawItem;
   PenStylesBox.OnChange := @OnChange;
-
+  Res:=CasePenStyle(0);
 end;
 
 constructor TBrushStyleProperty.Create(s: string; n: integer; Panel: TPanel);
@@ -1826,7 +1825,7 @@ begin
   BrushStylesBox.Align := alTop;
   BrushStylesBox.OnDrawItem := @BrushStylesBoxDrawItem;
   BrushStylesBox.OnChange := @OnChange;
-
+  Res:=CaseBrushStyle(0);
 end;
 
 destructor TSpinProperty.Destroy;
@@ -2058,6 +2057,7 @@ begin
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
   SpinEdit.OnChange := @OnChange;
+  Res:=SpinEdit.Value;
 end;
 
 constructor TColorPropertyForSelect.Create(s: string; n: integer; Panel: Tpanel);
@@ -2069,7 +2069,7 @@ begin
   Button.Height := 32;
   Button.left := n * 100 + 50;
   Button.OnColorChanged := @OnChange;
-
+  Res:=Button.ButtonColor;
 end;
 
 constructor TPenStylePropertyForSelect.Create(s: string; n: integer; Panel: TPanel);
@@ -2090,6 +2090,7 @@ begin
   PenStylesBox.Parent := Panel;
   PenStylesBox.OnDrawItem := @PenStylesBoxDrawItem;
   PenStylesBox.OnChange := @OnChange;
+  res:=CasePenStyle(0);
 end;
 
 constructor TBrushStylePropertyForSelect.Create(s: string; n: integer; Panel: TPanel);
@@ -2110,6 +2111,7 @@ begin
   BrushStylesBox.Align := alTop;
   BrushStylesBox.OnDrawItem := @BrushStylesBoxDrawItem;
   BrushStylesBox.OnChange := @OnChange;
+  Res:=CaseBrushStyle(0);
 end;
 
 destructor TSpinPropertyForSelect.Destroy;

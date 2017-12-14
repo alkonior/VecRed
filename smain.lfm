@@ -1,7 +1,7 @@
 object VecRedF: TVecRedF
-  Left = 1285
+  Left = 1033
   Height = 498
-  Top = 126
+  Top = 136
   Width = 709
   Align = alClient
   Anchors = []
@@ -218,6 +218,18 @@ object VecRedF: TVecRedF
         Caption = 'Show All'
         OnClick = ResetClick
       end
+      object Open: TMenuItem
+        Caption = 'Open'
+        OnClick = OpenClick
+      end
+      object Save: TMenuItem
+        Caption = 'Save'
+        OnClick = SaveClick
+      end
+      object SaveAs: TMenuItem
+        Caption = 'SaveAs'
+        OnClick = SaveAsClick
+      end
       object CloseB: TMenuItem
         Caption = 'Выход'
         OnClick = CloseBClick
@@ -227,5 +239,13 @@ object VecRedF: TVecRedF
       Caption = 'Справка'
       OnClick = SpravkaClick
     end
+  end
+  object SaveDialog: TSaveDialog
+    left = 376
+    top = 138
+  end
+  object OpenDialog: TOpenDialog
+    left = 288
+    top = 144
   end
 end

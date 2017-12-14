@@ -8,7 +8,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
   Dialogs, Menus, ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType,
-  Buttons, GraphMath, Math, Spin, FPCanvas, TypInfo, LCL, Windows, UScale;
+  Buttons, GraphMath, Math, Spin, FPCanvas, TypInfo, LCL, Windows, UScale,
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite;
 
 type
   { Classes }
@@ -26,8 +27,9 @@ type
     property Selected: boolean read S write S default False;
     property Points: ManyPoints read P write P;
     property ClassOfFigure: TClass read CL write CL;
-
+    class procedure SaveFile(FileName: String);
     procedure SetLengthPoints(l: integer);
+    class function LoadFile(FileName: String): Boolean;
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
@@ -35,10 +37,10 @@ type
     function PointInFigure(point: TFloatPoint): boolean; virtual; abstract;
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual; abstract;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual; abstract;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual; abstract;
   end;
 
   TPolyline = class(TFigure)
-  {$M+}
   private
     PC: TColor;
     W: integer;
@@ -48,6 +50,7 @@ type
     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
+  public
     constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
@@ -56,10 +59,10 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
+       function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   TLine = class(TFigure)
-  {$M+}
   private
     PC: TColor;
     W: integer;
@@ -69,7 +72,7 @@ type
     property PenColor: TColor read PC write PC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-
+  public
     constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
@@ -78,6 +81,7 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   TRectangle = class(TFigure)
@@ -93,6 +97,7 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
+    public
     constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
       BStyle: TBrushStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
@@ -102,6 +107,7 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
+       function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   TEllipse = class(TFigure)
@@ -117,7 +123,7 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS;
-
+    public
     constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
       BStyle: TBrushStyle; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
@@ -127,9 +133,11 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
+       function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   TRectZoom = class(TFigure)
+  public
     constructor Create(point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
@@ -138,6 +146,7 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
   TRoundRect = class(TFigure)
@@ -158,7 +167,7 @@ type
     property BrushStyle: TBrushStyle read BS write BS;
     property RadiusX: integer read RX write RX;
     property RadiusY: integer read RY write RY;
-
+   public
     constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
       BStyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
@@ -168,14 +177,15 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
+     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
-
+  function FiguresToXML(): TXMLDocument;
 var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
   SelectedNumber: integer = 0;
   ShowPoits: boolean = False;
-
+  CtrlButtonState:Boolean=false;
 implementation
 
 { Porocedures }
@@ -967,7 +977,130 @@ begin
 
 end;
 
+{ Save }
+class procedure TFigure.SaveFile(FileName: String);
+  var Doc:TXMLDocument;
+begin
+  if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
+    Exit;
+  try
+    Doc:= FiguresToXML();
+    WriteXML(Doc, FileName);
+    //Saved:= Current;
+  finally
+    Doc.Free;
+  end;
+end;
 
+function FiguresToXML(): TXMLDocument;
+var
+  Doc: TXMLDocument;
+  FiguresNode: TDOMNode;
+  i: Integer;
+begin
+  Doc:= TXMLDocument.Create;
+  FiguresNode:= Doc.CreateElement('Figures');
+  Doc.AppendChild(FiguresNode);
+  FiguresNode:= Doc.DocumentElement;
+  for i:= 0 to High(Figures) do
+  if Figures[i].CL<>TRectZoom then
+    FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
+  Result:= Doc;
+end;
+
+function TPolyline.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= ADoc.CreateElement('TPolyline');
+  TDOMElement(result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
+  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
+  for i:= 0 to High(Points) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+function Tline.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= ADoc.CreateElement('Tline');
+  TDOMElement(result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
+  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
+  for i:= 0 to High(Points) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+function TRectangle.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= ADoc.CreateElement('TRectangle');
+  TDOMElement(result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
+  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
+  TDOMElement(result).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(BS), Integer(BS)));
+  TDOMElement(result).SetAttribute('BrushColor', IntToStr(BC));
+
+  for i:= 0 to High(Points) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+function TEllipse.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= ADoc.CreateElement('TEllipse');
+  TDOMElement(result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
+  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
+  TDOMElement(result).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(BS), Integer(BS)));
+  TDOMElement(result).SetAttribute('BrushColor', IntToStr(BC));
+  for i:= 0 to High(Points) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+function TRoundRect.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+  var i:Int64;
+begin
+  Result:= ADoc.CreateElement('TRoundRect');
+  TDOMElement(result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
+  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
+  TDOMElement(result).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(BS), Integer(BS)));
+  TDOMElement(result).SetAttribute('BrushColor', IntToStr(BC));
+  TDOMElement(result).SetAttribute('RadiusX', IntToStr(RX));
+  TDOMElement(result).SetAttribute('RadiusY', IntToStr(RY));
+  for i:= 0 to High(Points) do begin
+    PNode:= ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+function TrectZoom.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+begin
+  Result:= ADoc.CreateElement('');
+end;
 
 
 end.

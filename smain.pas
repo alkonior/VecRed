@@ -16,12 +16,17 @@ type
   TVecRedF = class(TForm)
     CloseB: TMenuItem;
     ColorPanel: TPanel;
+    Open: TMenuItem;
+    OpenDialog: TOpenDialog;
+    Save: TMenuItem;
+    SaveAs: TMenuItem;
     MMenu: TMainMenu;
     CustomPanel: TPanel;
     Reset: TMenuItem;
     Options: TMenuItem;
     MenuItem3: TMenuItem;
     DeleteALL: TMenuItem;
+    SaveDialog: TSaveDialog;
     ScrollBarBottom: TScrollBar;
     ScrollBarRight: TScrollBar;
     Spravka: TMenuItem;
@@ -41,11 +46,14 @@ type
     procedure MPanelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure MPanelMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure OpenClick(Sender: TObject);
     procedure PBDblClick(Sender: TObject);
     procedure PBMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
     procedure PBResize(Sender: TObject);
     procedure ResetClick(Sender: TObject);
+    procedure SaveAsClick(Sender: TObject);
+    procedure SaveClick(Sender: TObject);
     procedure ScrollScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: integer);
     procedure SpravkaClick(Sender: TObject);
@@ -67,7 +75,7 @@ var
   VecRedF: TVecRedF;
   Mooving, ScrollB: boolean;
   cy, cx: integer;
-
+  FileName:String;
 
 implementation
 
@@ -79,25 +87,19 @@ implementation
 procedure TVecRedF.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
   case key of
-    VK_SHIFT:
-    begin
-      ShiftButtonState := True;
-    end;
+    VK_SHIFT: ShiftButtonState := True;
     VK_DELETE: DeleteFigures(Sender);
+    VK_CONTROL: CtrlButtonState:=true;
+    VK_C:if (ShiftButtonState)and(CtrlButtonState) then SaveAs.Click;
   end;
 end;
 
 procedure TVecRedF.FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
   case key of
-    VK_SHIFT:
-    begin
-      ShiftButtonState := False;
-    end;
-    VK_SPACE:
-    begin
-      ChoosenTool.FigureEnd();
-    end;
+    VK_SHIFT: ShiftButtonState := False;
+    VK_SPACE: ChoosenTool.FigureEnd();
+    VK_CONTROL: CtrlButtonState:=false;
   end;
 end;
 
@@ -198,6 +200,7 @@ begin
   Mooving := False;
 end;
 
+
 procedure TVecRedF.PBDblClick(Sender: TObject);
 begin
   ChoosenTool.FigureEnd();
@@ -238,6 +241,48 @@ begin
     ZoomToRect((minpoint - FloatPoint(50, 50)), (maxpoint + FloatPoint(50, 50)));
   ZoomB.Value := zoom;
 end;
+
+procedure TVecRedF.SaveAsClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+  begin
+    TFigure.SaveFile(SaveDialog.FileName);
+    VecRedF.Caption:= SaveDialog.FileName + ' - ' ;
+    FileName:= SaveDialog.FileName;
+   // IsSaved:= True;
+   // SavedToCurrent();
+  end;
+end;
+
+procedure TVecRedF.SaveClick(Sender: TObject);
+begin
+   if FileName = Untitled then
+     MSaveAs.Click
+  else begin
+    TFigure.SaveFile(FileName);
+    MainForm.Caption:= FileName + ' - ' ;
+    //IsSaved:= True;
+    //SavedToCurrent();
+  end;
+end;
+
+procedure TVecRedF.OpenClick(Sender: TObject);
+begin
+ { if not IsSaved then begin
+    Ans:= IsSaveDialog();
+    if Ans = mrYes then
+       MSave.Click
+    else if Ans = mrIgnore then
+      Exit;
+  end; }
+  if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then begin
+     MainForm.Caption:= OpenDialog.FileName + ' - ' + AppName;
+     FileName:= OpenDialog.FileName;
+     IsSaved:= True;
+  end;
+  Invalidate;
+end;
+
 
 procedure TVecRedF.ScrollScroll(Sender: TObject; ScrollCode: TScrollCode;
   var ScrollPos: integer);
