@@ -256,11 +256,11 @@ end;
 
 procedure TVecRedF.SaveClick(Sender: TObject);
 begin
-   if FileName = Untitled then
-     MSaveAs.Click
+   if FileName = '' then
+     SaveAs.Click
   else begin
     TFigure.SaveFile(FileName);
-    MainForm.Caption:= FileName + ' - ' ;
+    VecRedF.Caption:= FileName + ' - ' ;
     //IsSaved:= True;
     //SavedToCurrent();
   end;
@@ -276,9 +276,9 @@ begin
       Exit;
   end; }
   if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then begin
-     MainForm.Caption:= OpenDialog.FileName + ' - ' + AppName;
+     VecRedF.Caption:= OpenDialog.FileName + ' - ';
      FileName:= OpenDialog.FileName;
-     IsSaved:= True;
+     //IsSaved:= True;
   end;
   Invalidate;
 end;

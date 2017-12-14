@@ -27,9 +27,10 @@ type
     property Selected: boolean read S write S default False;
     property Points: ManyPoints read P write P;
     property ClassOfFigure: TClass read CL write CL;
-    class procedure SaveFile(FileName: String);
+    class procedure SaveFile(FileName: string);
     procedure SetLengthPoints(l: integer);
-    class function LoadFile(FileName: String): Boolean;
+    class function LoadFile(FileName: string): boolean;
+    class procedure LoadFigure(ANode: TDOMNode); virtual; abstract;
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
@@ -38,6 +39,7 @@ type
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual; abstract;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual; abstract;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual; abstract;
+
   end;
 
   TPolyline = class(TFigure)
@@ -51,7 +53,8 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
   public
-    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
+    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle;
+      point: TFloatPoint);overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -59,7 +62,8 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
-       function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+     class procedure LoadFigure(ANode: TDOMNode); override;
   end;
 
   TLine = class(TFigure)
@@ -73,7 +77,7 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
   public
-    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
+    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -82,6 +86,7 @@ type
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+     class procedure LoadFigure(ANode: TDOMNode); override;
   end;
 
   TRectangle = class(TFigure)
@@ -96,10 +101,10 @@ type
     property BrushColor: TColor read BC write BC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    property BrushStyle: TBrushStyle read BS write BS;
-    public
+    property BrushStyle: TBrushStyle read BS write BS default bsClear;
+  public
     constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle; point: TFloatPoint);
+      BStyle: TBrushStyle; point: TFloatPoint);   overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -107,7 +112,8 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
-       function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+     class procedure LoadFigure(ANode: TDOMNode); override;
   end;
 
   TEllipse = class(TFigure)
@@ -122,10 +128,10 @@ type
     property BrushColor: TColor read BC write BC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    property BrushStyle: TBrushStyle read BS write BS;
-    public
+    property BrushStyle: TBrushStyle read BS write BS default bsClear;
+  public
     constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle; point: TFloatPoint);
+      BStyle: TBrushStyle; point: TFloatPoint);     overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -133,7 +139,8 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
-       function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+     class procedure LoadFigure(ANode: TDOMNode); override;
   end;
 
   TRectZoom = class(TFigure)
@@ -164,12 +171,12 @@ type
     property BrushColor: TColor read BC write BC default clBlack;
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
-    property BrushStyle: TBrushStyle read BS write BS;
-    property RadiusX: integer read RX write RX;
-    property RadiusY: integer read RY write RY;
-   public
+    property BrushStyle: TBrushStyle read BS write BS default bsClear;
+    property RadiusX: integer read RX write RX default 1;
+    property RadiusY: integer read RY write RY default 1;
+  public
     constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint);
+      BStyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint); overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -177,21 +184,31 @@ type
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
-     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
+    class procedure LoadFigure(ANode: TDOMNode); override;
   end;
-  function FiguresToXML(): TXMLDocument;
+function XMLToFigures(Doc: TXMLDocument): Boolean;
+function FiguresToXML(): TXMLDocument;
+
 var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
   SelectedNumber: integer = 0;
   ShowPoits: boolean = False;
-  CtrlButtonState:Boolean=false;
+  CtrlButtonState: boolean = False;
+  ClassesFigures:array of TFigure;
 implementation
 
 { Porocedures }
 procedure TFigure.SetLengthPoints(l: integer);
 begin
   SetLength(P, l);
+end;
+
+procedure AddFigure(AFigure: TFigure);
+begin
+  SetLength(ClassesFigures, Length(ClassesFigures) + 1);
+  ClassesFigures[High(ClassesFigures)]:= AFigure;
 end;
 
 { Drow }
@@ -691,7 +708,7 @@ begin
   Result := nil;
   for i := 2 to Length(P) - 1 do
   begin
-    if IsPointInEllipse(P[i], point,5/zoom*100+1, 5/zoom*100+1) then
+    if IsPointInEllipse(P[i], point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
       Result := @P[i];
   end;
 end;
@@ -699,9 +716,9 @@ end;
 function TLine.CheckPoint(point: TFloatPoint): PFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(P[0], point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(P[0], point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
     Result := @P[0];
-  if IsPointInEllipse(P[1], point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(P[1], point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
     Result := @P[1];
 end;
 
@@ -710,7 +727,7 @@ var
   p1, p2: TFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(min(P[0], P[1]), point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(min(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := min(P[0], P[1]);
     p2 := max(P[0], P[1]);
@@ -718,7 +735,7 @@ begin
     P[1] := p2;
     Result := @P[0];
   end;
-  if IsPointInEllipse(max(P[0], P[1]), point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(max(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := min(P[0], P[1]);
     p2 := max(P[0], P[1]);
@@ -727,7 +744,7 @@ begin
     Result := @P[1];
   end;
   if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
-    point, 5/zoom*100+1, 5/zoom*100+1) then
+    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
     p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
@@ -736,7 +753,7 @@ begin
     Result := @P[0];
   end;
   if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
-    point, 5/zoom*100+1, 5/zoom*100+1) then
+    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
     p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
@@ -751,7 +768,7 @@ var
   p1, p2: TFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(min(P[0], P[1]), point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(min(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := min(P[0], P[1]);
     p2 := max(P[0], P[1]);
@@ -759,7 +776,7 @@ begin
     P[1] := p2;
     Result := @P[0];
   end;
-  if IsPointInEllipse(max(P[0], P[1]), point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(max(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := min(P[0], P[1]);
     p2 := max(P[0], P[1]);
@@ -768,7 +785,7 @@ begin
     Result := @P[1];
   end;
   if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
-    point, 5/zoom*100+1, 5/zoom*100+1) then
+    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
     p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
@@ -777,7 +794,7 @@ begin
     Result := @P[0];
   end;
   if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
-    point, 5/zoom*100+1, 5/zoom*100+1) then
+    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
     p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
@@ -792,7 +809,7 @@ var
   p1, p2: TFloatPoint;
 begin
   Result := nil;
-  if IsPointInEllipse(min(P[0], P[1]), point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(min(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := min(P[0], P[1]);
     p2 := max(P[0], P[1]);
@@ -800,7 +817,7 @@ begin
     P[1] := p2;
     Result := @P[0];
   end;
-  if IsPointInEllipse(max(P[0], P[1]), point, 5/zoom*100+1, 5/zoom*100+1) then
+  if IsPointInEllipse(max(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := min(P[0], P[1]);
     p2 := max(P[0], P[1]);
@@ -809,7 +826,7 @@ begin
     Result := @P[1];
   end;
   if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
-    point, 5/zoom*100+1, 5/zoom*100+1) then
+    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
     p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
@@ -818,7 +835,7 @@ begin
     Result := @P[0];
   end;
   if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
-    point, 5/zoom*100+1, 5/zoom*100+1) then
+    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
   begin
     p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
     p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
@@ -978,13 +995,14 @@ begin
 end;
 
 { Save }
-class procedure TFigure.SaveFile(FileName: String);
-  var Doc:TXMLDocument;
+class procedure TFigure.SaveFile(FileName: string);
+var
+  Doc: TXMLDocument;
 begin
   if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
     Exit;
   try
-    Doc:= FiguresToXML();
+    Doc := FiguresToXML();
     WriteXML(Doc, FileName);
     //Saved:= Current;
   finally
@@ -996,111 +1014,301 @@ function FiguresToXML(): TXMLDocument;
 var
   Doc: TXMLDocument;
   FiguresNode: TDOMNode;
-  i: Integer;
+  i: integer;
 begin
-  Doc:= TXMLDocument.Create;
-  FiguresNode:= Doc.CreateElement('Figures');
+  Doc := TXMLDocument.Create;
+  FiguresNode := Doc.CreateElement('Figures');
   Doc.AppendChild(FiguresNode);
-  FiguresNode:= Doc.DocumentElement;
-  for i:= 0 to High(Figures) do
-  if Figures[i].CL<>TRectZoom then
-    FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
-  Result:= Doc;
+  FiguresNode := Doc.DocumentElement;
+  for i := 0 to High(Figures) do
+    if Figures[i].CL <> TRectZoom then
+      FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
+  Result := Doc;
 end;
 
 function TPolyline.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 var
   PNode: TDOMNode;
-  i: Integer;
+  i: integer;
 begin
-  Result:= ADoc.CreateElement('TPolyline');
-  TDOMElement(result).SetAttribute('Width', IntToStr(W));
-  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
-  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
-  for i:= 0 to High(Points) do begin
-    PNode:= ADoc.CreateElement('point');
+  Result := ADoc.CreateElement('TPolyline');
+  TDOMElement(Result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
+  TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
+  for i := 0 to High(Points) do
+  begin
+    PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
     TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
     Result.AppendChild(PNode);
   end;
 end;
+
 function Tline.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 var
   PNode: TDOMNode;
-  i: Integer;
+  i: integer;
 begin
-  Result:= ADoc.CreateElement('Tline');
-  TDOMElement(result).SetAttribute('Width', IntToStr(W));
-  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
-  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
-  for i:= 0 to High(Points) do begin
-    PNode:= ADoc.CreateElement('point');
+  Result := ADoc.CreateElement('Tline');
+  TDOMElement(Result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
+  TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
+  for i := 0 to High(Points) do
+  begin
+    PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
     TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
     Result.AppendChild(PNode);
   end;
 end;
+
 function TRectangle.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 var
   PNode: TDOMNode;
-  i: Integer;
+  i: integer;
 begin
-  Result:= ADoc.CreateElement('TRectangle');
-  TDOMElement(result).SetAttribute('Width', IntToStr(W));
-  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
-  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
-  TDOMElement(result).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(BS), Integer(BS)));
-  TDOMElement(result).SetAttribute('BrushColor', IntToStr(BC));
+  Result := ADoc.CreateElement('TRectangle');
+  TDOMElement(Result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
+  TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
+  TDOMElement(Result).SetAttribute('BrushStyle',
+    GetEnumName(TypeInfo(BS), integer(BS)));
+  TDOMElement(Result).SetAttribute('BrushColor', IntToStr(BC));
 
-  for i:= 0 to High(Points) do begin
-    PNode:= ADoc.CreateElement('point');
+  for i := 0 to High(Points) do
+  begin
+    PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
     TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
     Result.AppendChild(PNode);
   end;
 end;
+
 function TEllipse.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 var
   PNode: TDOMNode;
-  i: Integer;
+  i: integer;
 begin
-  Result:= ADoc.CreateElement('TEllipse');
-  TDOMElement(result).SetAttribute('Width', IntToStr(W));
-  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
-  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
-  TDOMElement(result).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(BS), Integer(BS)));
-  TDOMElement(result).SetAttribute('BrushColor', IntToStr(BC));
-  for i:= 0 to High(Points) do begin
-    PNode:= ADoc.CreateElement('point');
+  Result := ADoc.CreateElement('TEllipse');
+  TDOMElement(Result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
+  TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
+  TDOMElement(Result).SetAttribute('BrushStyle',
+    GetEnumName(TypeInfo(BS), integer(BS)));
+  TDOMElement(Result).SetAttribute('BrushColor', IntToStr(BC));
+  for i := 0 to High(Points) do
+  begin
+    PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
     TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
     Result.AppendChild(PNode);
   end;
 end;
+
 function TRoundRect.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 var
   PNode: TDOMNode;
-  var i:Int64;
+var
+  i: int64;
 begin
-  Result:= ADoc.CreateElement('TRoundRect');
-  TDOMElement(result).SetAttribute('Width', IntToStr(W));
-  TDOMElement(result).SetAttribute('PenStyle',  GetEnumName(TypeInfo(PS), Integer(PS)));
-  TDOMElement(result).SetAttribute('PenColor', IntToStr(PC));
-  TDOMElement(result).SetAttribute('BrushStyle',  GetEnumName(TypeInfo(BS), Integer(BS)));
-  TDOMElement(result).SetAttribute('BrushColor', IntToStr(BC));
-  TDOMElement(result).SetAttribute('RadiusX', IntToStr(RX));
-  TDOMElement(result).SetAttribute('RadiusY', IntToStr(RY));
-  for i:= 0 to High(Points) do begin
-    PNode:= ADoc.CreateElement('point');
+  Result := ADoc.CreateElement('TRoundRect');
+  TDOMElement(Result).SetAttribute('Width', IntToStr(W));
+  TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
+  TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
+  TDOMElement(Result).SetAttribute('BrushStyle',
+    GetEnumName(TypeInfo(BS), integer(BS)));
+  TDOMElement(Result).SetAttribute('BrushColor', IntToStr(BC));
+  TDOMElement(Result).SetAttribute('RadiusX', IntToStr(RX));
+  TDOMElement(Result).SetAttribute('RadiusY', IntToStr(RY));
+  for i := 0 to High(Points) do
+  begin
+    PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
     TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
     Result.AppendChild(PNode);
   end;
 end;
+
 function TrectZoom.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 begin
-  Result:= ADoc.CreateElement('');
+  Result := ADoc.CreateElement('');
+end;
+
+{ Load }
+class function TFigure.LoadFile(FileName: String): Boolean;
+var
+  Doc: TXMLDocument;
+begin
+  if (Copy(FileName, Length(FileName) - 3, 4) <> '.xml') then
+    Exit(False);
+  try
+    ReadXMLFile(Doc, FileName);
+    Result:= XMLToFigures(Doc);
+  finally
+    Doc.Free;
+  end;
+end;
+
+function XMLToFigures(Doc: TXMLDocument): Boolean;
+var
+  FigNode: TDOMNode;
+  i: Integer;
+begin
+  Result:= True;
+  if Doc.DocumentElement.NodeName <> 'Figures' then
+      Exit(False);
+    SetLength(Figures, 0);
+    FigNode:= Doc.DocumentElement.FirstChild;
+    while FigNode <> Nil do begin
+      for i:=0 to High(ClassesFigures) do
+        if FigNode.NodeName = ClassesFigures[i].ClassName then
+          ClassesFigures[i].LoadFigure(FigNode);
+      FigNode:= FigNode.GetNextNodeSkipChildren;
+    end;
+end;
+
+class procedure TPolyline.LoadFigure(ANode: TDOMNode);
+var
+  F: TPolyline;
+  i: Integer;
+  PNode: TDOMNode;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  F:= TPolyline.Create;
+  for i:= 0 to ANode.Attributes.Length-1 do
+  begin
+    case ANode.Attributes.Item[i].NodeName of
+    'Width': SetPropValue(F,'Width',ANode.Attributes.Item[i].NodeValue);
+    'PenStyle':SetPropValue(F,'PenStyle',ANode.Attributes.Item[i].NodeValue);
+    'PenColor':SetPropValue(F,'PenColor',ANode.Attributes.Item[i].NodeValue);
+    end;
+  end;
+  PNode:= ANode;
+  for i:= 1 to ANode.GetChildCount do begin
+    PNode:= PNode.GetNextNode;
+    f.SetLengthPoints(Length(f.Points)+1);
+    f.Points[High(f.Points)]:=FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(PNode.Attributes.Item[1].NodeValue));
+  end;
+  Figures[High(Figures)]:= F;
+end;
+
+class procedure Tline.LoadFigure(ANode: TDOMNode);
+var
+  F: Tline;
+  i: Integer;
+  PNode: TDOMNode;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  F:= Tline.Create;
+  for i:= 0 to ANode.Attributes.Length-1 do
+  begin
+    case ANode.Attributes.Item[i].NodeName of
+    'Width': SetPropValue(F,'Width',ANode.Attributes.Item[i].NodeValue);
+    'PenStyle':SetPropValue(F,'PenStyle',ANode.Attributes.Item[i].NodeValue);
+    'PenColor':SetPropValue(F,'PenColor',ANode.Attributes.Item[i].NodeValue);
+    end;
+  end;
+  PNode:= ANode;
+  for i:= 1 to ANode.GetChildCount do begin
+    PNode:= PNode.GetNextNode;
+    f.SetLengthPoints(Length(f.Points)+1);
+    f.Points[High(f.Points)]:=FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(PNode.Attributes.Item[1].NodeValue));
+  end;
+  Figures[High(Figures)]:= F;
+end;
+
+class procedure TRectangle.LoadFigure(ANode: TDOMNode);
+var
+  F: TRectangle;
+  i: Integer;
+  PNode: TDOMNode;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  F:= TRectangle.Create;
+  for i:= 0 to ANode.Attributes.Length-1 do
+  begin
+    case ANode.Attributes.Item[i].NodeName of
+    'Width': SetPropValue(F,'Width',ANode.Attributes.Item[i].NodeValue);
+    'PenStyle':SetPropValue(F,'PenStyle',ANode.Attributes.Item[i].NodeValue);
+    'PenColor':SetPropValue(F,'PenColor',ANode.Attributes.Item[i].NodeValue);
+    'BrushColor':SetPropValue(F,'BrushColor',ANode.Attributes.Item[i].NodeValue);
+    'BrushStyle':SetPropValue(F,'BrushStyle',ANode.Attributes.Item[i].NodeValue);
+    end;
+  end;
+  PNode:= ANode;
+  for i:= 1 to ANode.GetChildCount do begin
+    PNode:= PNode.GetNextNode;
+    f.SetLengthPoints(Length(f.Points)+1);
+    f.Points[High(f.Points)]:=FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(PNode.Attributes.Item[1].NodeValue));
+  end;
+  Figures[High(Figures)]:= F;
+end;
+class procedure TEllipse.LoadFigure(ANode: TDOMNode);
+var
+  F: TEllipse;
+  i: Integer;
+  PNode: TDOMNode;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  F:= TEllipse.Create;
+  for i:= 0 to ANode.Attributes.Length-1 do
+  begin
+    case ANode.Attributes.Item[i].NodeName    of
+    'Width': SetPropValue(F,'Width',ANode.Attributes.Item[i].NodeValue);
+    'PenStyle':SetPropValue(F,'PenStyle',ANode.Attributes.Item[i].NodeValue);
+    'PenColor':SetPropValue(F,'PenColor',ANode.Attributes.Item[i].NodeValue);
+      'BrushColor':SetPropValue(F,'BrushColor',ANode.Attributes.Item[i].NodeValue);
+    'BrushStyle':SetPropValue(F,'BrushStyle',ANode.Attributes.Item[i].NodeValue);
+    end;
+  end;
+  PNode:= ANode;
+  for i:= 1 to ANode.GetChildCount do begin
+    PNode:= PNode.GetNextNode;
+    f.SetLengthPoints(Length(f.Points)+1);
+    f.Points[High(f.Points)]:=FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(PNode.Attributes.Item[1].NodeValue));
+  end;
+  Figures[High(Figures)]:= F;
+end;
+class procedure TRoundRect.LoadFigure(ANode: TDOMNode);
+var
+  F: TRoundRect;
+  i: Integer;
+  PNode: TDOMNode;
+begin
+  SetLength(Figures, Length(Figures) + 1);
+  F:= TRoundRect.Create;
+  for i:= 0 to ANode.Attributes.Length-1 do
+  begin
+    case ANode.Attributes.Item[i].NodeName   of
+    'Width': SetPropValue(F,'Width',ANode.Attributes.Item[i].NodeValue);
+    'PenStyle':SetPropValue(F,'PenStyle',ANode.Attributes.Item[i].NodeValue);
+    'PenColor':SetPropValue(F,'PenColor',ANode.Attributes.Item[i].NodeValue);
+      'BrushColor':SetPropValue(F,'BrushColor',ANode.Attributes.Item[i].NodeValue);
+    'BrushStyle':SetPropValue(F,'BrushStyle',ANode.Attributes.Item[i].NodeValue);
+    'RadiusX': SetPropValue(F,'RadiusX',ANode.Attributes.Item[i].NodeValue);
+    'RadiusY': SetPropValue(F,'RadiusY',ANode.Attributes.Item[i].NodeValue);
+    end;
+  end;
+  PNode:= ANode;
+  for i:= 1 to ANode.GetChildCount do begin
+    PNode:= PNode.GetNextNode;
+    f.SetLengthPoints(Length(f.Points)+1);
+    f.Points[High(f.Points)]:=FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
+                            StrToFloat(PNode.Attributes.Item[1].NodeValue));
+  end;
+  Figures[High(Figures)]:= F;
 end;
 
 
+initialization
+
+AddFigure(TPolyline.Create);
+AddFigure(Tline.Create);
+AddFigure(TRectangle.Create);
+AddFigure(TEllipse.Create);
+AddFigure(TRoundRect.Create);
 end.
