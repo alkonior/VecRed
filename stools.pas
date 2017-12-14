@@ -282,7 +282,7 @@ type
   public
     STpoint: PFloatPoint;
     Moove: boolean;
-    lminp,lmaxp:TFloatPoint;
+    lminp, lmaxp: TFloatPoint;
     constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -341,20 +341,23 @@ begin
     if i.Selected then
     begin
       case length((Tools[10] as TSelectTool).APS) of
-      7:i.setprp((Tools[10] as TSelectTool).APS[0].res, (Tools[10] as TSelectTool).APS[1].res,
-        (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[3].res,
-        (Tools[10] as TSelectTool).APS[4].res, (Tools[10] as TSelectTool).APS[5].res,
-        (Tools[10] as TSelectTool).APS[6].res);
-      5:i.setprp((Tools[10] as TSelectTool).APS[0].res, (Tools[10] as TSelectTool).APS[1].res,
-        (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[3].res,
-        (Tools[10] as TSelectTool).APS[4].res, (Tools[10] as TSelectTool).APS[0].res,
-        (Tools[10] as TSelectTool).APS[0].res);
-      3:i.setprp((Tools[10] as TSelectTool).APS[0].res, (Tools[10] as TSelectTool).APS[1].res,
-        (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[0].res,
-        (Tools[10] as TSelectTool).APS[0].res, (Tools[10] as TSelectTool).APS[0].res,
-        (Tools[10] as TSelectTool).APS[0].res);
-    end;
+        7: i.setprp((Tools[10] as TSelectTool).APS[0].res,
+            (Tools[10] as TSelectTool).APS[1].res,
+            (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[3].res,
+            (Tools[10] as TSelectTool).APS[4].res, (Tools[10] as TSelectTool).APS[5].res,
+            (Tools[10] as TSelectTool).APS[6].res);
+        5: i.setprp((Tools[10] as TSelectTool).APS[0].res,
+            (Tools[10] as TSelectTool).APS[1].res,
+            (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[3].res,
+            (Tools[10] as TSelectTool).APS[4].res, (Tools[10] as TSelectTool).APS[0].res,
+            (Tools[10] as TSelectTool).APS[0].res);
+        3: i.setprp((Tools[10] as TSelectTool).APS[0].res,
+            (Tools[10] as TSelectTool).APS[1].res,
+            (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[0].res,
+            (Tools[10] as TSelectTool).APS[0].res, (Tools[10] as TSelectTool).APS[0].res,
+            (Tools[10] as TSelectTool).APS[0].res);
       end;
+    end;
   InvalidateHandler;
 end;
 
@@ -447,11 +450,11 @@ begin
       end;
       'LongInt':
       begin
-        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i , PropertyPanel);
+        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i, PropertyPanel);
       end;
       'TFPPenStyle':
       begin
-        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i , PropertyPanel);
+        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i, PropertyPanel);
       end;
       'TFPBrushStyle':
       begin
@@ -517,7 +520,7 @@ var
   i: TFigure;
 begin
   ShowPoits := False;
-  SelectedNumber:=0;
+  SelectedNumber := 0;
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
   begin
     ChoosenTool.FigureEnd();
@@ -628,7 +631,8 @@ end;
 procedure TMultylineTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := TPolyline.Create(Propertys[0].Res, Propertys[1].res, Propertys[2].res, point);
+  Figures[High(Figures)] := TPolyline.Create(Propertys[0].Res,
+    Propertys[1].res, Propertys[2].res, point);
   Figures[High(Figures)].SetLengthPoints(4);
   Figures[High(Figures)].Points[3] := Point;
   MinPoint := min(MinPoint, point);
@@ -719,8 +723,8 @@ procedure TSelectTool.FigureCreate(Point: TFloatPoint);
 var
   i: TFigure;
 begin
-   if length(aps)>0 then
-   DeleteSelectParams(aps);
+  if length(aps) > 0 then
+    DeleteSelectParams(aps);
   Setlength(Figures, length(figures) + 1);
   Figures[High(Figures)] := TRectZoom.Create(point);
   for i in figures do
@@ -731,8 +735,8 @@ procedure TChangePointsTool.FigureCreate(Point: TFloatPoint);
 var
   i: TFigure;
 begin
-   if length(aps)>0 then
-   DeleteSelectParams(aps);
+  if length(aps) > 0 then
+    DeleteSelectParams(aps);
   moove := False;
   STpoint := nil;
   if SelectedNumber = 0 then
@@ -751,15 +755,15 @@ begin
     else
       Moove := True;
     SPoint := point;
-    lminp:=MinPoint;
-    lmaxp:=MaxPoint;
+    lminp := MinPoint;
+    lmaxp := MaxPoint;
   end;
 end;
 
 procedure TDesignatorTool.FigureCreate(Point: TFloatPoint);
 begin
-   if length(aps)>0 then
-   DeleteSelectParams(aps);
+  if length(aps) > 0 then
+    DeleteSelectParams(aps);
   Setlength(Figures, length(figures) + 1);
   Figures[High(Figures)] := TRectZoom.Create(point);
 end;
@@ -885,8 +889,8 @@ begin
       for i in Figures do
         if i.Selected then
           i.move((WorldToScrn(point) - WorldToScrn(spoint)) * 100 / zoom);
-      MinPoint:=Min(min(i.Points[0],i.Points[1]),lminp);
-      MaxPoint:=Max(min(i.Points[0],i.Points[1]),lmaxp);
+      MinPoint := Min(min(i.Points[0], i.Points[1]), lminp);
+      MaxPoint := Max(max(i.Points[0], i.Points[1]), lmaxp);
       InvalidateHandler;
       SPoint := point;
     end
@@ -895,8 +899,10 @@ begin
       STpoint^ := STpoint^ + (WorldToScrn(point) - WorldToScrn(spoint)) * 100 / zoom;
       SPoint := point;
       for i in Figures do
-      if i.Selected then
-        i.move(FloatPoint(0, 0));
+        if i.Selected then
+          i.move(FloatPoint(0, 0));
+      MinPoint := Min(STpoint^, lminp);
+      MaxPoint := Max(STpoint^, lmaxp);
     end;
 
   end;
@@ -1551,8 +1557,8 @@ procedure TSelectTool.CreateParams();
 var
   v: variant;
 begin
-   if length(aps)>0 then
-   SetLength(APS,0);
+  if length(aps) > 0 then
+    SetLength(APS, 0);
   Delete := TMyButton.Create((@DeleteFigures), ButtonPanel, 0, 0, 5, 'ico/delete.png');
   Designator := TMyButton.Create((@ChangeDependentTool), ButtonPanel,
     Number + 1, 33, 5, 'ico/select2.png');
@@ -1570,9 +1576,9 @@ procedure TDesignatorTool.CreateParams(Tool: TTool);
 var
   i, j: integer;
 begin
-  APS:=(Tool as TSelectTool).APS;
-  if length(aps)>0 then
-   DeleteSelectParams(aps);
+  APS := (Tool as TSelectTool).APS;
+  if length(aps) > 0 then
+    DeleteSelectParams(aps);
   Delete := (Tool as TSelectTool).Delete;
   Designator := (Tool as TSelectTool).Designator;
   Changepoints := (Tool as TSelectTool).Changepoints;
@@ -1588,9 +1594,9 @@ end;
 
 procedure TChangePointsTool.CreateParams(Tool: TTool);
 begin
-  APS:=(Tool as TSelectTool).APS;
-  if length(aps)>0 then
-   DeleteSelectParams(aps);
+  APS := (Tool as TSelectTool).APS;
+  if length(aps) > 0 then
+    DeleteSelectParams(aps);
   Delete := (Tool as TSelectTool).Delete;
   Designator := (Tool as TSelectTool).Designator;
   Allbottom := (Tool as TSelectTool).Allbottom;
@@ -1771,7 +1777,7 @@ begin
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
   SpinEdit.OnChange := @OnChange;
-  res:=SpinEdit.Value;
+  res := SpinEdit.Value;
 end;
 
 constructor TColorProperty.Create(s: string; n: integer; Panel: Tpanel);
@@ -1783,7 +1789,7 @@ begin
   Button.Height := 32;
   Button.left := n * 100 + 50;
   Button.OnColorChanged := @OnChange;
-  res:=Button.ButtonColor;
+  res := Button.ButtonColor;
 end;
 
 constructor TPenStyleProperty.Create(s: string; n: integer; Panel: TPanel);
@@ -1804,7 +1810,7 @@ begin
   PenStylesBox.Parent := Panel;
   PenStylesBox.OnDrawItem := @PenStylesBoxDrawItem;
   PenStylesBox.OnChange := @OnChange;
-  Res:=CasePenStyle(0);
+  Res := CasePenStyle(0);
 end;
 
 constructor TBrushStyleProperty.Create(s: string; n: integer; Panel: TPanel);
@@ -1825,7 +1831,7 @@ begin
   BrushStylesBox.Align := alTop;
   BrushStylesBox.OnDrawItem := @BrushStylesBoxDrawItem;
   BrushStylesBox.OnChange := @OnChange;
-  Res:=CaseBrushStyle(0);
+  Res := CaseBrushStyle(0);
 end;
 
 destructor TSpinProperty.Destroy;
@@ -2057,7 +2063,7 @@ begin
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
   SpinEdit.OnChange := @OnChange;
-  Res:=SpinEdit.Value;
+  Res := SpinEdit.Value;
 end;
 
 constructor TColorPropertyForSelect.Create(s: string; n: integer; Panel: Tpanel);
@@ -2069,7 +2075,7 @@ begin
   Button.Height := 32;
   Button.left := n * 100 + 50;
   Button.OnColorChanged := @OnChange;
-  Res:=Button.ButtonColor;
+  Res := Button.ButtonColor;
 end;
 
 constructor TPenStylePropertyForSelect.Create(s: string; n: integer; Panel: TPanel);
@@ -2090,7 +2096,7 @@ begin
   PenStylesBox.Parent := Panel;
   PenStylesBox.OnDrawItem := @PenStylesBoxDrawItem;
   PenStylesBox.OnChange := @OnChange;
-  res:=CasePenStyle(0);
+  res := CasePenStyle(0);
 end;
 
 constructor TBrushStylePropertyForSelect.Create(s: string; n: integer; Panel: TPanel);
@@ -2111,7 +2117,7 @@ begin
   BrushStylesBox.Align := alTop;
   BrushStylesBox.OnDrawItem := @BrushStylesBoxDrawItem;
   BrushStylesBox.OnChange := @OnChange;
-  Res:=CaseBrushStyle(0);
+  Res := CaseBrushStyle(0);
 end;
 
 destructor TSpinPropertyForSelect.Destroy;

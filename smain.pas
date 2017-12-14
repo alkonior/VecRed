@@ -36,11 +36,13 @@ type
     PBPanel: TPanel;
     ZoomB: TSpinEdit;
     ZoomT: TLabel;
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure DeleteALLClick(Sender: TObject);
     procedure CloseBClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+    procedure MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
     procedure MPanelMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure MPanelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -64,7 +66,7 @@ type
       Shift: TShiftState; X, Y: integer);
     procedure PBPaint(Sender: TObject);
     procedure ZoomBChange(Sender: TObject);
-
+    function IsSaveDialog(): integer;
   private
     { private declarations }
   public
@@ -75,22 +77,28 @@ var
   VecRedF: TVecRedF;
   Mooving, ScrollB: boolean;
   cy, cx: integer;
-  FileName:String;
+  FileName: string;
 
 implementation
 
 {$R *.lfm}
 
-
 { TVecRedF }
+
+function TVecRedF.IsSaveDialog(): integer;
+begin
+  Result := MessageDlg('Save changes?', 'File has been modified, save changes?',
+    mtConfirmation, [mbYes, mbNo, mbCancel], 0);
+end;
 
 procedure TVecRedF.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
   case key of
     VK_SHIFT: ShiftButtonState := True;
     VK_DELETE: DeleteFigures(Sender);
-    VK_CONTROL: CtrlButtonState:=true;
-    VK_C:if (ShiftButtonState)and(CtrlButtonState) then SaveAs.Click;
+    VK_CONTROL: CtrlButtonState := True;
+    VK_C: if (ShiftButtonState) and (CtrlButtonState) then
+        SaveAs.Click;
   end;
 end;
 
@@ -99,8 +107,13 @@ begin
   case key of
     VK_SHIFT: ShiftButtonState := False;
     VK_SPACE: ChoosenTool.FigureEnd();
-    VK_CONTROL: CtrlButtonState:=false;
+    VK_CONTROL: CtrlButtonState := False;
   end;
+end;
+
+procedure TVecRedF.MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
+begin
+  IsSaved := False;
 end;
 
 procedure TVecRedF.FormCreate(Sender: TObject);
@@ -138,25 +151,37 @@ begin
   ButtonPanel.BevelInner := bvNone;
   ButtonPanel.BevelOuter := bvNone;
   ButtonPanel.BorderWidth := 0;
-
-
   PropertyPanel := TPanel.Create(VecRedF);
   PropertyPanel.Parent := CustomPanel;
   PropertyPanel.AnchorSide[akTop].Side := asrBottom;
-  PropertyPanel.AnchorSide[akTop].Control :=  ButtonPanel;
+  PropertyPanel.AnchorSide[akTop].Control := ButtonPanel;
   PropertyPanel.AnchorSide[akLeft].Side := asrLeft;
-  PropertyPanel.AnchorSide[akleft].Control :=  ButtonPanel;
+  PropertyPanel.AnchorSide[akleft].Control := ButtonPanel;
   PropertyPanel.BevelInner := bvNone;
   PropertyPanel.BevelOuter := bvNone;
   PropertyPanel.BorderWidth := 0;
   PropertyPanel.OnMouseDown := @MPanelMouseDown;
   PropertyPanel.OnMouseMove := @MPanelMouseMove;
   PropertyPanel.OnMouseUp := @MPanelMouseUp;
-
-  ButtonPanel.Color:=MPanel.Color;
+  ButtonPanel.Color := MPanel.Color;
   ChoosenTool := Tools[0];
   InvalidateHandler := @Invalidate;
   ChoosenTool.CreateParams();
+end;
+
+procedure TVecRedF.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+var
+  Ans: integer;
+begin
+  if IsSaved then
+    Exit;
+  Ans := IsSaveDialog;
+  if Ans = mrYes then
+    Save.Click
+  else if Ans = mrNo then
+    CanClose := True
+  else
+    CanClose := False;
 end;
 
 procedure TVecRedF.DeleteALLClick(Sender: TObject);
@@ -243,42 +268,52 @@ begin
 end;
 
 procedure TVecRedF.SaveAsClick(Sender: TObject);
+
 begin
   if SaveDialog.Execute then
   begin
     TFigure.SaveFile(SaveDialog.FileName);
-    VecRedF.Caption:= SaveDialog.FileName + ' - ' ;
-    FileName:= SaveDialog.FileName;
-   // IsSaved:= True;
-   // SavedToCurrent();
+    FileName := SaveDialog.FileName;
+    IsSaved := True;
   end;
 end;
 
 procedure TVecRedF.SaveClick(Sender: TObject);
 begin
-   if FileName = '' then
-     SaveAs.Click
-  else begin
+  if FileName = '' then
+    SaveAs.Click
+  else
+  begin
     TFigure.SaveFile(FileName);
-    VecRedF.Caption:= FileName + ' - ' ;
-    //IsSaved:= True;
-    //SavedToCurrent();
+    IsSaved := True;
   end;
 end;
 
 procedure TVecRedF.OpenClick(Sender: TObject);
+var
+  i: TFigure;
+  ans: integer;
 begin
- { if not IsSaved then begin
-    Ans:= IsSaveDialog();
+  if not IsSaved then
+  begin
+    Ans := IsSaveDialog();
     if Ans = mrYes then
-       MSave.Click
-    else if Ans = mrIgnore then
+      Save.Click
+    else
+    if Ans = mrCancel then
       Exit;
-  end; }
-  if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then begin
-     VecRedF.Caption:= OpenDialog.FileName + ' - ';
-     FileName:= OpenDialog.FileName;
-     //IsSaved:= True;
+  end;
+  if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then
+  begin
+    FileName := OpenDialog.FileName;
+    IsSaved := True;
+    MinPoint := FloatPoint(100000, 100000);
+    MaxPoint := FloatPoint(-100000, -100000);
+    for i in Figures do
+    begin
+      MinPoint := Min(min(i.Points[0], i.Points[1]), MinPoint);
+      MaxPoint := Max(max(i.Points[0], i.Points[1]), MaxPoint);
+    end;
   end;
   Invalidate;
 end;
@@ -307,12 +342,14 @@ begin
   begin
     ChoosenTool.AddPoint(ScrnToWorld(point(x, y)));
     PB.Invalidate;
+    IsSaved := False;
   end
   else
   begin
     ChoosenTool.FigureCreate(ScrnToWorld(point(x, y)));
     Invalidate;
     Drawing := True;
+    IsSaved := False;
   end;
 end;
 
