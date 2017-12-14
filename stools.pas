@@ -282,6 +282,7 @@ type
   public
     STpoint: PFloatPoint;
     Moove: boolean;
+    lminp,lmaxp:TFloatPoint;
     constructor Create(n: integer);
     procedure FigureCreate(Point: TFloatPoint); override;
     procedure ChangePoint(Point: TFloatPoint); override;
@@ -751,6 +752,8 @@ begin
     else
       Moove := True;
     SPoint := point;
+    lminp:=MinPoint;
+    lmaxp:=MaxPoint;
   end;
 end;
 
@@ -883,6 +886,8 @@ begin
       for i in Figures do
         if i.Selected then
           i.move((WorldToScrn(point) - WorldToScrn(spoint)) * 100 / zoom);
+      MinPoint:=Min(min(i.Points[0],i.Points[1]),lminp);
+      MaxPoint:=Max(min(i.Points[0],i.Points[1]),lmaxp);
       InvalidateHandler;
       SPoint := point;
     end
@@ -891,6 +896,7 @@ begin
       STpoint^ := STpoint^ + (WorldToScrn(point) - WorldToScrn(spoint)) * 100 / zoom;
       SPoint := point;
       for i in Figures do
+      if i.Selected then
         i.move(FloatPoint(0, 0));
     end;
 
