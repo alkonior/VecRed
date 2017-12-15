@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Figures>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="0" BrushStyle="bsSolid" BrushColor="255">
+    <point x="507,405405405405" y="453,108108108108"/>
+    <point x="2397" y="1431"/>
+  </TRectangle>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="0" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="670" y="1429"/>
+    <point x="911" y="456"/>
+  </TRectangle>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="0" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="503" y="876"/>
+    <point x="2396" y="1107"/>
+  </TRectangle>
+  <TEllipse Width="1" PenStyle="psSolid" PenColor="16777215" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="570,421052631579" y="1215,84210526316"/>
+    <point x="1036" y="774"/>
+  </TEllipse>
+  <TEllipse Width="4" PenStyle="psSolid" PenColor="0" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="615" y="804"/>
+    <point x="998" y="1178"/>
+  </TEllipse>
+  <TLine Width="10" PenStyle="psSolid" PenColor="0">
+    <point x="800" y="865"/>
+    <point x="801" y="1121"/>
+  </TLine>
+  <TLine Width="30" PenStyle="psSolid" PenColor="0">
+    <point x="799" y="855"/>
+    <point x="802" y="1140"/>
+  </TLine>
+  <TLine Width="30" PenStyle="psSolid" PenColor="0">
+    <point x="800" y="845"/>
+    <point x="919" y="881"/>
+  </TLine>
+  <TLine Width="30" PenStyle="psSolid" PenColor="0">
+    <point x="652" y="982"/>
+    <point x="952" y="982"/>
+  </TLine>
+  <TLine Width="30" PenStyle="psSolid" PenColor="0">
+    <point x="652" y="983"/>
+    <point x="704" y="871"/>
+  </TLine>
+  <TLine Width="30" PenStyle="psSolid" PenColor="0">
+    <point x="802" y="1149"/>
+    <point x="677" y="1077"/>
+  </TLine>
+  <TLine Width="30" PenStyle="psSolid" PenColor="0">
+    <point x="951" y="983"/>
+    <point x="886" y="1111"/>
+  </TLine>
+  <TLine Width="50" PenStyle="psSolid" PenColor="0">
+    <point x="1024,82706766917" y="985,368421052632"/>
+    <point x="2377,82706766917" y="985,368421052632"/>
+  </TLine>
+  <TLine Width="50" PenStyle="psSolid" PenColor="0">
+    <point x="793" y="780"/>
+    <point x="794" y="465"/>
+  </TLine>
+  <TLine Width="50" PenStyle="psSolid" PenColor="0">
+    <point x="591,421052631579" y="977,315789473684"/>
+    <point x="503,736842105263" y="978,631578947368"/>
+  </TLine>
+  <TLine Width="50" PenStyle="psSolid" PenColor="0">
+    <point x="795,894736842105" y="1204,73684210526"/>
+    <point x="794,894736842105" y="1439,73684210526"/>
+  </TLine>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="16777215" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="2429,72972972973" y="1729,72972972973"/>
+    <point x="354,054054054054" y="1416,21621621622"/>
+  </TRectangle>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="16777215" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="264,864864864865" y="1681,08108108108"/>
+    <point x="518,918918918919" y="362,162162162162"/>
+  </TRectangle>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="16777215" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="383,783783783784" y="364,864864864865"/>
+    <point x="2535,13513513514" y="475,675675675676"/>
+  </TRectangle>
+  <TRectangle Width="1" PenStyle="psSolid" PenColor="16777215" BrushStyle="bsSolid" BrushColor="16777215">
+    <point x="2378,37837837838" y="386,486486486486"/>
+    <point x="2618,91891891892" y="1481,08108108108"/>
+  </TRectangle>
+</Figures>
