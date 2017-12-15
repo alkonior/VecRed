@@ -94,8 +94,8 @@ begin
   B := P2.x - P1.x;
   C := P1.x * P2.Y - P2.x * P1.y;
   d := abs(a * p.x + b * p.Y + c);
-  Result := (((p1.x > p.x) and (p2.X < p.x)) or ((p1.x < p.x) and (p2.x > p.x))) and
-    (((p1.y > p.y) and (p2.y < p.y)) or ((p1.y < p.y) and (p2.y > p.y))) and
+  Result := ((((p1.x > p.x) and (p2.X < p.x)) or ((p1.x < p.x) and (p2.x > p.x))) or
+    (((p1.y > p.y) and (p2.y < p.y)) or ((p1.y < p.y) and (p2.y > p.y)))) and
     (d < ((5 + w) * sqrt(a * a + b * b)));
 end;
 

@@ -293,6 +293,7 @@ procedure TVecRedF.OpenClick(Sender: TObject);
 var
   i: TFigure;
   ans: integer;
+  f:TFigure;
 begin
   if not IsSaved then
   begin
@@ -314,8 +315,13 @@ begin
       MinPoint := Min(min(i.Points[0], i.Points[1]), MinPoint);
       MaxPoint := Max(max(i.Points[0], i.Points[1]), MaxPoint);
     end;
+    Invalidate;
+  end else
+  begin
+    ShowMessage('Файл поврежден!');
+    setlength(Figures,0);
   end;
-  Invalidate;
+
 end;
 
 
@@ -377,8 +383,9 @@ begin
   SetScrolBars(ScrollBarBottom, ScrollBarRight);
   ScrollB := True;
   for i in Figures do
-    i.draw(pb.Canvas);
+    if i<>nil then i.draw(pb.Canvas);
   for i in Figures do
+  if i<>nil then
     if i.Selected then
       i.drawoutline(pb.Canvas);
 end;

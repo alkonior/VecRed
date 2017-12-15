@@ -1692,7 +1692,6 @@ begin
   AllTop.Destroy();
   Designator.Destroy();
   Changepoints.Destroy();
-  {ChosenFigure.Destroy();}
   DeleteSelectParams(aps);
 end;
 
@@ -1703,7 +1702,6 @@ begin
   AllTop.Destroy();
   Designator.Destroy();
   Changepoints.Destroy();
-  { ChosenFigure.Destroy();}
   DeleteSelectParams(aps);
 end;
 
@@ -1714,7 +1712,6 @@ begin
   AllTop.Destroy();
   Designator.Destroy();
   Changepoints.Destroy();
-  {ChosenFigure.Destroy();}
   ShowPoits := False;
   InvalidateHandler;
   DeleteSelectParams(aps);

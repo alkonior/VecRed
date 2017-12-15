@@ -30,7 +30,7 @@ type
     class procedure SaveFile(FileName: string);
     procedure SetLengthPoints(l: integer);
     class function LoadFile(FileName: string): boolean;
-    class procedure LoadFigure(ANode: TDOMNode); virtual; abstract;
+    class function LoadFigure(ANode: TDOMNode):boolean; virtual; abstract;
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
@@ -63,7 +63,7 @@ type
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
-    class procedure LoadFigure(ANode: TDOMNode); override;
+    class function LoadFigure(ANode: TDOMNode):boolean; override;
   end;
 
   TLine = class(TFigure)
@@ -87,7 +87,7 @@ type
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
-    class procedure LoadFigure(ANode: TDOMNode); override;
+    class function LoadFigure(ANode: TDOMNode):boolean; override;
   end;
 
   TRectangle = class(TFigure)
@@ -114,7 +114,7 @@ type
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
-    class procedure LoadFigure(ANode: TDOMNode); override;
+    class function LoadFigure(ANode: TDOMNode):boolean; override;
   end;
 
   TEllipse = class(TFigure)
@@ -141,7 +141,7 @@ type
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
-    class procedure LoadFigure(ANode: TDOMNode); override;
+    class function LoadFigure(ANode: TDOMNode):boolean; override;
   end;
 
   TRectZoom = class(TFigure)
@@ -186,7 +186,7 @@ type
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
-    class procedure LoadFigure(ANode: TDOMNode); override;
+    class function LoadFigure(ANode: TDOMNode):boolean; override;
   end;
 
 function XMLToFigures(Doc: TXMLDocument): boolean;
@@ -895,8 +895,8 @@ begin
   W := Wd;
   PS := PStyle;
   BS := BStyle;
-  PC := C1;
-  BC := C2;
+  PC := C2;
+  BC := C1;
   CL := TRectangle;
 end;
 
@@ -908,8 +908,8 @@ begin
   P[1] := Point;
   W := Wd;
   PS := PStyle;
-  PC := C1;
-  BC := C2;
+  PC := C2;
+  BC := C1;
   CL := TEllipse;
 end;
 
@@ -931,8 +931,8 @@ begin
   BS := BStyle;
   RY := RadX;
   RX := RadY;
-  PC := C1;
-  BC := C2;
+  PC := C2;
+  BC := C1;
   Cl := TRoundRect;
 end;
 
@@ -1014,7 +1014,6 @@ begin
   try
     Doc := FiguresToXML();
     WriteXML(Doc, FileName);
-    //Saved:= Current;
   finally
     Doc.Free;
   end;
@@ -1045,7 +1044,7 @@ begin
   TDOMElement(Result).SetAttribute('Width', IntToStr(W));
   TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
   TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
-  for i := 0 to High(Points) do
+  for i := 2 to High(Points) do
   begin
     PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
@@ -1059,7 +1058,7 @@ var
   PNode: TDOMNode;
   i: integer;
 begin
-  Result := ADoc.CreateElement('Tline');
+  Result := ADoc.CreateElement('TLine');
   TDOMElement(Result).SetAttribute('Width', IntToStr(W));
   TDOMElement(Result).SetAttribute('PenStyle', GetEnumName(TypeInfo(PS), integer(PS)));
   TDOMElement(Result).SetAttribute('PenColor', IntToStr(PC));
@@ -1119,7 +1118,7 @@ function TRoundRect.SaveFigure(ADoc: TXMLDocument): TDOMNode;
 var
   PNode: TDOMNode;
 var
-  i: int64;
+  i: integer;
 begin
   Result := ADoc.CreateElement('TRoundRect');
   TDOMElement(Result).SetAttribute('Width', IntToStr(W));
@@ -1130,7 +1129,7 @@ begin
   TDOMElement(Result).SetAttribute('BrushColor', IntToStr(BC));
   TDOMElement(Result).SetAttribute('RadiusX', IntToStr(RX));
   TDOMElement(Result).SetAttribute('RadiusY', IntToStr(RY));
-  for i := 0 to High(Points) do
+  for i := 0 to length(Points)-1 do
   begin
     PNode := ADoc.CreateElement('point');
     TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
@@ -1163,27 +1162,38 @@ function XMLToFigures(Doc: TXMLDocument): boolean;
 var
   FigNode: TDOMNode;
   i: integer;
+  f:TFigure;
 begin
   Result := True;
   if Doc.DocumentElement.NodeName <> 'Figures' then
     Exit(False);
+  for f in Figures do f.Destroy;
   SetLength(Figures, 0);
+  try
   FigNode := Doc.DocumentElement.FirstChild;
   while FigNode <> nil do
   begin
     for i := 0 to High(ClassesFigures) do
       if FigNode.NodeName = ClassesFigures[i].ClassName then
-        ClassesFigures[i].LoadFigure(FigNode);
+        if not ClassesFigures[i].LoadFigure(FigNode) then
+        begin
+          exit(false);
+        end;
     FigNode := FigNode.GetNextNodeSkipChildren;
+  end;
+
+  except
+    exit(false);
   end;
 end;
 
-class procedure TPolyline.LoadFigure(ANode: TDOMNode);
+class function TPolyline.LoadFigure(ANode: TDOMNode):boolean;
 var
   F: TPolyline;
   i: integer;
   PNode: TDOMNode;
 begin
+  try
   SetLength(Figures, Length(Figures) + 1);
   F := TPolyline.Create;
   for i := 0 to ANode.Attributes.Length - 1 do
@@ -1195,23 +1205,33 @@ begin
     end;
   end;
   PNode := ANode;
-  for i := 1 to ANode.GetChildCount do
+  f.SetLengthPoints(2);
+  f.Points[0]:=floatpoint(100000,100000);
+  f.Points[1]:=floatpoint(-100000,-100000);
+  for i := 3 to ANode.GetChildCount do
   begin
     PNode := PNode.GetNextNode;
     f.SetLengthPoints(Length(f.Points) + 1);
     f.Points[High(f.Points)] :=
       FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
       StrToFloat(PNode.Attributes.Item[1].NodeValue));
+    f.Points[0]:=min(f.Points[0],f.Points[High(f.Points)]);
+    f.Points[1]:=max(f.Points[0],f.Points[High(f.Points)]);
   end;
   Figures[High(Figures)] := F;
+  result:=true;
+  except
+    exit(false);
+  end;
 end;
 
-class procedure Tline.LoadFigure(ANode: TDOMNode);
+class function Tline.LoadFigure(ANode: TDOMNode):boolean;
 var
   F: Tline;
   i: integer;
   PNode: TDOMNode;
 begin
+  try
   SetLength(Figures, Length(Figures) + 1);
   F := Tline.Create;
   for i := 0 to ANode.Attributes.Length - 1 do
@@ -1232,14 +1252,19 @@ begin
       StrToFloat(PNode.Attributes.Item[1].NodeValue));
   end;
   Figures[High(Figures)] := F;
+  result:=true;
+  except
+    exit(false);
+  end;
 end;
 
-class procedure TRectangle.LoadFigure(ANode: TDOMNode);
+class function TRectangle.LoadFigure(ANode: TDOMNode):boolean;
 var
   F: TRectangle;
   i: integer;
   PNode: TDOMNode;
 begin
+  try
   SetLength(Figures, Length(Figures) + 1);
   F := TRectangle.Create;
   for i := 0 to ANode.Attributes.Length - 1 do
@@ -1262,14 +1287,19 @@ begin
       StrToFloat(PNode.Attributes.Item[1].NodeValue));
   end;
   Figures[High(Figures)] := F;
+  result:=true;
+  except
+    exit(false);
+  end;
 end;
 
-class procedure TEllipse.LoadFigure(ANode: TDOMNode);
+class function TEllipse.LoadFigure(ANode: TDOMNode):boolean;
 var
   F: TEllipse;
   i: integer;
   PNode: TDOMNode;
 begin
+  try
   SetLength(Figures, Length(Figures) + 1);
   F := TEllipse.Create;
   for i := 0 to ANode.Attributes.Length - 1 do
@@ -1292,14 +1322,19 @@ begin
       StrToFloat(PNode.Attributes.Item[1].NodeValue));
   end;
   Figures[High(Figures)] := F;
+  result:=true;
+  except
+    exit(false);
+  end;
 end;
 
-class procedure TRoundRect.LoadFigure(ANode: TDOMNode);
+class function TRoundRect.LoadFigure(ANode: TDOMNode):boolean;
 var
   F: TRoundRect;
   i: integer;
   PNode: TDOMNode;
 begin
+  try
   SetLength(Figures, Length(Figures) + 1);
   F := TRoundRect.Create;
   for i := 0 to ANode.Attributes.Length - 1 do
@@ -1324,6 +1359,10 @@ begin
       StrToFloat(PNode.Attributes.Item[1].NodeValue));
   end;
   Figures[High(Figures)] := F;
+  result:=true;
+  except
+    exit(false);
+  end;
 end;
 
 
