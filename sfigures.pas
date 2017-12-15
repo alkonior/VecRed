@@ -34,7 +34,7 @@ type
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); virtual; abstract;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); virtual; abstract;
     function PointInFigure(point: TFloatPoint): boolean; virtual; abstract;
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual; abstract;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual; abstract;
@@ -58,7 +58,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -82,7 +82,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -109,7 +109,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -136,7 +136,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -150,7 +150,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -181,7 +181,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7: variant); override;
+    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
@@ -956,50 +956,69 @@ begin
   P[Index] := Value;
 end;
 
-procedure Tline.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+procedure Tline.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
 begin
-  PC := a1;
+  if i = 3 then
+  begin
+    PC := a1;
+    W := a2;
+    PS := a3;
+
+  end
+  else
+  begin
+     pc := a4;
+    w := a2;
+    ps := a3;
+  end;
+end;
+
+procedure TPolyline.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
+begin
+  if i = 3 then
+  begin
+    PC := a1;
+    W := a2;
+    PS := a3;
+  end
+  else
+  begin
+    pc := a4;
+    w := a2;
+    ps := a3;
+  end;
+end;
+
+procedure TRectangle.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
+begin
+  PC := a4;
+  BC := a1;
   W := a2;
   PS := a3;
-end;
-
-procedure TPolyline.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
-begin
-  PC := a1;
-  W := a2;
-  PS := a3;
-end;
-
-procedure TRectangle.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
-begin
-  PC := a2;
-  BC := a1;
-  W := a3;
-  PS := a4;
   BS := a5;
 end;
 
-procedure TEllipse.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+procedure TEllipse.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
 begin
-  PC := a2;
-  BC := a1;
-  W := a3;
-  PS := a4;
-  BS := a5;
+  PC := a4;
+   BC := a1;
+   W := a2;
+   PS := a3;
+   BS := a5;
 end;
 
-procedure TRoundrect.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+procedure TRoundrect.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
 begin
-  PC := a2;
-  BC := a1;
-  W := a3;
-  PS := a4;
-  BS := a5;
+  PC := a4;
+   BC := a1;
+   W := a2;
+   PS := a3;
+   BS := a5;
   RX := a6;
   RY := a7;
 end;
 
-procedure TRectZoom.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
+procedure TRectZoom.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
 begin
 
 end;

@@ -344,17 +344,17 @@ begin
             (ChoosenTool as TSelectTool).APS[1].res,
             (ChoosenTool as TSelectTool).APS[2].res, (ChoosenTool as TSelectTool).APS[3].res,
             (ChoosenTool as TSelectTool).APS[4].res, (ChoosenTool as TSelectTool).APS[5].res,
-            (ChoosenTool as TSelectTool).APS[6].res);
+            (ChoosenTool as TSelectTool).APS[6].res,7);
         5: i.setprp((ChoosenTool as TSelectTool).APS[0].res,
             (ChoosenTool as TSelectTool).APS[1].res,
             (ChoosenTool as TSelectTool).APS[2].res, (ChoosenTool as TSelectTool).APS[3].res,
             (ChoosenTool as TSelectTool).APS[4].res, (ChoosenTool as TSelectTool).APS[0].res,
-            (ChoosenTool as TSelectTool).APS[0].res);
+            (ChoosenTool as TSelectTool).APS[0].res,5);
         3: i.setprp((ChoosenTool as TSelectTool).APS[0].res,
             (ChoosenTool as TSelectTool).APS[1].res,
             (ChoosenTool as TSelectTool).APS[2].res, (ChoosenTool as TSelectTool).APS[0].res,
             (ChoosenTool as TSelectTool).APS[0].res, (ChoosenTool as TSelectTool).APS[0].res,
-            (ChoosenTool as TSelectTool).APS[0].res);
+            (ChoosenTool as TSelectTool).APS[0].res,3);
       end;
     end;
   InvalidateHandler;
