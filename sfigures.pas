@@ -972,8 +972,8 @@ end;
 
 procedure TRectangle.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
 begin
-  PC := a1;
-  BC := a2;
+  PC := a2;
+  BC := a1;
   W := a3;
   PS := a4;
   BS := a5;
@@ -981,8 +981,8 @@ end;
 
 procedure TEllipse.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
 begin
-  PC := a1;
-  BC := a2;
+  PC := a2;
+  BC := a1;
   W := a3;
   PS := a4;
   BS := a5;
@@ -990,8 +990,8 @@ end;
 
 procedure TRoundrect.setPRP(A1, a2, a3, a4, a5, a6, a7: variant);
 begin
-  PC := a1;
-  BC := a2;
+  PC := a2;
+  BC := a1;
   W := a3;
   PS := a4;
   BS := a5;

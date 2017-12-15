@@ -313,7 +313,6 @@ procedure ChangeDependentTool(Sender: TObject);
 procedure MakeParams(cl: Tclass; var AP: ArrayOfProperty);
 procedure SendParams();
 procedure DeleteSelectParams(var AP: ArrayOfPropertyForSelect);
-{procedure MakeSelectedOneParams(F:TFigure; var AP: ArrayOfProperty); }
 procedure MakeSelectParams(var AP: ArrayOfPropertyForSelect);
 
 var           { Var }
@@ -340,22 +339,22 @@ begin
   for i in Figures do
     if i.Selected then
     begin
-      case length((Tools[10] as TSelectTool).APS) of
-        7: i.setprp((Tools[10] as TSelectTool).APS[0].res,
-            (Tools[10] as TSelectTool).APS[1].res,
-            (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[3].res,
-            (Tools[10] as TSelectTool).APS[4].res, (Tools[10] as TSelectTool).APS[5].res,
-            (Tools[10] as TSelectTool).APS[6].res);
-        5: i.setprp((Tools[10] as TSelectTool).APS[0].res,
-            (Tools[10] as TSelectTool).APS[1].res,
-            (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[3].res,
-            (Tools[10] as TSelectTool).APS[4].res, (Tools[10] as TSelectTool).APS[0].res,
-            (Tools[10] as TSelectTool).APS[0].res);
-        3: i.setprp((Tools[10] as TSelectTool).APS[0].res,
-            (Tools[10] as TSelectTool).APS[1].res,
-            (Tools[10] as TSelectTool).APS[2].res, (Tools[10] as TSelectTool).APS[0].res,
-            (Tools[10] as TSelectTool).APS[0].res, (Tools[10] as TSelectTool).APS[0].res,
-            (Tools[10] as TSelectTool).APS[0].res);
+      case length((ChoosenTool as TSelectTool).APS) of
+        7: i.setprp((ChoosenTool as TSelectTool).APS[0].res,
+            (ChoosenTool as TSelectTool).APS[1].res,
+            (ChoosenTool as TSelectTool).APS[2].res, (ChoosenTool as TSelectTool).APS[3].res,
+            (ChoosenTool as TSelectTool).APS[4].res, (ChoosenTool as TSelectTool).APS[5].res,
+            (ChoosenTool as TSelectTool).APS[6].res);
+        5: i.setprp((ChoosenTool as TSelectTool).APS[0].res,
+            (ChoosenTool as TSelectTool).APS[1].res,
+            (ChoosenTool as TSelectTool).APS[2].res, (ChoosenTool as TSelectTool).APS[3].res,
+            (ChoosenTool as TSelectTool).APS[4].res, (ChoosenTool as TSelectTool).APS[0].res,
+            (ChoosenTool as TSelectTool).APS[0].res);
+        3: i.setprp((ChoosenTool as TSelectTool).APS[0].res,
+            (ChoosenTool as TSelectTool).APS[1].res,
+            (ChoosenTool as TSelectTool).APS[2].res, (ChoosenTool as TSelectTool).APS[0].res,
+            (ChoosenTool as TSelectTool).APS[0].res, (ChoosenTool as TSelectTool).APS[0].res,
+            (ChoosenTool as TSelectTool).APS[0].res);
       end;
     end;
   InvalidateHandler;
@@ -464,42 +463,6 @@ begin
   end;
 end;
 
-{procedure MakeSelectedOneParams(F:TFigure; var AP: ArrayOfProperty);
-var
-  n, i: integer;
-  p: PPropList;
-  s: string;
-  v: variant;
-  b:boolean;
-  pp:pointer;
-begin
-  n := GetPropList(f, p);
-  SetLength(AP, n);
-  for i := 0 to n - 1 do
-  begin
-    s := p^[i]^.PropType^.Name;
-    case s of
-      'TGraphicsColor':
-      begin
-        b:=IsStoredProp(f,p^[i]^.Name);
-        pp:=GetRawInterfaceProp((f as f.ClassOfFigure),p^[i]);
-        Ap[i] := TColorProperty.Create(p^[i]^.Name, i, ColorPanelTool, GetRawInterfaceProp((f as f.ClassOfFigure),p^[i]^.Name));
-      end;
-      'LongInt':
-      begin
-        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i , PropertyPanel, GetRawInterfaceProp((f as f.ClassOfFigure),p^[i]^.Name));
-      end;
-      'TFPPenStyle':
-      begin
-        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i , PropertyPanel, GetRawInterfaceProp((f as f.ClassOfFigure),p^[i]^.Name));
-      end;
-      'TFPBrushStyle':
-      begin
-        Ap[i] := TBrushStyleProperty.Create(p^[i]^.Name, i , PropertyPanel, GetRawInterfaceProp((f as f.ClassOfFigure),p^[i]^.Name));
-      end;
-    end;
-  end;
-end;     }
 
 procedure ChangeDependentTool(Sender: TObject);
 var
