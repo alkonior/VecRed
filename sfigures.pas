@@ -34,10 +34,9 @@ type
     procedure move(point: TFloatPoint); virtual; abstract;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawoutLine(Canvas: TCanvas); virtual; abstract;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); virtual; abstract;
     function PointInFigure(point: TFloatPoint): boolean; virtual; abstract;
-    function CheckPoint(point: TFloatPoint): PFloatPoint; virtual; abstract;
-    function FigureInrect(point1, point2: TFloatPoint): boolean; virtual; abstract;
+    function CheckPoint(point: TFloatPoint): PFloatPoint; virtual;
+    function FigureInrect(point1, point2: TFloatPoint): boolean; virtual;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual; abstract;
 
   end;
@@ -58,9 +57,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
-    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
     class function LoadFigure(ANode: TDOMNode): boolean; override;
@@ -82,9 +79,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
-    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
     class function LoadFigure(ANode: TDOMNode): boolean; override;
@@ -109,10 +104,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
-    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
-    function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
     class function LoadFigure(ANode: TDOMNode): boolean; override;
   end;
@@ -136,10 +128,7 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
-    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
-    function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
     class function LoadFigure(ANode: TDOMNode): boolean; override;
   end;
@@ -150,10 +139,8 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function FigureInRect(point1, point2: TFloatPoint): boolean; override;
-    function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
   end;
 
@@ -166,7 +153,6 @@ type
     BS: TBrushStyle;
     RX: integer;
     RY: integer;
-
   published
     property PenColor: TColor read PC write PC default clBlack;
     property BrushColor: TColor read BC write BC default clBlack;
@@ -181,22 +167,20 @@ type
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
-    procedure setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
-    function FigureInRect(point1, point2: TFloatPoint): boolean; override;
-    function CheckPoint(point: TFloatPoint): PFloatPoint; override;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; override;
     class function LoadFigure(ANode: TDOMNode): boolean; override;
   end;
 
 function XMLToFigures(Doc: TXMLDocument): boolean;
 function FiguresToXML(): TXMLDocument;
+procedure ShowPoints(P1,P2:TFloatPoint;canvas:TCanvas);
 
 var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
   SelectedNumber: integer = 0;
-  ShowPoits: boolean = False;
+  IsShowPoits: boolean = False;
   CtrlButtonState: boolean = False;
   ClassesFigures: array of TFigure;
   IsSaved: boolean = True;
@@ -356,25 +340,9 @@ begin
   Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  if ShowPoits then
+  if IsShowPoits then
   begin
-    Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-      WorldToScrn(min(P[0], P[1])).y - 5,
-      WorldToScrn(min(P[0], P[1])).x + 5,
-      WorldToScrn(min(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-      WorldToScrn(max(P[0], P[1])).y - 5,
-      WorldToScrn(max(P[0], P[1])).x + 5,
-      WorldToScrn(max(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-      WorldToScrn(max(P[0], P[1])).y - 5,
-      WorldToScrn(min(P[0], P[1])).x + 5,
-      WorldToScrn(max(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-      WorldToScrn(min(P[0], P[1])).y - 5,
-      WorldToScrn(max(P[0], P[1])).x + 5,
-      WorldToScrn(min(P[0], P[1])).y + 5);
+    ShowPoints(p[0],p[1],Canvas);
   end
   else
   begin
@@ -404,25 +372,9 @@ begin
   Canvas.Pen.Width := 1;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  if ShowPoits then
+  if IsShowPoits then
   begin
-    Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-      WorldToScrn(min(P[0], P[1])).y - 5,
-      WorldToScrn(min(P[0], P[1])).x + 5,
-      WorldToScrn(min(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-      WorldToScrn(max(P[0], P[1])).y - 5,
-      WorldToScrn(max(P[0], P[1])).x + 5,
-      WorldToScrn(max(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-      WorldToScrn(max(P[0], P[1])).y - 5,
-      WorldToScrn(min(P[0], P[1])).x + 5,
-      WorldToScrn(max(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-      WorldToScrn(min(P[0], P[1])).y - 5,
-      WorldToScrn(max(P[0], P[1])).x + 5,
-      WorldToScrn(min(P[0], P[1])).y + 5);
+    ShowPoints(p[0],p[1],Canvas);
   end
   else
   begin
@@ -436,26 +388,6 @@ begin
       WorldToScrn(max(P[0], P[1])).x + 2,
       WorldToScrn(max(P[0], P[1])).y + 2);
     Canvas.Pen.Color := (clWhite xor clRed);
-    if ShowPoits then
-    begin
-      Canvas.Pen.Width := 2;
-      Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-        WorldToScrn(min(P[0], P[1])).y - 5,
-        WorldToScrn(min(P[0], P[1])).x + 5,
-        WorldToScrn(min(P[0], P[1])).y + 5);
-      Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-        WorldToScrn(max(P[0], P[1])).y - 5,
-        WorldToScrn(max(P[0], P[1])).x + 5,
-        WorldToScrn(max(P[0], P[1])).y + 5);
-      Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-        WorldToScrn(max(P[0], P[1])).y - 5,
-        WorldToScrn(min(P[0], P[1])).x + 5,
-        WorldToScrn(max(P[0], P[1])).y + 5);
-      Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-        WorldToScrn(min(P[0], P[1])).y - 5,
-        WorldToScrn(max(P[0], P[1])).x + 5,
-        WorldToScrn(min(P[0], P[1])).y + 5);
-    end;
   end;
   Canvas.Pen.Mode := pmCopy;
 end;
@@ -467,25 +399,9 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  if ShowPoits then
+  if IsShowPoits then
   begin
-    Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-      WorldToScrn(min(P[0], P[1])).y - 5,
-      WorldToScrn(min(P[0], P[1])).x + 5,
-      WorldToScrn(min(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-      WorldToScrn(max(P[0], P[1])).y - 5,
-      WorldToScrn(max(P[0], P[1])).x + 5,
-      WorldToScrn(max(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(P[0], P[1])).x - 5,
-      WorldToScrn(max(P[0], P[1])).y - 5,
-      WorldToScrn(min(P[0], P[1])).x + 5,
-      WorldToScrn(max(P[0], P[1])).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P[0], P[1])).x - 5,
-      WorldToScrn(min(P[0], P[1])).y - 5,
-      WorldToScrn(max(P[0], P[1])).x + 5,
-      WorldToScrn(min(P[0], P[1])).y + 5);
+    ShowPoints(p[0],p[1],Canvas);
   end
   else
   begin
@@ -511,7 +427,7 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  if ShowPoits then
+  if IsShowPoits then
   begin
     Canvas.Pen.Width := 2;
     for i := 2 to length(P) - 1 do
@@ -542,7 +458,7 @@ begin
   Canvas.Pen.Width := 2;
   Canvas.Pen.Style := psDash;
   Canvas.Pen.Mode := pmXor;
-  if ShowPoits then
+  if IsShowPoits then
   begin
     Canvas.Pen.Width := 2;
     Canvas.Ellipse(WorldToScrn(P[0]).x - 5,
@@ -568,6 +484,27 @@ begin
     Canvas.Pen.Color := clRed;
   end;
   Canvas.Pen.Mode := pmCopy;
+end;
+
+procedure ShowPoints(P1,P2:TFloatPoint;Canvas:TCanvas);
+begin
+  Canvas.Pen.Width := 2;
+    Canvas.Ellipse(WorldToScrn(min(P2, P1)).x - 5,
+      WorldToScrn(min(P2, P1)).y - 5,
+      WorldToScrn(min(P2, P1)).x + 5,
+      WorldToScrn(min(P2, P1)).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P2, P1)).x - 5,
+      WorldToScrn(max(P2, P1)).y - 5,
+      WorldToScrn(max(P2, P1)).x + 5,
+      WorldToScrn(max(P2, P1)).y + 5);
+    Canvas.Ellipse(WorldToScrn(min(P2, P1)).x - 5,
+      WorldToScrn(max(P2, P1)).y - 5,
+      WorldToScrn(min(P2, P1)).x + 5,
+      WorldToScrn(max(P2, P1)).y + 5);
+    Canvas.Ellipse(WorldToScrn(max(P2, P1)).x - 5,
+      WorldToScrn(min(P2, P1)).y - 5,
+      WorldToScrn(max(P2, P1)).x + 5,
+      WorldToScrn(min(P2, P1)).y + 5);
 end;
 
 procedure TRectZoom.DrawOutLine(Canvas: TCanvas);
@@ -668,31 +605,7 @@ end;
 
 { FigureInRect }
 
-function TPolyline.FigureInRect(point1, point2: TFloatPoint): boolean;
-begin
-  Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(P[0], P[1]), min(P[0], P[1]));
-end;
-
-function TLine.FigureInRect(point1, point2: TFloatPoint): boolean;
-begin
-  Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(P[0], P[1]), min(P[0], P[1]));
-end;
-
-function TRectangle.FigureInRect(point1, point2: TFloatPoint): boolean;
-begin
-  Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(P[0], P[1]), min(P[0], P[1]));
-end;
-
-function TEllipse.FigureInRect(point1, point2: TFloatPoint): boolean;
-begin
-  Result := isrectinrect(max(point1, point2), min(point1, point2),
-    max(P[0], P[1]), min(P[0], P[1]));
-end;
-
-function TRoundRect.FigureInRect(point1, point2: TFloatPoint): boolean;
+function TFigure.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := isrectinrect(max(point1, point2), min(point1, point2),
     max(P[0], P[1]), min(P[0], P[1]));
@@ -726,7 +639,7 @@ begin
     Result := @P[1];
 end;
 
-function TRectangle.CheckPoint(point: TFloatPoint): PFloatPoint;
+function TFigure.CheckPoint(point: TFloatPoint): PFloatPoint;
 var
   p1, p2: TFloatPoint;
 begin
@@ -767,97 +680,6 @@ begin
     P[1] := p2;
     Result := @P[1];
   end;
-end;
-
-function TEllipse.CheckPoint(point: TFloatPoint): PFloatPoint;
-var
-  p1, p2: TFloatPoint;
-begin
-  Result := nil;
-  if IsPointInEllipse(min(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 /
-    zoom * 100 + 1) then
-  begin
-    p1 := min(P[0], P[1]);
-    p2 := max(P[0], P[1]);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[0];
-  end;
-  if IsPointInEllipse(max(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 /
-    zoom * 100 + 1) then
-  begin
-    p1 := min(P[0], P[1]);
-    p2 := max(P[0], P[1]);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[1];
-  end;
-  if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
-    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
-  begin
-    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
-    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[0];
-  end;
-  if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
-    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
-  begin
-    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
-    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[1];
-  end;
-end;
-
-function TRoundRect.CheckPoint(point: TFloatPoint): PFloatPoint;
-var
-  p1, p2: TFloatPoint;
-begin
-  Result := nil;
-  if IsPointInEllipse(min(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 /
-    zoom * 100 + 1) then
-  begin
-    p1 := min(P[0], P[1]);
-    p2 := max(P[0], P[1]);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[0];
-  end;
-  if IsPointInEllipse(max(P[0], P[1]), point, 5 / zoom * 100 + 1, 5 /
-    zoom * 100 + 1) then
-  begin
-    p1 := min(P[0], P[1]);
-    p2 := max(P[0], P[1]);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[1];
-  end;
-  if IsPointInEllipse(floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y),
-    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
-  begin
-    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
-    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[0];
-  end;
-  if IsPointInEllipse(floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y),
-    point, 5 / zoom * 100 + 1, 5 / zoom * 100 + 1) then
-  begin
-    p1 := floatpoint(min(P[0], P[1]).x, max(P[0], P[1]).y);
-    p2 := floatpoint(max(P[0], P[1]).x, min(P[0], P[1]).y);
-    P[0] := p1;
-    P[1] := p2;
-    Result := @P[1];
-  end;
-end;
-
-function TRectZoom.CheckPoint(point: TFloatPoint): PFloatPoint;
-begin
-  Result := nil;
 end;
 
 { Create }
@@ -954,73 +776,6 @@ end;
 procedure TFigure.Setpoint(Index: integer; Value: TFloatPoint);
 begin
   P[Index] := Value;
-end;
-
-procedure Tline.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
-begin
-  if i = 3 then
-  begin
-    PC := a1;
-    W := a2;
-    PS := a3;
-
-  end
-  else
-  begin
-     pc := a4;
-    w := a2;
-    ps := a3;
-  end;
-end;
-
-procedure TPolyline.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
-begin
-  if i = 3 then
-  begin
-    PC := a1;
-    W := a2;
-    PS := a3;
-  end
-  else
-  begin
-    pc := a4;
-    w := a2;
-    ps := a3;
-  end;
-end;
-
-procedure TRectangle.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
-begin
-  PC := a4;
-  BC := a1;
-  W := a2;
-  PS := a3;
-  BS := a5;
-end;
-
-procedure TEllipse.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
-begin
-  PC := a4;
-   BC := a1;
-   W := a2;
-   PS := a3;
-   BS := a5;
-end;
-
-procedure TRoundrect.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
-begin
-  PC := a4;
-   BC := a1;
-   W := a2;
-   PS := a3;
-   BS := a5;
-  RX := a6;
-  RY := a7;
-end;
-
-procedure TRectZoom.setPRP(A1, a2, a3, a4, a5, a6, a7, i: variant);
-begin
-
 end;
 
 { Save }
