@@ -52,8 +52,6 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
   public
-    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle;
-      point: TFloatPoint); overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -74,8 +72,6 @@ type
     property Width: integer read W write W default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
   public
-    constructor Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle;
-      point: TFloatPoint); overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -99,8 +95,6 @@ type
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS default bsClear;
   public
-    constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle; point: TFloatPoint); overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -123,8 +117,6 @@ type
     property PenStyle: TPenStyle read PS write PS default psClear;
     property BrushStyle: TBrushStyle read BS write BS default bsClear;
   public
-    constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle; point: TFloatPoint); overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -135,7 +127,6 @@ type
 
   TRectZoom = class(TFigure)
   public
-    constructor Create(point: TFloatPoint);
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -162,8 +153,6 @@ type
     property RadiusX: integer read RX write RX default 1;
     property RadiusY: integer read RY write RY default 1;
   public
-    constructor Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-      BStyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint); overload;
     procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
@@ -682,81 +671,6 @@ begin
   end;
 end;
 
-{ Create }
-
-constructor TPolyline.Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle;
-  point: TFloatPoint);
-begin
-  SetLength(P, 3);
-  P[0] := Point;
-  P[1] := Point;
-  P[2] := Point;
-  W := min(wd, 50);
-  PS := PStyle;
-  PC := c1;
-  CL := TPolyline;
-end;
-
-constructor TLine.Create(c1: Tcolor; Wd: integer; PStyle: TPenStyle; point: TFloatPoint);
-begin
-  SetLength(P, 2);
-  P[0] := Point;
-  P[1] := Point;
-  W := min(Wd, 50);
-  PS := PStyle;
-  PC := C1;
-  CL := TLine;
-end;
-
-constructor TRectangle.Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-  bstyle: TBrushStyle; point: TFloatPoint);
-begin
-  SetLength(P, 2);
-  P[0] := Point;
-  P[1] := Point;
-  W := Wd;
-  PS := PStyle;
-  BS := BStyle;
-  PC := C2;
-  BC := C1;
-  CL := TRectangle;
-end;
-
-constructor TEllipse.Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-  bstyle: TBrushStyle; point: TFloatPoint);
-begin
-  SetLength(P, 2);
-  P[0] := Point;
-  P[1] := Point;
-  W := Wd;
-  PS := PStyle;
-  PC := C2;
-  BC := C1;
-  CL := TEllipse;
-end;
-
-constructor TRectZoom.Create(point: TFloatPoint);
-begin
-  SetLength(P, 2);
-  P[0] := Point;
-  P[1] := Point;
-end;
-
-constructor TRoundRect.Create(c1, c2: Tcolor; Wd: integer; PStyle: TPenStyle;
-  bstyle: TBrushStyle; RadX, RadY: integer; point: TFloatPoint);
-begin
-  SetLength(P, 2);
-  P[0] := Point;
-  P[1] := Point;
-  W := Wd;
-  PS := PStyle;
-  BS := BStyle;
-  RY := RadX;
-  RX := RadY;
-  PC := C2;
-  BC := C1;
-  Cl := TRoundRect;
-end;
 
 procedure TLine.SetW(i: integer);
 begin
