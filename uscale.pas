@@ -49,7 +49,7 @@ implementation
 { operator }
 operator * (P1, P2: TFloatPoint): Float;
 begin
-  Result := abs(p1.x - p2.x) * abs(p1.y - p2.y);
+  Result := sqrt(abs(p1.x - p2.x)**2 + abs(p1.y - p2.y)**2);
 end;
 
 operator +(Addend1, Addend2: TPoint): TPoint;

@@ -127,7 +127,6 @@ type
 
   TRectZoom = class(TFigure)
   public
-    procedure move(point: TFloatPoint); override;
     procedure Draw(Canvas: TCanvas); override;
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
@@ -298,8 +297,8 @@ procedure TPolyline.move(point: TFloatPoint);
 var
   i: integer;
 begin
-  P[0] := FloatPoint(100000000, 10000000);
-  P[1] := FloatPoint(-100000000, -10000000);
+  P[0] := FloatPoint(INFINITE, INFINITE);
+  P[1] := FloatPoint(-INFINITE, -INFINITE);
   for i := 2 to Length(P) - 1 do
   begin
     P[i] := P[i] + point;
@@ -314,9 +313,6 @@ begin
   P[1] := P[1] + point;
 end;
 
-procedure TRectZoom.move(point: TFloatPoint);
-begin
-end;
 
 { DrawOutLine }
 
@@ -693,6 +689,7 @@ begin
 end;
 
 { Save }
+
 class procedure TFigure.SaveFile(FileName: string);
 var
   Doc: TXMLDocument;

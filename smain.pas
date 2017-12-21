@@ -234,7 +234,7 @@ end;
 procedure TVecRedF.PBMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
 var
-  point: TFloatPoint;
+  point,spoint: TFloatPoint;
 begin
   spoint.x := WindowWH.x div 2;
   spoint.y := WindowWH.y div 2;
