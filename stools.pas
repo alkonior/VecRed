@@ -80,7 +80,7 @@ type
     Icon: string;
     IsMainTool: boolean;
     Number: integer;
-    Propertys: ArrayOfProperty;static;
+    Propertys: ArrayOfProperty; static;
     procedure FigureCreate(Point: TFloatPoint); virtual;
     procedure ChangePoint(Point: TFloatPoint); virtual;
     procedure AddPoint(Point: TFloatPoint); virtual;
@@ -238,6 +238,7 @@ begin
         SetLength(Figures, Length(Figures) - 1);
       end;
   Drawing := False;
+
 end;
 
 procedure MakeSelectParams(var AP: ArrayOfProperty);
@@ -388,6 +389,7 @@ begin
     SetLength(Figures, j);
     SelectedNumber := 0;
   end;
+  MakeSelectParams(ChoosenTool.Propertys);
   InvalidateHandler;
 end;
 
@@ -582,18 +584,18 @@ procedure TPenTool.ChangePoint(Point: TFloatPoint);
 var b:Boolean;
 begin
   b:=ShiftButtonState;
- ShiftButtonState:=True;
- inherited;
- ShiftButtonState:=b;
+  ShiftButtonState:=True;
+  inherited;
+  ShiftButtonState:=b;
 end;
 
 procedure TPolylineTool.ChangePoint(Point: TFloatPoint);
 var b:Boolean;
 begin
   b:=ShiftButtonState;
- ShiftButtonState:=False;
- inherited;
- ShiftButtonState:=b;
+  ShiftButtonState:=False;
+  inherited;
+  ShiftButtonState:=b;
 end;
 
 procedure TZoomTool.ChangePoint(Point: TFloatPoint);

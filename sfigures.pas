@@ -208,19 +208,23 @@ begin
 end;
 
 procedure TRectangle.Draw(Canvas: TCanvas);
+var
+  ww: Integer;
 begin
-  Canvas.Pen.Width := min(W, min(abs(WorldToScrn(P[0]).x - WorldToScrn(P[1]).x) div
-    2 + 1, abs(WorldToScrn(P[0]).y - WorldToScrn(P[1]).y) div 2 + 1));
+  Canvas.Pen.Width := min(W, min(
+    abs(WorldToScrn(P[0]).x - WorldToScrn(P[1]).x) div 2 + 1,
+    abs(WorldToScrn(P[0]).y - WorldToScrn(P[1]).y) div 2 + 1));
   Canvas.Pen.Color := PC;
   Canvas.Brush.Color := BC;
   Canvas.Pen.Style := PS;
   Canvas.Brush.Style := BS;
-  Canvas.Rectangle(WorldToScrn(min(P[0], P[1])).x + (Canvas.Pen.Width div 2),
+  ww := (Canvas.Pen.Width div 2 - ((Canvas.Pen.Width + 1) mod 2));
+  // ww := (Canvas.Pen.Width - 1) div 2;
+  Canvas.Rectangle(
+    WorldToScrn(min(P[0], P[1])).x + (Canvas.Pen.Width div 2),
     WorldToScrn(min(P[0], P[1])).y + (Canvas.Pen.Width div 2),
-    WorldToScrn(max(P[0], P[1])).x - (Canvas.Pen.Width div 2 -
-    ((Canvas.Pen.Width + 1) mod 2)),
-    WorldToScrn(max(P[0], P[1])).y - (Canvas.Pen.Width div 2 -
-    ((Canvas.Pen.Width + 1) mod 2)));
+    WorldToScrn(max(P[0], P[1])).x - ww,
+    WorldToScrn(max(P[0], P[1])).y - ww);
 end;
 
 procedure TEllipse.Draw(Canvas: TCanvas);
@@ -472,24 +476,22 @@ begin
 end;
 
 procedure ShowPoints(P1,P2:TFloatPoint;Canvas:TCanvas);
+
+  procedure C(x, y: Integer);
+  begin
+    Canvas.Ellipse(x - 5, y - 5, x + 5, y + 5);
+  end;
+
+var
+  a, b: TPoint;
 begin
   Canvas.Pen.Width := 2;
-    Canvas.Ellipse(WorldToScrn(min(P2, P1)).x - 5,
-      WorldToScrn(min(P2, P1)).y - 5,
-      WorldToScrn(min(P2, P1)).x + 5,
-      WorldToScrn(min(P2, P1)).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P2, P1)).x - 5,
-      WorldToScrn(max(P2, P1)).y - 5,
-      WorldToScrn(max(P2, P1)).x + 5,
-      WorldToScrn(max(P2, P1)).y + 5);
-    Canvas.Ellipse(WorldToScrn(min(P2, P1)).x - 5,
-      WorldToScrn(max(P2, P1)).y - 5,
-      WorldToScrn(min(P2, P1)).x + 5,
-      WorldToScrn(max(P2, P1)).y + 5);
-    Canvas.Ellipse(WorldToScrn(max(P2, P1)).x - 5,
-      WorldToScrn(min(P2, P1)).y - 5,
-      WorldToScrn(max(P2, P1)).x + 5,
-      WorldToScrn(min(P2, P1)).y + 5);
+  a := WorldToScrn(min(P1, P2));
+  b := WorldToScrn(max(P1, P2));
+  C(a.x, a.y);
+  C(a.x, b.y);
+  C(b.x, a.y);
+  C(b.x, b.y);
 end;
 
 procedure TRectZoom.DrawOutLine(Canvas: TCanvas);
@@ -541,17 +543,23 @@ begin
   if ((abs(P[0].x - P[1].x)) > (rxx * 2)) and
     ((abs(P[0].y - P[1].y)) > (ryy * 2)) then
   begin
-    Result := IsPointInRect((min(P[0], P[1]) + FloatPoint(rxx + 1, 0)),
-      (max(P[0], P[1]) - FloatPoint(rxx + 1, 0)), point) or
-      (IsPointInRect((min(P[0], P[1]) + FloatPoint(0, ryy + 1)),
-      (max(P[0], P[1]) - FloatPoint(0, ryy + 1)), point)) or
-      (IsPointInEllipse((min(P[0], P[1]) + FloatPoint(rxx, ryy)),
-      point, rxx - 1, ryy - 1)) or (IsPointInEllipse(
-      (max(P[0], P[1]) - FloatPoint(rxx, ryy)), point, rxx - 1, ryy - 1)) or
-      (IsPointInEllipse((FloatPoint(min(P[0], P[1]).x, max(P[0], P[1]).y) +
-      FloatPoint(rxx, -ryy)), point, rxx - 1, ryy - 1)) or
-      (IspointInEllipse((FloatPoint(max(P[0], P[1]).x, min(P[0], P[1]).y) +
-      FloatPoint(-rxx, ryy)), point, rxx - 1, ryy - 1));
+    Result :=
+      IsPointInRect(
+        (min(P[0], P[1]) + FloatPoint(rxx + 1, 0)),
+        (max(P[0], P[1]) - FloatPoint(rxx + 1, 0)), point) or
+      IsPointInRect(
+        (min(P[0], P[1]) + FloatPoint(0, ryy + 1)),
+        (max(P[0], P[1]) - FloatPoint(0, ryy + 1)), point) or
+      IsPointInEllipse(
+        (min(P[0], P[1]) + FloatPoint(rxx, ryy)), point, rxx - 1, ryy - 1) or
+      IsPointInEllipse(
+        (max(P[0], P[1]) - FloatPoint(rxx, ryy)), point, rxx - 1, ryy - 1) or
+      IsPointInEllipse(
+        (FloatPoint(min(P[0], P[1]).x, max(P[0], P[1]).y) +
+        FloatPoint(rxx, -ryy)), point, rxx - 1, ryy - 1) or
+      IsPointInEllipse(
+        (FloatPoint(max(P[0], P[1]).x, min(P[0], P[1]).y) +
+        FloatPoint(-rxx, ryy)), point, rxx - 1, ryy - 1);
   end;
   if ((abs(P[0].x - P[1].x)) < (rxx * 2)) and
     ((abs(P[0].y - P[1].y)) < (ryy * 2)) then
@@ -578,7 +586,7 @@ begin
       (IsPointInEllipse((min(P[0], P[1]) + floatpoint(
       abs(P[1].x - P[0].x) / 2, ryy)), point, abs(P[1].x - P[0].x) / 2, ryy)) or
       (IsPointInEllipse((max(P[0], P[1]) -
-      floatpoint(abs(P[1].x - P[0].x) / 2, ryy)), point,
+      FloatPoint(abs(P[1].x - P[0].x) / 2, ryy)), point,
       abs(P[1].x - P[0].x) / 2, ryy));
   end;
 end;
