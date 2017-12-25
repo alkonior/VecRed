@@ -9,7 +9,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
   Dialogs, Menus, ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType,
   Buttons, GraphMath, Math, Spin, FPCanvas, TypInfo, LCL, Windows, UScale,
-  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite;
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite,LCLProc;
 
 type
   { Classes }
@@ -42,6 +42,7 @@ type
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode;
+    function SaveFigureInString(): AnsiString;
   end;
 
   { TStandartFigure }
@@ -71,7 +72,6 @@ type
     procedure DrawoutLine(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
     function CheckPoint(point: TFloatPoint): PFloatPoint; override;
-    class function LoadFigure(ANode: TDOMNode; AClass:FClass): boolean; override;
   end;
 
   { TLine }
@@ -143,7 +143,7 @@ type
 
 function XMLToFigures(Doc: TXMLDocument): boolean;
 function FiguresToXML(): TXMLDocument;
-
+function FiguresToString(): AnsiString;
 var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
@@ -593,17 +593,14 @@ end;
 function FiguresToXML(): TXMLDocument;
 var
   Doc: TXMLDocument;
-  s: TStringStream;
   FiguresNode: TDOMNode;
   i: integer;
-  t: Text;
 begin
   Doc := TXMLDocument.Create;
   FiguresNode := Doc.CreateElement('Figures');
   Doc.AppendChild(FiguresNode);
   FiguresNode := Doc.DocumentElement;
   for i := 0 to High(Figures) do
-    if Figures[i].CL <> TRectZoom then
       FiguresNode.AppendChild(Figures[i].SaveFigure(Doc));
   Result := Doc;
 end;
@@ -630,7 +627,41 @@ begin
   end;
 end;
 
+function FiguresToString(): AnsiString;
+var
+  i: integer;
+begin
+  result:='<'+ 'Figures'+'>'+#13;
+  for i := 0 to High(Figures) do
+      Result:=Result+Figures[i].SaveFigureInString();
+  Result:=result+#13+'</Figures>';
+end;
+
+function Tfigure.SaveFigureInString(): AnsiString;
+var
+  PNode: TDOMNode;
+var
+  i, n: integer;
+  pp: PPropList;
+begin
+  Result :=#32+#32+'<'+Self.ClassName;
+  n:=GetPropList(self,pp);
+  for i:=0 to n-1 do
+  begin
+    result:=Result+' '+pp^[i]^.Name+'="'+ String(GetPropValue(self,pp^[i]))+'"';
+  end;
+  result:=Result+'>'+#13;
+  for i := 0 to length(Points) - 1 do
+  begin
+    result:=Result+'    '+'<point x="'+FloatToStr(Points[i].X)+'" y="'+FloatToStr(Points[i].Y)+'"/>'+#13;
+  end;
+  result:=result+'</'+Self.ClassName+'>';
+end;
+
+
+
 { Load }
+
 class function TFigure.LoadFile(FileName: string): boolean;
 var
   Doc: TXMLDocument;
@@ -675,38 +706,6 @@ begin
   end;
 end;
 
-class function TPolyline.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;
-var
-  F: TPolyline;
-  i: integer;
-  PNode: TDOMNode;
-begin
-  try
-    SetLength(Figures, Length(Figures) + 1);
-    F := TPolyline.Create;
-    for i := 0 to ANode.Attributes.Length - 1 do
-      if IsPublishedProp(AClass, ANode.Attributes.Item[i].NodeName) then
-        SetPropValue(F, ANode.Attributes.Item[i].NodeName, ANode.Attributes.Item[i].NodeValue);
-    PNode := ANode;
-    f.SetLengthPoints(2);
-    f.Points[0] := floatpoint(100000, 100000);
-    f.Points[1] := floatpoint(-100000, -100000);
-    for i := 3 to ANode.GetChildCount do
-    begin
-      PNode := PNode.GetNextNode;
-      f.SetLengthPoints(Length(f.Points) + 1);
-      f.Points[High(f.Points)] :=
-        FloatPoint(StrToFloat(PNode.Attributes.Item[0].NodeValue),
-        StrToFloat(PNode.Attributes.Item[1].NodeValue));
-      f.Points[0] := min(f.Points[0], f.Points[High(f.Points)]);
-      f.Points[1] := max(f.Points[0], f.Points[High(f.Points)]);
-    end;
-    Figures[High(Figures)] := F;
-    Result := True;
-  except
-    exit(False);
-  end;
-end;
 
 class function TFigure.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;
 var
