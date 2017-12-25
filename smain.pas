@@ -42,7 +42,6 @@ type
     procedure CloseBClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
-    procedure MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
     procedure MPanelMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure MPanelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -97,8 +96,8 @@ begin
     VK_SHIFT: ShiftButtonState := True;
     VK_DELETE: DeleteFigures(Sender);
     VK_CONTROL: CtrlButtonState := True;
-    VK_C: if (ShiftButtonState) and (CtrlButtonState) then
-        SaveAs.Click;
+    VK_S: if (ShiftButtonState) and (CtrlButtonState) then
+        SaveAs.Click else if ShiftButtonState then Save.Click;
   end;
 end;
 
@@ -109,11 +108,6 @@ begin
     VK_SPACE: ChoosenTool.FigureEnd();
     VK_CONTROL: CtrlButtonState := False;
   end;
-end;
-
-procedure TVecRedF.MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
-begin
-  IsSaved := False;
 end;
 
 procedure TVecRedF.FormCreate(Sender: TObject);

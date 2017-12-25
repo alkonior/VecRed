@@ -87,17 +87,18 @@ var
 begin
   if p2 = p1 then
   begin
-    Result := False;
+    Result := IsPointInEllipse(p,p1,w+2,w+2);
     exit;
   end;
   A := P1.Y - P2.y;
   B := P2.x - P1.x;
   C := P1.x * P2.Y - P2.x * P1.y;
   d := abs(a * p.x + b * p.Y + c);
-  Result := (
-    (((p1.x > p.x) and (p2.X < p.x)) or ((p1.x < p.x) and (p2.x > p.x))) or
+  Result := (((((p1.x > p.x) and (p2.X < p.x)) or ((p1.x < p.x) and (p2.x > p.x))) or
     (((p1.y > p.y) and (p2.y < p.y)) or ((p1.y < p.y) and (p2.y > p.y)))) and
-    (d < ((5 + w) * sqrt(a * a + b * b)));
+    (d < ((5 + w) * sqrt(a * a + b * b)))) or
+    IsPointInEllipse(p,p1,w+2,w+2) or
+    IsPointInEllipse(p,p2,w+2,w+2);
 end;
 
 { Zoom }

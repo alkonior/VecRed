@@ -5,3 +5,5 @@
 *.res
 *.bak
 *.dbg
+*.lpi
+*.lps
