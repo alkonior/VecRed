@@ -7,7 +7,12 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math,
-  FPCanvas, TypInfo, Spin, SFigures, STools, Types, UScale, GraphMath;
+  FPCanvas, TypInfo, Spin, SFigures, STools, Types, UScale, GraphMath,
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite, SynHighlighterXML, LCLProc, Clipbrd,
+  SHistroy, SParams;
+
+const
+  Name = 'VecRed';
 
 type
 
@@ -16,6 +21,7 @@ type
   TVecRedF = class(TForm)
     CloseB: TMenuItem;
     ColorPanel: TPanel;
+    Test: TMenuItem;
     Open: TMenuItem;
     OpenDialog: TOpenDialog;
     Save: TMenuItem;
@@ -42,6 +48,7 @@ type
     procedure CloseBClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+    procedure MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
     procedure MPanelMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure MPanelMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -64,6 +71,7 @@ type
     procedure PBMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure PBPaint(Sender: TObject);
+    procedure TestClick(Sender: TObject);
     procedure ZoomBChange(Sender: TObject);
     function IsSaveDialog(): integer;
   private
@@ -97,9 +105,33 @@ begin
     VK_DELETE: DeleteFigures(Sender);
     VK_CONTROL: CtrlButtonState := True;
     VK_S: if (ShiftButtonState) and (CtrlButtonState) then
-        SaveAs.Click else if ShiftButtonState then Save.Click;
+        SaveAs.Click
+      else if ShiftButtonState then
+        Save.Click;
+    VK_Z: if CtrlButtonState then
+        if ShiftButtonState then
+        begin
+          if Current < length(History)-1 then
+          begin
+            Inc(Current);
+            History[Current].LoadFigures();
+            Drawing:=false;
+            Invalidate;
+          end;
+        end
+        else
+        begin
+          if Current > 0 then
+          begin
+            Current := Current - 1;
+            History[Current].LoadFigures();
+            Drawing:=false;
+            Invalidate;
+          end;
+        end;
   end;
 end;
+
 
 procedure TVecRedF.FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
@@ -108,6 +140,11 @@ begin
     VK_SPACE: ChoosenTool.FigureEnd();
     VK_CONTROL: CtrlButtonState := False;
   end;
+end;
+
+procedure TVecRedF.MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
+begin
+
 end;
 
 procedure TVecRedF.FormCreate(Sender: TObject);
@@ -161,13 +198,17 @@ begin
   ChoosenTool := Tools[0];
   InvalidateHandler := @Invalidate;
   ChoosenTool.CreateParams();
+  SetLength(History, 1);
+  History[0] := THistoryBlock.Create(FiguresToString());
+  Current := 0;
+  Saved := 0;
 end;
 
 procedure TVecRedF.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var
   Ans: integer;
 begin
-  if IsSaved then
+  if Current = Saved then
     Exit;
   Ans := IsSaveDialog;
   if Ans = mrYes then
@@ -176,6 +217,11 @@ begin
     CanClose := True
   else
     CanClose := False;
+  if CanClose then
+  begin
+    for ans := 0 to high(History) do
+      History[ans].Free;
+  end;
 end;
 
 procedure TVecRedF.DeleteALLClick(Sender: TObject);
@@ -228,7 +274,7 @@ end;
 procedure TVecRedF.PBMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
 var
-  point,spoint: TFloatPoint;
+  point, spoint: TFloatPoint;
 begin
   spoint.x := WindowWH.x div 2;
   spoint.y := WindowWH.y div 2;
@@ -268,7 +314,7 @@ begin
   begin
     TFigure.SaveFile(SaveDialog.FileName);
     FileName := SaveDialog.FileName;
-    IsSaved := True;
+    Saved := Current;
   end;
 end;
 
@@ -279,7 +325,7 @@ begin
   else
   begin
     TFigure.SaveFile(FileName);
-    IsSaved := True;
+    Saved := Current;
   end;
 end;
 
@@ -287,9 +333,9 @@ procedure TVecRedF.OpenClick(Sender: TObject);
 var
   i: TFigure;
   ans: integer;
-  f:TFigure;
+  f: TFigure;
 begin
-  if not IsSaved then
+  if Saved <> Current then
   begin
     Ans := IsSaveDialog();
     if Ans = mrYes then
@@ -298,23 +344,29 @@ begin
     if Ans = mrCancel then
       Exit;
   end;
-  if (OpenDialog.Execute) and (TFigure.LoadFile(OpenDialog.FileName)) then
-  begin
-    FileName := OpenDialog.FileName;
-    IsSaved := True;
-    MinPoint := FloatPoint(100000, 100000);
-    MaxPoint := FloatPoint(-100000, -100000);
-    for i in Figures do
+  if (OpenDialog.Execute) then
+    if (TFigure.LoadFile(OpenDialog.FileName)) then
     begin
-      MinPoint := Min(min(i.Points[0], i.Points[1]), MinPoint);
-      MaxPoint := Max(max(i.Points[0], i.Points[1]), MaxPoint);
+      FileName := OpenDialog.FileName;
+      VecRedF.Caption := OpenDialog.FileName + ' - ' + Name;
+      MinPoint := FloatPoint(100000, 100000);
+      MaxPoint := FloatPoint(-100000, -100000);
+      for i in Figures do
+      begin
+        MinPoint := Min(min(i.Points[0], i.Points[1]), MinPoint);
+        MaxPoint := Max(max(i.Points[0], i.Points[1]), MaxPoint);
+      end;
+      SetLength(History, 1);
+      History[0] := THistoryBlock.Create(FiguresToString());
+      Current := 0;
+      Saved := 0;
+      Invalidate;
+    end
+    else
+    begin
+      ShowMessage('Файл поврежден!');
+      setlength(Figures, 0);
     end;
-    Invalidate;
-  end else
-  begin
-    ShowMessage('Файл поврежден!');
-    setlength(Figures,0);
-  end;
 
 end;
 
@@ -342,14 +394,12 @@ begin
   begin
     ChoosenTool.AddPoint(ScrnToWorld(point(x, y)));
     PB.Invalidate;
-    IsSaved := False;
   end
   else
   begin
     ChoosenTool.FigureCreate(ScrnToWorld(point(x, y)));
     Invalidate;
     Drawing := True;
-    IsSaved := False;
   end;
 end;
 
@@ -377,11 +427,22 @@ begin
   SetScrolBars(ScrollBarBottom, ScrollBarRight);
   ScrollB := True;
   for i in Figures do
-    if i<>nil then i.draw(pb.Canvas);
+    if i <> nil then
+      i.draw(pb.Canvas);
   for i in Figures do
-  if i<>nil then
-    if i.Selected then
-      i.drawoutline(pb.Canvas);
+    if i <> nil then
+      if i.Selected then
+        i.drawoutline(pb.Canvas);
+end;
+
+procedure TVecRedF.TestClick(Sender: TObject);
+var
+  S: string;
+begin
+  try
+    Clipboard.AsText := FiguresToString();
+  finally
+  end;
 end;
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);

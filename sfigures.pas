@@ -9,7 +9,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
   Dialogs, Menus, ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType,
   Buttons, GraphMath, Math, Spin, FPCanvas, TypInfo, LCL, Windows, UScale,
-  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite,LCLProc;
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite,LCLProc,strutils;
 
 type
   { Classes }
@@ -42,7 +42,7 @@ type
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode;
-    function SaveFigureInString(): AnsiString;
+    function SaveFigureInString(): String;
   end;
 
   { TStandartFigure }
@@ -151,7 +151,6 @@ var      { Var }
   IsShowPoits: boolean = False;
   CtrlButtonState: boolean = False;
   ClassesFigures: array of FClass;
-  IsSaved: boolean = True;
 
 implementation
 
@@ -298,7 +297,6 @@ begin
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := (clWhite xor clRed);
   Canvas.Pen.Width := 1;
-
   Canvas.Pen.Mode := pmXor;
 end;
 
@@ -374,6 +372,7 @@ procedure TLine.DrawOutLine(Canvas: TCanvas);
 var
   a, b: TPoint;
 begin
+  inherited;
   a := WorldToScrn(p[0]);
   b := WorldToScrn(p[1]);
   if IsShowPoits then
@@ -598,6 +597,9 @@ var
 begin
   Doc := TXMLDocument.Create;
   FiguresNode := Doc.CreateElement('Figures');
+  TDOMElement(FiguresNode).SetAttribute('Offset.x', inttostr(Offset.x));
+  TDOMElement(FiguresNode).SetAttribute('Offset.y', inttostr(Offset.y));
+  TDOMElement(FiguresNode).SetAttribute('zoom', inttostr(zoom));
   Doc.AppendChild(FiguresNode);
   FiguresNode := Doc.DocumentElement;
   for i := 0 to High(Figures) do
@@ -627,17 +629,17 @@ begin
   end;
 end;
 
-function FiguresToString(): AnsiString;
+function FiguresToString(): String;
 var
   i: integer;
 begin
-  result:='<'+ 'Figures'+'>'+#13;
+  result:='<'+ 'Figures'+' Offset.x="'+inttostr(Offset.x)+'" Offset.y="'+inttostr(Offset.y)+'" zoom="'+IntToStr(zoom)+'"'+'>'+#13;
   for i := 0 to High(Figures) do
       Result:=Result+Figures[i].SaveFigureInString();
-  Result:=result+#13+'</Figures>';
+  Result:=result+'</Figures>';
 end;
 
-function Tfigure.SaveFigureInString(): AnsiString;
+function Tfigure.SaveFigureInString(): String;
 var
   PNode: TDOMNode;
 var
@@ -655,7 +657,8 @@ begin
   begin
     result:=Result+'    '+'<point x="'+FloatToStr(Points[i].X)+'" y="'+FloatToStr(Points[i].Y)+'"/>'+#13;
   end;
-  result:=result+'</'+Self.ClassName+'>';
+  result:=result+'  </'+Self.ClassName+'>'+#13;
+  FreeMemAndNil(pp);
 end;
 
 
@@ -689,6 +692,18 @@ begin
     f.Destroy;
   SetLength(Figures, 0);
   try
+    if Doc.DocumentElement.Attributes.Length=3 then
+    begin
+      Offset.x:=StrToInt(Doc.DocumentElement.Attributes.Item[0].NodeValue);
+      Offset.y:=StrToInt(Doc.DocumentElement.Attributes.Item[1].NodeValue);
+      zoom:=StrToInt(Doc.DocumentElement.Attributes.Item[2].NodeValue);
+    end
+    else
+    begin
+      Offset.x:=0;
+      Offset.y:=0;
+      zoom:=100;
+    end;
     FigNode := Doc.DocumentElement.FirstChild;
     while FigNode <> nil do
     begin

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Figures>
+<Figures Offset.x="528" Offset.y="483" zoom="102">
   <TRectangle Width="1" PenStyle="psSolid" PenColor="0" BrushStyle="bsSolid" BrushColor="255">
     <point x="507,405405405405" y="453,108108108108"/>
     <point x="2397" y="1431"/>

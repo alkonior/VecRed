@@ -1,13 +1,13 @@
 object VecRedF: TVecRedF
-  Left = 1033
+  Left = 1358
   Height = 498
-  Top = 136
+  Top = 142
   Width = 709
   Align = alClient
   Anchors = []
-  Caption = 'VecRedF'
-  ClientHeight = 0
-  ClientWidth = 0
+  Caption = 'VecRed'
+  ClientHeight = 478
+  ClientWidth = 709
   DefaultMonitor = dmDesktop
   KeyPreview = True
   Menu = MMenu
@@ -25,12 +25,12 @@ object VecRedF: TVecRedF
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 0
+    Height = 478
     Top = 0
-    Width = 0
+    Width = 709
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 0
-    ClientWidth = 0
+    ClientHeight = 478
+    ClientWidth = 709
     Color = clWhite
     ParentColor = False
     TabOrder = 0
@@ -41,10 +41,10 @@ object VecRedF: TVecRedF
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = PBPanel
       AnchorSideBottom.Side = asrBottom
-      Left = 0
-      Height = 0
-      Top = 0
-      Width = 0
+      Left = 1
+      Height = 456
+      Top = 1
+      Width = 687
       Align = alCustom
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Right = 20
@@ -63,9 +63,9 @@ object VecRedF: TVecRedF
       AnchorSideRight.Control = PBPanel
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = ScrollBarBottom
-      Left = -20
-      Height = 0
-      Top = 0
+      Left = 688
+      Height = 456
+      Top = 1
       Width = 20
       Anchors = [akTop, akRight, akBottom]
       Kind = sbVertical
@@ -82,10 +82,10 @@ object VecRedF: TVecRedF
       AnchorSideRight.Control = ScrollBarRight
       AnchorSideBottom.Control = PBPanel
       AnchorSideBottom.Side = asrBottom
-      Left = 0
+      Left = 1
       Height = 20
-      Top = -20
-      Width = 0
+      Top = 457
+      Width = 687
       Anchors = [akLeft, akRight, akBottom]
       Max = 10000
       PageSize = 0
@@ -99,9 +99,9 @@ object VecRedF: TVecRedF
     AnchorSideTop.Control = PBPanel
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = -80
+    Left = -81
     Height = 232
-    Top = -116
+    Top = -117
     Width = 160
     Alignment = taLeftJustify
     Anchors = []
@@ -197,9 +197,9 @@ object VecRedF: TVecRedF
     AnchorSideRight.Control = MPanel
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
-    Left = 80
+    Left = 79
     Height = 0
-    Top = -116
+    Top = -117
     Width = 0
     AutoSize = True
     BevelOuter = bvNone
@@ -235,6 +235,10 @@ object VecRedF: TVecRedF
       object CloseB: TMenuItem
         Caption = 'Выход'
         OnClick = CloseBClick
+      end
+      object Test: TMenuItem
+        Caption = 'test'
+        OnClick = TestClick
       end
     end
     object Spravka: TMenuItem
