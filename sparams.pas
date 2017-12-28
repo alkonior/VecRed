@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType, Buttons, GraphMath, Math, Spin,
-  FPCanvas, TypInfo, LCL, SFigures, UScale;
+  FPCanvas, TypInfo, LCL, SFigures, UScale, variants,sha1,SHistroy;
 
 { TProperty }
 type
@@ -24,21 +24,21 @@ type
     SpinLabel: TLabel;
     SpinEdit: TSpinEdit;
     procedure OnChange(Sender: TObject);
-    constructor Create(s: string; n: integer; Panel: TPanel);
+    constructor Create(s: string; n, i: integer; Panel: TPanel);
     destructor Destroy; override; overload;
   end;
 
   TColorProperty = class(TProperty)
     Button: TColorButton;
     procedure OnChange(Sender: TObject);
-    constructor Create(s: string; n: integer; Panel: TPanel);
+    constructor Create(s: string; n, i: integer; Panel: TPanel);
     destructor Destroy; override; overload;
   end;
 
   TPenStyleProperty = class(TProperty)
     PenStylesLabel: TLabel;
     PenStylesBox: TComboBox;
-    constructor Create(s: string; n: integer; Panel: TPanel);
+    constructor Create(s: string; n, i: integer; Panel: TPanel);
     destructor Destroy; override; overload;
     procedure OnChange(Sender: TObject);
     procedure PenStylesBoxDrawItem(Control: TWinControl; Index: integer;
@@ -48,17 +48,20 @@ type
   TBrushStyleProperty = class(TProperty)
     BrushStylesLable: TLabel;
     BrushStylesBox: TComboBox;
-    constructor Create(s: string; n: integer; Panel: TPanel);
+    constructor Create(s: string; n, i: integer; Panel: TPanel);
     destructor Destroy; override; overload;
     procedure OnChange(Sender: TObject);
     procedure BrushStylesBoxDrawItem(Control: TWinControl; Index: integer;
       ARect: TRect; State: TOwnerDrawState);
   end;
- procedure MakeParams(cl: Tclass; var AP: ArrayOfProperty);
- procedure MakeSelectParams(var AP: ArrayOfProperty);
 
- var  PropertyPanel: TPanel;
-   ColorPanelTool: TPanel;
+procedure MakeParams(cl: Tclass; var AP: ArrayOfProperty);
+procedure MakeSelectParams(var AP: ArrayOfProperty);
+
+var
+  PropertyPanel: TPanel;
+  ColorPanelTool: TPanel;
+
 implementation
 
 { Procedures }
@@ -79,19 +82,19 @@ begin
     case s of
       'TGraphicsColor':
       begin
-        Ap[i] := TColorProperty.Create(p^[i]^.Name, i, ColorPanelTool);
+        Ap[i] := TColorProperty.Create(p^[i]^.Name, i,0, ColorPanelTool);
       end;
       'LongInt':
       begin
-        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i, PropertyPanel);
+        Ap[i] := TSpinProperty.Create(p^[i]^.Name, i,0, PropertyPanel);
       end;
       'TFPPenStyle':
       begin
-        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i, PropertyPanel);
+        Ap[i] := TPenStyleProperty.Create(p^[i]^.Name, i,0, PropertyPanel);
       end;
       'TFPBrushStyle':
       begin
-        Ap[i] := TBrushStyleProperty.Create(p^[i]^.Name, i, PropertyPanel);
+        Ap[i] := TBrushStyleProperty.Create(p^[i]^.Name, i,7, PropertyPanel);
       end;
     end;
   end;
@@ -100,6 +103,7 @@ end;
 procedure MakeSelectParams(var AP: ArrayOfProperty);
 var
   ParamNameList, ParamTypeList: array of string;
+  Params: array of variant;
   f1: boolean;
   i, j, k, n: integer;
   p: PPropList;
@@ -127,31 +131,32 @@ begin
           ParamTypeList[high(ParamTypeList)] := p^[j]^.PropType^.Name;
           SetLength(ParamnameList, Length(ParamnameList) + 1);
           ParamnameList[high(ParamnameList)] := p^[j]^.Name;
+          SetLength(Params, Length(Params) + 1);
+          Params[high(params)] := GetPropValue((Figures[i] as Figures[i].ClassOfFigure), p^[j]);
         end;
       end;
     end;
   end;
+  FreeAndNil(ap);
   SetLength(AP, LENGTH(ParamTypeList));
   for i := 0 to length(ParamTypeList) - 1 do
   begin
     case ParamTypeList[i] of
       'TGraphicsColor':
       begin
-        Ap[i] := TColorProperty.Create(ParamNameList[i], i, ColorPanelTool);
+        Ap[i] := TColorProperty.Create(ParamNameList[i], i, Params[i], ColorPanelTool);
       end;
       'LongInt':
       begin
-        Ap[i] := TSpinProperty.Create(ParamNameList[i], i + 2, PropertyPanel);
+        Ap[i] := TSpinProperty.Create(ParamNameList[i], i, Params[i], PropertyPanel);
       end;
       'TFPPenStyle':
       begin
-        Ap[i] := TPenStyleProperty.Create(ParamNameList[i], i + 2,
-          PropertyPanel);
+        Ap[i] := TPenStyleProperty.Create(ParamNameList[i], i, CasePenStyleInt(Params[i]), PropertyPanel);
       end;
       'TFPBrushStyle':
       begin
-        Ap[i] := TBrushStyleProperty.Create(ParamNameList[i],
-          i + 2, PropertyPanel);
+        Ap[i] := TBrushStyleProperty.Create(ParamNameList[i], i , CaseBrushStyleInt(Params[i]), PropertyPanel);
       end;
     end;
   end;
@@ -168,6 +173,7 @@ begin
       if i.Selected then
         if IsPublishedProp(i, Name) then
           SetPropValue(i, Name, res);
+    SendToHistory();
   end;
   InvalidateHandler;
 end;
@@ -186,13 +192,13 @@ end;
 
 procedure TBrushStyleProperty.OnChange(Sender: TObject);
 begin
-  Res := CaseBrushStyle((Sender as TComboBox).ItemIndex);
+  Res := CaseintBrushStyle((Sender as TComboBox).ItemIndex);
   inherited;
 end;
 
 procedure TPenStyleProperty.OnChange(Sender: TObject);
 begin
-  Res := CasePenStyle((Sender as TComboBox).ItemIndex);
+  Res := CaseintPenStyle((Sender as TComboBox).ItemIndex);
   inherited;
 end;
 
@@ -204,7 +210,7 @@ var
   Y: integer;
 begin
   Y := ARect.Top + 7;
-  (Control as TComboBox).Canvas.Pen.Style := CasePenStyle(Index);
+  (Control as TComboBox).Canvas.Pen.Style := CaseintPenStyle(Index);
   (Control as TComboBox).Canvas.Line(0, Y, 200, Y);
 end;
 
@@ -217,14 +223,14 @@ begin
   PRect.Right := ARect.Right - 8;
   PRect.Top := ARect.Top + 4;
   PRect.Bottom := ARect.Bottom - 4;
-  (Control as TComboBox).Canvas.Brush.Style := CaseBrushStyle(Index);
+  (Control as TComboBox).Canvas.Brush.Style := CaseintBrushStyle(Index);
   (Control as TComboBox).Canvas.Brush.Color := clBlack;
   (Control as TComboBox).Canvas.Rectangle(PRect);
 end;
 
 { PRPCreateDestroy }
 
-constructor TSpinProperty.Create(s: string; n: integer; Panel: Tpanel);
+constructor TSpinProperty.Create(s: string; n, i: integer; Panel: Tpanel);
 begin
   SpinLabel := TLabel.Create(Panel);
   SpinLabel.Caption := s;
@@ -240,12 +246,13 @@ begin
   SpinEdit.Width := 130;
   SpinEdit.Top := n * 100 + 50;
   SpinEdit.Alignment := taLeftJustify;
+  SpinEdit.Value := i;
   SpinEdit.OnChange := @OnChange;
   res := SpinEdit.Value;
   Name := s;
 end;
 
-constructor TColorProperty.Create(s: string; n: integer; Panel: Tpanel);
+constructor TColorProperty.Create(s: string; n, i: integer; Panel: Tpanel);
 begin
   Button := TColorButton.Create(Panel);
   Button.Align := alTop;
@@ -253,12 +260,13 @@ begin
   Button.Width := 32;
   Button.Height := 32;
   Button.Top := n * 100 + 50;
+  Button.ButtonColor := i;
   Button.OnColorChanged := @OnChange;
   res := Button.ButtonColor;
   Name := s;
 end;
 
-constructor TPenStyleProperty.Create(s: string; n: integer; Panel: TPanel);
+constructor TPenStyleProperty.Create(s: string; n, i: integer; Panel: TPanel);
 begin
   PenStylesLabel := TLabel.Create(Panel);
   PenStylesLabel.Top := 100 * n;
@@ -271,16 +279,16 @@ begin
   PenStylesBox.Top := 100 * n + 50;
   PenStylesBox.Items.CommaText := ',,,,';
   PenStylesBox.Style := csOwnerDrawFixed;
-  PenStylesBox.ItemIndex := 0;
+  PenStylesBox.ItemIndex := i;
   PenStylesBox.Width := 130;
   PenStylesBox.Parent := Panel;
   PenStylesBox.OnDrawItem := @PenStylesBoxDrawItem;
   PenStylesBox.OnChange := @OnChange;
-  Res := CasePenStyle(0);
+  Res := CaseintPenStyle(0);
   Name := s;
 end;
 
-constructor TBrushStyleProperty.Create(s: string; n: integer; Panel: TPanel);
+constructor TBrushStyleProperty.Create(s: string; n, i: integer; Panel: TPanel);
 begin
   BrushStylesLable := TLabel.Create(Panel);
   BrushStylesLable.Top := 100 * n;
@@ -294,11 +302,11 @@ begin
   BrushStylesBox.Parent := Panel;
   BrushStylesBox.Width := 130;
   BrushStylesBox.Style := csOwnerDrawFixed;
-  BrushStylesBox.ItemIndex := 0;
+  BrushStylesBox.ItemIndex := i;
   BrushStylesBox.Align := alTop;
   BrushStylesBox.OnDrawItem := @BrushStylesBoxDrawItem;
   BrushStylesBox.OnChange := @OnChange;
-  Res := CaseBrushStyle(0);
+  Res := CaseintBrushStyle(0);
   Name := s;
 end;
 

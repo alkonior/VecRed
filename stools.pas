@@ -24,10 +24,9 @@ type
 
 
   { TTool }
-  TFigureClass = class of TFigure;
 
   TTool = class
-    Figure: TFigureClass;
+    Figure: FClass;
     Icon: string;
     IsMainTool: boolean;
     Number: integer;
@@ -188,9 +187,6 @@ begin
   Drawing := False;
 end;
 
-
-
-
 procedure ChangeDependentTool(Sender: TObject);
 
 begin
@@ -283,15 +279,13 @@ begin
   InvalidateHandler;
 end;
 
-
-
 { FigureCreate }
 
 procedure TTool.FigureCreate(Point: TFloatPoint);
 var i: Integer;
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := Figure.Create;
+  Figures[High(Figures)] := Figure.Create(Figure);
   Figures[High(Figures)].SetLengthPoints(2);
   Figures[High(Figures)].Points[0] := Point;
   Figures[High(Figures)].Points[1] := Point;
@@ -343,7 +337,7 @@ end;
 procedure TDesignatorTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := Figure.Create;
+  Figures[High(Figures)] := Figure.Create(Figure);
   Figures[High(Figures)].SetLengthPoints(2);
   Figures[High(Figures)].Points[0] := Point;
   Figures[High(Figures)].Points[1] := Point;
@@ -709,8 +703,6 @@ begin
 end;
 
 procedure TMultylineTool.DeleteParams();
-var
-  i: TProperty;
 begin
   Inherited;
   PenTool.Destroy();
@@ -719,6 +711,7 @@ end;
 
 procedure TSelectTool.DeleteParams();
 begin
+  inherited;
   Delete.Destroy();
   Allbottom.Destroy();
   AllTop.Destroy();

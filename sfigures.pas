@@ -43,6 +43,7 @@ type
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode;
     function SaveFigureInString(): String;
+    constructor Create(C:FClass);
   end;
 
   { TStandartFigure }
@@ -54,7 +55,7 @@ type
     PS: TPenStyle;
     procedure SetW(i: integer);virtual;
   published
-    property Width: integer read W write W default 1;
+    property Width: integer read W write setW default 1;
     property PenStyle: TPenStyle read PS write PS default psClear;
     property PenColor: TColor read PC write PC default clBlack;
   public
@@ -142,8 +143,9 @@ type
   end;
 
 function XMLToFigures(Doc: TXMLDocument): boolean;
+procedure ClipBoardToFigures(S:string);
 function FiguresToXML(): TXMLDocument;
-function FiguresToString(): AnsiString;
+function FiguresToString(b:boolean): AnsiString;
 var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
@@ -164,6 +166,11 @@ procedure AddFigure(AFigure: FClass);
 begin
   SetLength(ClassesFigures, Length(ClassesFigures) + 1);
   ClassesFigures[High(ClassesFigures)] := AFigure;
+end;
+
+constructor TFigure.Create(C:FClass);
+begin
+   CL:=c;
 end;
 
 { Drow }
@@ -629,12 +636,13 @@ begin
   end;
 end;
 
-function FiguresToString(): String;
+function FiguresToString(b:boolean): String;
 var
   i: integer;
 begin
   result:='<'+ 'Figures'+' Offset.x="'+inttostr(Offset.x)+'" Offset.y="'+inttostr(Offset.y)+'" zoom="'+IntToStr(zoom)+'"'+'>'+#13;
   for i := 0 to High(Figures) do
+   if Figures[i].Selected or b then
       Result:=Result+Figures[i].SaveFigureInString();
   Result:=result+'</Figures>';
 end;
@@ -722,6 +730,34 @@ begin
 end;
 
 
+procedure ClipBoardToFigures(s:string);
+var
+  t: TStringStream;
+  Doc: TXMLDocument;
+  FigNode: TDOMNode;
+  i: integer;
+  b: boolean;
+  l:integer;
+begin
+  t := TStringStream.Create(s);
+  t.Position:=0;
+  l:=length(Figures);
+  ReadXMLFile(Doc, t);
+  if Doc.DocumentElement.NodeName <> 'Figures' then exit;
+    FigNode := Doc.DocumentElement.FirstChild;
+    while FigNode <> nil do
+    begin
+      for i := 0 to High(ClassesFigures) do
+        if FigNode.NodeName = ClassesFigures[i].ClassName then
+          if not ClassesFigures[i].LoadFigure(FigNode,ClassesFigures[i]) then
+          begin
+            setlength(Figures,l);
+            exit;
+          end;
+      FigNode := FigNode.GetNextNodeSkipChildren;
+    end;
+end;
+
 class function TFigure.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;
 var
   F: TFigure;
@@ -730,7 +766,7 @@ var
 begin
   try
     SetLength(Figures, Length(Figures) + 1);
-    F := AClass.Create;
+    F := AClass.Create(AClass);
     for i := 0 to ANode.Attributes.Length - 1 do
        if IsPublishedProp(AClass, ANode.Attributes.Item[i].NodeName) then
          SetPropValue(F, ANode.Attributes.Item[i].NodeName, ANode.Attributes.Item[i].NodeValue);

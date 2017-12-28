@@ -32,7 +32,8 @@ procedure SendToHistory();
 begin
   Current:=Current+1;
   SetLength(History,Current+1);
-  History[Current]:=THistoryBlock.Create(FiguresToString());
+  History[Current]:=THistoryBlock.Create(FiguresToString(true));
+  if Saved>=Current then Saved:=0;
 end;
 
 procedure THistoryBlock.LoadFigures();

@@ -24,8 +24,10 @@ function IsPointInRect(LH, RB, P: TFloatPoint): boolean;
 function IsRectInRect(LH, RB, P1, P2: TFloatPoint): boolean;
 function IsPointInEllipse(p0, P: TFloatPoint; Rx, Ry: Float): boolean;
 function IsPointOnline(P1, P2, P: TFloatPoint; w: integer): boolean;
-function CasePenStyle(Index: integer): TPenStyle;
-function CaseBrushStyle(Index: integer): TBrushStyle;
+function CaseBrushStyleInt(s:string): integer;
+function CaseIntBrushStyle(Index: integer): TBrushStyle;
+function CasePenStyleInt(s:string): integer;
+function CaseIntPenStyle(Index: integer): TPenStyle;
 procedure SetScrolBars(var Scroll1, Scroll2: TScrollBar);
 procedure CenterZoom(oldzoom: double);
 procedure ChangeCenter();
@@ -200,7 +202,7 @@ begin
   InvalidateHandler;
 end;
 
-function CasePenStyle(Index: integer): TPenStyle;
+function CaseIntPenStyle(Index: integer): TPenStyle;
 begin
   case Index of
     0: Result := psSolid;
@@ -211,7 +213,18 @@ begin
   end;
 end;
 
-function CaseBrushStyle(Index: integer): TBrushStyle;
+function CasePenStyleInt(s:string): integer;
+begin
+  case s of
+    'psSolid': Result := 0;
+    'psDash': Result := 1;
+    'psDot': Result :=2;
+    'psDashDot': Result := 3;
+    'psDashDotDot': Result := 4;
+  end;
+end;
+
+function CaseIntBrushStyle(Index: integer): TBrushStyle;
 begin
   case Index of
     0: Result := bsSolid;
@@ -222,6 +235,20 @@ begin
     5: Result := bsFDiagonal;
     6: Result := bsHorizontal;
     7: Result := bsClear;
+  end;
+end;
+
+function CaseBrushStyleInt(s:string): integer;
+begin
+  case s of
+    'bsSolid': Result := 0;
+    'bsBDiagonal': Result := 1;
+    'bsDiagCross': Result := 2;
+    'bsVertical': Result := 3;
+    'bsCross': Result := 4;
+    'bsFDiagonal': Result := 5;
+    'bsHorizontal': Result := 6;
+    'bsClear': Result := 7;
   end;
 end;
 

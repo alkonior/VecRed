@@ -21,7 +21,6 @@ type
   TVecRedF = class(TForm)
     CloseB: TMenuItem;
     ColorPanel: TPanel;
-    Test: TMenuItem;
     Open: TMenuItem;
     OpenDialog: TOpenDialog;
     Save: TMenuItem;
@@ -71,7 +70,6 @@ type
     procedure PBMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure PBPaint(Sender: TObject);
-    procedure TestClick(Sender: TObject);
     procedure ZoomBChange(Sender: TObject);
     function IsSaveDialog(): integer;
   private
@@ -99,6 +97,8 @@ begin
 end;
 
 procedure TVecRedF.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
+var
+  i: TProperty;
 begin
   case key of
     VK_SHIFT: ShiftButtonState := True;
@@ -111,12 +111,14 @@ begin
     VK_Z: if CtrlButtonState then
         if ShiftButtonState then
         begin
-          if Current < length(History)-1 then
+          if Current < length(History) - 1 then
           begin
             Inc(Current);
             History[Current].LoadFigures();
-            Drawing:=false;
+            Drawing := False;
+            ChoosenTool.CreateParams();
             Invalidate;
+            SelectedNumber := 0;
           end;
         end
         else
@@ -125,10 +127,32 @@ begin
           begin
             Current := Current - 1;
             History[Current].LoadFigures();
-            Drawing:=false;
+            Drawing := False;
+            ChoosenTool.CreateParams();
             Invalidate;
+            SelectedNumber := 0;
           end;
         end;
+    VK_C: if CtrlButtonState then
+      begin
+        if SelectedNumber > 0 then
+        begin
+          Clipboard.AsText := FiguresToString(False);
+        end;
+      end;
+    VK_V:if CtrlButtonState then
+      begin
+        try
+          ClipBoardToFigures(Clipboard.AsText);
+          SendToHistory();
+        except
+          on E : Exception do begin end
+          else
+          begin
+
+          end;
+        end;
+      end;
   end;
 end;
 
@@ -199,7 +223,7 @@ begin
   InvalidateHandler := @Invalidate;
   ChoosenTool.CreateParams();
   SetLength(History, 1);
-  History[0] := THistoryBlock.Create(FiguresToString());
+  History[0] := THistoryBlock.Create(FiguresToString(True));
   Current := 0;
   Saved := 0;
 end;
@@ -357,7 +381,7 @@ begin
         MaxPoint := Max(max(i.Points[0], i.Points[1]), MaxPoint);
       end;
       SetLength(History, 1);
-      History[0] := THistoryBlock.Create(FiguresToString());
+      History[0] := THistoryBlock.Create(FiguresToString(True));
       Current := 0;
       Saved := 0;
       Invalidate;
@@ -433,16 +457,6 @@ begin
     if i <> nil then
       if i.Selected then
         i.drawoutline(pb.Canvas);
-end;
-
-procedure TVecRedF.TestClick(Sender: TObject);
-var
-  S: string;
-begin
-  try
-    Clipboard.AsText := FiguresToString();
-  finally
-  end;
 end;
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);
