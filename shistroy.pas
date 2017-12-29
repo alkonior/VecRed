@@ -20,12 +20,14 @@ type
   end;
 
   SHistoryBlock = ^THistoryBlock;
+
 procedure SendToHistory();
 
 var
   History: array of THistoryBlock;
   Current:Integer;
   Saved:integer;
+
 implementation
 
 procedure SendToHistory();

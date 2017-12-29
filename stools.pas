@@ -190,11 +190,11 @@ end;
 procedure ChangeDependentTool(Sender: TObject);
 
 begin
-  IsShowPoits := False;
+  IsShowPoints := False;
   Drawing:=false;
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
     ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
-  if ChoosenTool.Number=12 then IsShowPoits:= SelectedNumber>0;
+  if ChoosenTool.Number=12 then IsShowPoints:= SelectedNumber>0;
   InvalidateHandler;
 end;
 
@@ -212,7 +212,7 @@ begin
     ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
     ChoosenTool.CreateParams();
     Drawing := False;
-    IsShowPoits := False;
+    IsShowPoints := False;
   end;
   InvalidateHandler;
 end;
@@ -608,7 +608,7 @@ begin
     end;
    if SelectedNumber > 0 then
       begin
-        IsShowPoits := True;
+        IsShowPoints := True;
         InvalidateHandler;
       end;
    if IsMoving then SendToHistory();
@@ -722,7 +722,7 @@ end;
 procedure TChangepointsTool.DeleteParams();
 begin
   inherited;
-  IsShowPoits := False;
+  IsShowPoints := False;
   InvalidateHandler;
 end;
 

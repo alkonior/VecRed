@@ -144,7 +144,7 @@ begin
     VK_V:if CtrlButtonState then
       begin
         ClipBoardToFigures(Clipboard.AsText,CursorPosition,(ChoosenTool is TSelectTool));
-        if ChoosenTool is TChangePointsTool then IsShowPoits:=true;
+        if ChoosenTool is TChangePointsTool then IsShowPoints:=true;
         SendToHistory();
       end;
   end;

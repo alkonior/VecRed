@@ -145,12 +145,12 @@ type
 function XMLToFigures(Doc: TXMLDocument): boolean;
 procedure ClipBoardToFigures(S:string;point:TPOINT;b:boolean);
 function FiguresToXML(): TXMLDocument;
-function FiguresToString(b:boolean): AnsiString;
+function FiguresToString(ASaveAll:boolean): AnsiString;
 var      { Var }
   Figures: array of TFigure;
   Drawing: boolean = False;
   SelectedNumber: integer = 0;
-  IsShowPoits: boolean = False;
+  IsShowPoints: boolean = False;
   CtrlButtonState: boolean = False;
   ClassesFigures: array of FClass;
 
@@ -315,7 +315,7 @@ begin
   a := WorldToScrn(minp);
   b := WorldToScrn(maxp);
   inherited;
-  if IsShowPoits then
+  if IsShowPoints then
   begin
     Canvas.Pen.Width := 2;
     Canvas.Pen.Style := psSolid;
@@ -348,7 +348,7 @@ var
   a, b: TPoint;
 begin
   inherited;
-  if IsShowPoits then
+  if IsShowPoints then
   begin
     Canvas.Pen.Style := psSolid;
     Canvas.Pen.Width := 2;
@@ -358,8 +358,8 @@ begin
       Canvas.Pen.Color :=clred;
       Canvas.Pen.Mode := pmCopy;
       Cirlce(WorldToScrn(p[i]),7,Canvas);
-       Canvas.Pen.Mode := pmXor;
-       Canvas.Pen.Color := (clWhite xor clRed);
+      Canvas.Pen.Mode := pmXor;
+      Canvas.Pen.Color := (clWhite xor clRed);
     end;
   end
   else
@@ -382,7 +382,7 @@ begin
   inherited;
   a := WorldToScrn(p[0]);
   b := WorldToScrn(p[1]);
-  if IsShowPoits then
+  if IsShowPoints then
   begin
     Canvas.Pen.Width := 2;
     Canvas.Pen.Style := psSolid;
@@ -636,31 +636,32 @@ begin
   end;
 end;
 
-function FiguresToString(b:boolean): String;
+function FiguresToString(ASaveAll: Boolean): String;
 var
   i: integer;
 begin
-  result:='<'+ 'Figures'+' Offset.x="'+inttostr(Offset.x)+'" Offset.y="'+inttostr(Offset.y)+'" zoom="'+IntToStr(zoom)+'"'+'>'+#13;
+  Result:=Format('<Figures Offset.x="%d" Offset.y="%d" zoom="%d">'#13, [Offset.x, Offset.y, zoom]);
+  //result:='<Figures Offset.x="'+inttostr(Offset.x)+'" Offset.y="'+inttostr(Offset.y)+'" zoom="'+IntToStr(zoom)+'"'+'>'+#13;
   for i := 0 to High(Figures) do
-   if Figures[i].Selected or b then
-      Result:=Result+Figures[i].SaveFigureInString();
-  Result:=result+'</Figures>';
+   if Figures[i].Selected or ASaveAll then
+      Result += Figures[i].SaveFigureInString();
+  Result += '</Figures>';
 end;
 
-function Tfigure.SaveFigureInString(): String;
+function TFigure.SaveFigureInString(): String;
 var
   PNode: TDOMNode;
 var
   i, n: integer;
   pp: PPropList;
 begin
-  Result :=#32+#32+'<'+Self.ClassName;
+  Result := '  <' + Self.ClassName;
   n:=GetPropList(self,pp);
   for i:=0 to n-1 do
   begin
-    result:=Result+' '+pp^[i]^.Name+'="'+ String(GetPropValue(self,pp^[i]^.Name))+'"';
+    Result += ' '+pp^[i]^.Name+'="'+ String(GetPropValue(self,pp^[i]^.Name))+'"';
   end;
-  result:=Result+'>'+#13;
+  result:=Result+'>'#13;
   for i := 0 to length(Points) - 1 do
   begin
     result:=Result+'    '+'<point x="'+FloatToStr(Points[i].X)+'" y="'+FloatToStr(Points[i].Y)+'"/>'+#13;
