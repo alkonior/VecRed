@@ -143,7 +143,7 @@ type
   end;
 
 function XMLToFigures(Doc: TXMLDocument): boolean;
-procedure ClipBoardToFigures(S:string);
+procedure ClipBoardToFigures(S:string;point:TPOINT;b:boolean);
 function FiguresToXML(): TXMLDocument;
 function FiguresToString(b:boolean): AnsiString;
 var      { Var }
@@ -625,7 +625,7 @@ begin
   n:=GetPropList(self,pp);
   for i:=0 to n-1 do
   begin
-    TDOMElement(Result).SetAttribute(pp^[i]^.Name, GetPropValue(self,pp^[i]));
+    TDOMElement(Result).SetAttribute(pp^[i]^.Name, GetPropValue(self,pp^[i]^.Name));
   end;
   for i := 0 to length(Points) - 1 do
   begin
@@ -658,7 +658,7 @@ begin
   n:=GetPropList(self,pp);
   for i:=0 to n-1 do
   begin
-    result:=Result+' '+pp^[i]^.Name+'="'+ String(GetPropValue(self,pp^[i]))+'"';
+    result:=Result+' '+pp^[i]^.Name+'="'+ String(GetPropValue(self,pp^[i]^.Name))+'"';
   end;
   result:=Result+'>'+#13;
   for i := 0 to length(Points) - 1 do
@@ -666,10 +666,7 @@ begin
     result:=Result+'    '+'<point x="'+FloatToStr(Points[i].X)+'" y="'+FloatToStr(Points[i].Y)+'"/>'+#13;
   end;
   result:=result+'  </'+Self.ClassName+'>'+#13;
-  FreeMemAndNil(pp);
 end;
-
-
 
 { Load }
 
@@ -730,32 +727,47 @@ begin
 end;
 
 
-procedure ClipBoardToFigures(s:string);
+procedure ClipBoardToFigures(s:string;Point:TPOINT;b:boolean);
 var
   t: TStringStream;
   Doc: TXMLDocument;
   FigNode: TDOMNode;
   i: integer;
-  b: boolean;
   l:integer;
+  minpointC:TFloatPoint;
 begin
   t := TStringStream.Create(s);
   t.Position:=0;
   l:=length(Figures);
+  minpointC:=MaxPoint;
+  for i:=0 to high(Figures) do Figures[i].Selected:=false;
+  try
   ReadXMLFile(Doc, t);
   if Doc.DocumentElement.NodeName <> 'Figures' then exit;
     FigNode := Doc.DocumentElement.FirstChild;
     while FigNode <> nil do
     begin
       for i := 0 to High(ClassesFigures) do
+      begin
         if FigNode.NodeName = ClassesFigures[i].ClassName then
           if not ClassesFigures[i].LoadFigure(FigNode,ClassesFigures[i]) then
           begin
             setlength(Figures,l);
             exit;
           end;
+      end;
+      minpointC:=min(Figures[high(Figures)].MinP,MinPointc);
       FigNode := FigNode.GetNextNodeSkipChildren;
     end;
+    for i:=l to high(Figures) do
+    begin
+      Figures[i].move((offset-minpointC));
+      Figures[i].Selected:=b;
+    end;
+    if b then SelectedNumber:=high(Figures)-l;
+  except
+    setlength(Figures,l);
+  end;
 end;
 
 class function TFigure.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;

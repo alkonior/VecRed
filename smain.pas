@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math,
   FPCanvas, TypInfo, Spin, SFigures, STools, Types, UScale, GraphMath,
-  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite, SynHighlighterXML, LCLProc, Clipbrd,
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite, LCLProc, Clipbrd,
   SHistroy, SParams;
 
 const
@@ -83,6 +83,7 @@ var
   Mooving, ScrollB: boolean;
   cy, cx: integer;
   FileName: string;
+  CursorPosition:Tpoint;
 
 implementation
 
@@ -142,16 +143,9 @@ begin
       end;
     VK_V:if CtrlButtonState then
       begin
-        try
-          ClipBoardToFigures(Clipboard.AsText);
-          SendToHistory();
-        except
-          on E : Exception do begin end
-          else
-          begin
-
-          end;
-        end;
+        ClipBoardToFigures(Clipboard.AsText,CursorPosition,(ChoosenTool is TSelectTool));
+        if ChoosenTool is TChangePointsTool then IsShowPoits:=true;
+        SendToHistory();
       end;
   end;
 end;
@@ -168,7 +162,6 @@ end;
 
 procedure TVecRedF.MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
 begin
-
 end;
 
 procedure TVecRedF.FormCreate(Sender: TObject);
@@ -433,6 +426,7 @@ begin
   begin
     ChoosenTool.ChangePoint(ScrnToWorld(point(x, y)));
   end;
+  CursorPosition:=point(x,y);
   Invalidate;
 end;
 

@@ -33,6 +33,7 @@ procedure CenterZoom(oldzoom: double);
 procedure ChangeCenter();
 procedure ZoomToRect(Point1, Point2: TFloatPoint);
 operator -(Addend1, Addend2: TPoint): TPoint;
+operator -(Addend1: TFloatPoint): TFloatPoint;
 operator +(Addend1, Addend2: TPoint): TPoint;
 operator * (P1, P2: TFloatPoint): Float;
 
@@ -49,6 +50,13 @@ var
 implementation
 
 { operator }
+
+operator -(Addend1: TFloatPoint): TFloatPoint;
+begin
+   Result.x := -Addend1.x ;
+   Result.y :=- Addend1.y ;
+end;
+
 operator * (P1, P2: TFloatPoint): Float;
 begin
   Result := sqrt(abs(p1.x - p2.x)**2 + abs(p1.y - p2.y)**2);

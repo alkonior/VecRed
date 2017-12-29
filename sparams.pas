@@ -132,7 +132,7 @@ begin
           SetLength(ParamnameList, Length(ParamnameList) + 1);
           ParamnameList[high(ParamnameList)] := p^[j]^.Name;
           SetLength(Params, Length(Params) + 1);
-          Params[high(params)] := GetPropValue((Figures[i] as Figures[i].ClassOfFigure), p^[j]);
+          Params[high(params)] := GetPropValue((Figures[i] as Figures[i].ClassOfFigure), p^[j]^.Name);
         end;
       end;
     end;
