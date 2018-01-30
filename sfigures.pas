@@ -151,6 +151,8 @@ var      { Var }
   Drawing: boolean = False;
   SelectedNumber: integer = 0;
   IsShowPoints: boolean = False;
+  IsExport:boolean=false;
+  ExportFile:string;
   CtrlButtonState: boolean = False;
   ClassesFigures: array of FClass;
 
@@ -179,6 +181,8 @@ begin
   Canvas.Pen.Color := PC;
   Canvas.Pen.Width := W;
   Canvas.Pen.Style := PS;
+  MinPoint:=min(minp,MinPoint);
+  MaxPoint:=max(maxp,MaxPoint);
 end;
 
 procedure TVolume.Draw(Canvas: TCanvas);

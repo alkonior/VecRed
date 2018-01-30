@@ -7,8 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType, Buttons, GraphMath, Math, Spin,
-  FPCanvas, TypInfo, LCL, SFigures, UScale,SParams,SHistroy;
-
+  FPCanvas, TypInfo, LCL, SFigures, UScale,SParams,SHistroy,GraphType, IntfGraphics,  LCLProc;
 { Classes }
 
 type
@@ -158,14 +157,14 @@ procedure DeleteLastFigure();
 procedure AllUpFigures(Sender: TObject);
 procedure AllDownFigures(Sender: TObject);
 procedure ChangeDependentTool(Sender: TObject);
-
+procedure SaveScreenToFile(FileName:string);
 var           { Var }
   Tools: array of TTool;
   AButtons: array of TMyButton;
   ShiftButtonState: boolean = False;
   ChoosenTool: TTool;
   ButtonPanel: TPanel;
-
+  MainCanvas:TPaintBox;
 implementation
 
 { Porocedures }
@@ -191,11 +190,33 @@ procedure ChangeDependentTool(Sender: TObject);
 
 begin
   IsShowPoints := False;
+  IsExport:=False;
   Drawing:=false;
   if (ChoosenTool <> Tools[(Sender as TSpeedButton).tag]) then
     ChoosenTool := Tools[(Sender as TSpeedButton).Tag];
   if ChoosenTool.Number=12 then IsShowPoints:= SelectedNumber>0;
   InvalidateHandler;
+end;
+
+procedure SaveScreenToFile(FileName: string);
+var Imadge:TBitmap;
+  f: TFigure;
+  Rect:TRect;
+begin
+  Rect:=TRect.Create(point(0,0),WindowWH);
+  try
+  Imadge:=TBitmap.Create;
+  Imadge.Height:=rect.Height;
+  Imadge.Width:=rect.Width;
+  Imadge.Canvas.Pen.Color:=clWhite;
+  Imadge.Canvas.FillRect(rect);
+  for f in Figures do f.Draw(Imadge.Canvas);
+  //Imadge.Canvas.CopyRect(rect,MainCanvas.Canvas,rect);
+  Imadge.SaveToFile(filename);
+  finally
+    Imadge.Free;
+
+  end;
 end;
 
 procedure ChangeMainTool(Sender: TObject);
@@ -213,6 +234,7 @@ begin
     ChoosenTool.CreateParams();
     Drawing := False;
     IsShowPoints := False;
+    IsExport:=False;
   end;
   InvalidateHandler;
 end;
@@ -387,8 +409,6 @@ begin
   if Drawing then
   if ShiftButtonState then
   begin
-    MinPoint := min(MinPoint, point);
-    MaxPoint := max(MaxPoint, point);
     with Figures[high(Figures)] do
     begin
       Figures[High(Figures)].SetLengthPoints(
@@ -509,6 +529,18 @@ begin
   ZoomToRect(Figures[High(Figures)].Points[0], Figures[High(Figures)].Points[1]);
   FreeAndNil(Figures[High(Figures)]);
   SetLength(Figures, Length(Figures) - 1);
+  if IsExport then
+    begin
+      If MessageDlg('Save picture?', 'Вы уверенны?',mtConfirmation, [mbYes, mbNo], 0)=mrYes then
+      begin
+      SaveScreenToFile(ExportFile);
+      IsExport:=false;
+      end else
+      begin
+      if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
+             ZoomToRect((minpoint - FloatPoint(50, 50)), (maxpoint + FloatPoint(50, 50)));
+      end;
+    end;
 end;
 
 { MouseUp }
@@ -557,7 +589,19 @@ begin
       FreeAndNil(Figures[High(Figures)]);
       SetLength(Figures, Length(Figures) - 1);
       Drawing := False;
+      if IsExport then
+    begin
+      If MessageDlg('Save picture?', 'Вы уверенны?',mtConfirmation, [mbYes, mbNo], 0)=mrYes then
+      begin
+      SaveScreenToFile(ExportFile);
+      IsExport:=false;
+      end else
+      begin
+      if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
+             ZoomToRect((minpoint - FloatPoint(50, 50)), (maxpoint + FloatPoint(50, 50)));
+      end;
     end;
+   end;
 end;
 
 procedure TSelectTool.MouseUp(Point: TFloatPoint);

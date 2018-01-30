@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
   Menus, ExtCtrls, StdCtrls, LCLIntf, LCLType, Buttons, Math,
   FPCanvas, TypInfo, Spin, SFigures, STools, Types, UScale, GraphMath,
-  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite, LCLProc, Clipbrd,
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite, LCLProc, Clipbrd, ExtDlgs,
   SHistroy, SParams;
 
 const
@@ -21,6 +21,7 @@ type
   TVecRedF = class(TForm)
     CloseB: TMenuItem;
     ColorPanel: TPanel;
+    Export: TMenuItem;
     Open: TMenuItem;
     OpenDialog: TOpenDialog;
     Save: TMenuItem;
@@ -32,6 +33,7 @@ type
     MenuItem3: TMenuItem;
     DeleteALL: TMenuItem;
     SaveDialog: TSaveDialog;
+    SavePictureDialog1: TSavePictureDialog;
     ScrollBarBottom: TScrollBar;
     ScrollBarRight: TScrollBar;
     Spravka: TMenuItem;
@@ -41,6 +43,7 @@ type
     PBPanel: TPanel;
     ZoomB: TSpinEdit;
     ZoomT: TLabel;
+    procedure ExportClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
     procedure DeleteALLClick(Sender: TObject);
@@ -72,6 +75,7 @@ type
     procedure PBPaint(Sender: TObject);
     procedure ZoomBChange(Sender: TObject);
     function IsSaveDialog(): integer;
+    function IsExportDialog(): integer;
   private
     { private declarations }
   public
@@ -83,7 +87,7 @@ var
   Mooving, ScrollB: boolean;
   cy, cx: integer;
   FileName: string;
-  CursorPosition:Tpoint;
+  CursorPosition: Tpoint;
 
 implementation
 
@@ -95,6 +99,13 @@ function TVecRedF.IsSaveDialog(): integer;
 begin
   Result := MessageDlg('Save changes?', 'File has been modified, save changes?',
     mtConfirmation, [mbYes, mbNo, mbCancel], 0);
+end;
+
+function TVecRedF.IsExportDialog(): integer;
+begin
+  Result := MessageDlg('Save changes?',
+    'Сохранить текущее изображение на холсте?',
+    mtConfirmation, [mbYes, mbNo], 0);
 end;
 
 procedure TVecRedF.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
@@ -141,10 +152,11 @@ begin
           Clipboard.AsText := FiguresToString(False);
         end;
       end;
-    VK_V:if CtrlButtonState then
+    VK_V: if CtrlButtonState then
       begin
-        ClipBoardToFigures(Clipboard.AsText,CursorPosition,(ChoosenTool is TSelectTool));
-        if ChoosenTool is TChangePointsTool then IsShowPoints:=true;
+        ClipBoardToFigures(Clipboard.AsText, CursorPosition, (ChoosenTool is TSelectTool));
+        if ChoosenTool is TChangePointsTool then
+          IsShowPoints := True;
         SendToHistory();
       end;
   end;
@@ -219,6 +231,7 @@ begin
   History[0] := THistoryBlock.Create(FiguresToString(True));
   Current := 0;
   Saved := 0;
+  MainCanvas := PB;
 end;
 
 procedure TVecRedF.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -238,6 +251,36 @@ begin
   begin
     for ans := 0 to high(History) do
       History[ans].Free;
+  end;
+end;
+
+procedure TVecRedF.ExportClick(Sender: TObject);
+var
+  Ans: integer;
+  i: TFigure;
+begin
+
+  if SavePictureDialog1.Execute then
+  begin
+    Ans := IsExportDialog;
+    if Ans = mrYes then
+      SaveScreenToFile(SavePictureDialog1.FileName)
+    else
+    if ans = mrNo then
+    begin
+      ExportFile := SavePictureDialog1.FileName;
+      Reset.Click;
+      for i in figures do
+        i.Selected := False;
+      SelectedNumber := 0;
+      ChoosenTool.DeleteParams();
+      ChoosenTool := Tools[8];
+      ChoosenTool.CreateParams();
+      Drawing := False;
+      IsShowPoints := False;
+      ShowMessage('Выберите область');
+      IsExport:=true;
+    end;
   end;
 end;
 
@@ -426,7 +469,7 @@ begin
   begin
     ChoosenTool.ChangePoint(ScrnToWorld(point(x, y)));
   end;
-  CursorPosition:=point(x,y);
+  CursorPosition := point(x, y);
   Invalidate;
 end;
 
@@ -442,8 +485,8 @@ procedure TVecRedF.PBPaint(Sender: TObject);
 var
   i: TFigure;
 begin
-  SetScrolBars(ScrollBarBottom, ScrollBarRight);
-  ScrollB := True;
+  MinPoint := FloatPoint(10000, 100000);
+  MaxPoint := FloatPoint(-10000, -10000);
   for i in Figures do
     if i <> nil then
       i.draw(pb.Canvas);
@@ -451,6 +494,8 @@ begin
     if i <> nil then
       if i.Selected then
         i.drawoutline(pb.Canvas);
+  SetScrolBars(ScrollBarBottom, ScrollBarRight);
+  ScrollB := True;
 end;
 
 procedure TVecRedF.ZoomBChange(Sender: TObject);
