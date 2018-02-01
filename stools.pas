@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
   ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType, Buttons, GraphMath, Math, Spin,
-  FPCanvas, TypInfo, LCL, SFigures, UScale,SParams,SHistroy,GraphType, IntfGraphics,  LCLProc;
+  FPCanvas, TypInfo, LCL, SFigures, UScale,SParams,SHistroy,GraphType, IntfGraphics, LCLProc, TextForm;
 { Classes }
 
 type
@@ -151,6 +151,13 @@ type
     procedure MouseUp(Point: TFloatPoint); override;
   end;
 
+  { TTextTool }
+
+  TTextTool = class(TTool)
+    constructor Create(n: integer);
+    procedure MouseUp(Point: TFloatPoint); override;
+  end;
+
 procedure ChangeMainTool(Sender: TObject);
 procedure DeleteFigures(Sender: TObject);
 procedure DeleteLastFigure();
@@ -211,11 +218,9 @@ begin
   Imadge.Canvas.Pen.Color:=clWhite;
   Imadge.Canvas.FillRect(rect);
   for f in Figures do f.Draw(Imadge.Canvas);
-  //Imadge.Canvas.CopyRect(rect,MainCanvas.Canvas,rect);
-  Imadge.SaveToFile(filename);
+  Imadge.SaveToFile(FileName);
   finally
     Imadge.Free;
-
   end;
 end;
 
@@ -315,8 +320,6 @@ begin
   begin
     SetPropValue(Figures[High(Figures)],Propertys[i].Name,Propertys[i].Res);
   end;
-  MinPoint := min(MinPoint, point);
-  MaxPoint := max(MaxPoint, point);
 end;
 
 procedure TMultylineTool.FigureCreate(Point: TFloatPoint);
@@ -690,6 +693,15 @@ begin
  DeleteLastFigure();
 end;
 
+procedure TTextTool.MouseUp(Point: TFloatPoint);
+begin
+  Drawing := False;
+  TextFigure:=@(Figures[high(Figures)]as TText).Text;
+  FontFigure:=@(Figures[high(Figures)]as TText).Font;
+  if TextRedactor<>nil then TextRedactor.Close;
+  Application.CreateForm(TTextRedactor,TextRedactor);
+end;
+
 
 { CreateParams }
 
@@ -872,6 +884,14 @@ begin
   Figure := TPolyline;
 end;
 
+constructor TTextTool.Create(n: integer);
+begin
+  Number := n;
+  Icon := 'ico/Scroll.png';
+  IsMainTool := True;
+  Figure := TText;
+end;
+
 destructor TMyButton.Destroy();
 begin
   FreeAndNil(Button);
@@ -924,4 +944,5 @@ initialization
   RegisterTool(TSelectTool.Create(length(Tools)));
   RegisterTool(TDesignatorTool.Create(length(Tools)));
   RegisterTool(TChangePointsTool.Create(length(Tools)));
+  RegisterTool(TTextTool.Create(length(Tools)));
 end.

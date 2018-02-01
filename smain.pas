@@ -22,6 +22,7 @@ type
     CloseB: TMenuItem;
     ColorPanel: TPanel;
     Export: TMenuItem;
+    FontDialog1: TFontDialog;
     Open: TMenuItem;
     OpenDialog: TOpenDialog;
     Save: TMenuItem;
@@ -50,6 +51,7 @@ type
     procedure CloseBClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+    procedure Memo1Change(Sender: TObject);
     procedure MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);
     procedure MPanelMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
@@ -170,6 +172,11 @@ begin
     VK_SPACE: ChoosenTool.FigureEnd();
     VK_CONTROL: CtrlButtonState := False;
   end;
+end;
+
+procedure TVecRedF.Memo1Change(Sender: TObject);
+begin
+
 end;
 
 procedure TVecRedF.MMenuChange(Sender: TObject; Source: TMenuItem; Rebuild: boolean);

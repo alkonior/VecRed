@@ -9,7 +9,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
   Dialogs, Menus, ExtCtrls, StdCtrls, Grids, LCLIntf, LCLType,
   Buttons, GraphMath, Math, Spin, FPCanvas, TypInfo, LCL, Windows, UScale,
-  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite,LCLProc,strutils;
+  Laz2_DOM, laz2_XMLRead, laz2_XMLWrite,LCLProc,strutils, textForm;
 
 type
   { Classes }
@@ -34,16 +34,16 @@ type
     class procedure SaveFile(FileName: string);
     procedure SetLengthPoints(l: integer);
     class function LoadFile(FileName: string): boolean;
-    class function LoadFigure(ANode: TDOMNode; AClass:FClass): boolean; virtual;
+    class function LoadFigure(ANode: TDOMNode; AClass:FClass): boolean; virtual; abstract;
     procedure move(point: TFloatPoint); virtual;
     procedure Draw(Canvas: TCanvas); virtual; abstract;
     procedure DrawOutLine(Canvas: TCanvas); virtual;
     function PointInFigure(point: TFloatPoint): boolean; virtual; abstract;
     function CheckPoint(point: TFloatPoint): PFloatPoint; virtual;
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual;
-    function SaveFigure(ADoc: TXMLDocument): TDOMNode;
-    function SaveFigureInString(): String;
-    constructor Create(C:FClass);
+    function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual;
+    function SaveFigureInString(): String; virtual; abstract;
+    constructor Create(C:FClass); virtual;
   end;
 
   { TStandartFigure }
@@ -59,7 +59,15 @@ type
     property PenStyle: TPenStyle read PS write PS default psClear;
     property PenColor: TColor read PC write PC default clBlack;
   public
+    class function LoadFigure(ANode: TDOMNode; AClass:FClass): boolean; override;
     procedure Draw(Canvas: TCanvas); override;
+    function SaveFigureInString(): String;override;
+  end;
+
+  { TNotStandartFigure }
+
+  TNotStandartFigure = class(TFigure)
+
   end;
 
   { TPolyline }
@@ -134,12 +142,28 @@ type
   private
     RX: integer;
     RY: integer;
-  published
-    property RadiusX: integer read RX write RX default 1;
-    property RadiusY: integer read RY write RY default 1;
+
   public
     procedure Draw(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;
+  end;
+
+  { TText }
+
+  TText = class(TNotStandartFigure)
+  private
+    t:string;
+    F:TFont;
+  public
+    constructor Create(C:FClass);  override;
+    property Font: TFont read f write f ;
+    property Text: string read t write t;
+    procedure Draw(Canvas: TCanvas); override;
+    function PointInFigure(point: TFloatPoint): boolean; override;
+    Function SaveFigure(ADoc: TXMLDocument): TDOMNode;  override;
+    class function LoadFigure(ANode: TDOMNode; AClass:FClass): boolean; override;
+    function SaveFigureInString(): String; override;
+    procedure DrawoutLine(Canvas: TCanvas); override;
   end;
 
 function XMLToFigures(Doc: TXMLDocument): boolean;
@@ -158,6 +182,9 @@ var      { Var }
 
 implementation
 
+{ TText }
+
+
 { Porocedures }
 procedure TFigure.SetLengthPoints(l: integer);
 begin
@@ -175,7 +202,14 @@ begin
    CL:=c;
 end;
 
+constructor TText.Create(C:FClass);
+begin
+  f:=TFont.Create;
+  CL:=c;
+end;
+
 { Drow }
+
 procedure TStandartFigure.Draw(Canvas: TCanvas);
 begin
   Canvas.Pen.Color := PC;
@@ -291,6 +325,12 @@ begin
   end;
 end;
 
+procedure TText.Draw(Canvas: TCanvas);
+begin
+  Canvas.Font:=f;
+  Canvas.TextRect(TRect.Create(WorldToScrn(minp),WorldToScrn(maxp)),WorldToScrn(minp).x,WorldToScrn(minp).y,T);
+end;
+
 { DrawOutLine }
 
 procedure Rect(p1,p2: Tpoint;w:integer; canvas: TCanvas);
@@ -345,6 +385,38 @@ begin
   Canvas.Pen.Mode := pmCopy;
 end;
 
+procedure TText.DrawOutLine(Canvas: TCanvas);
+var
+  a, b: TPoint;
+begin
+  a := WorldToScrn(minp);
+  b := WorldToScrn(maxp);
+  inherited;
+  if IsShowPoints then
+  begin
+    Canvas.Pen.Width := 2;
+    Canvas.Pen.Style := psSolid;
+    Cirlce(a,5,Canvas);
+    Cirlce(round(floatpoint(a.x , b.y)),5,Canvas);
+    Cirlce(round(floatpoint(b.x , a.y)),5,Canvas);
+    Cirlce(b,5,Canvas);
+    Canvas.Pen.Mode := pmCopy;
+    Canvas.Pen.Color :=clred;
+    Cirlce(a,7,Canvas);
+    Cirlce(round(floatpoint(a.x , b.y)),7,Canvas);
+    Cirlce(round(floatpoint(b.x , a.y)),7,Canvas);
+    Cirlce(b,7,Canvas);
+  end
+  else
+  begin
+    Canvas.Pen.Width := 1;
+    Canvas.Pen.Style := psDash;
+    Rect(a,b,1,Canvas);
+    Canvas.Pen.Color :=clWhite;
+    Rect(a,b,2,Canvas);
+  end;
+  Canvas.Pen.Mode := pmCopy;
+end;
 
 procedure TPolyline.DrawoutLine(Canvas: TCanvas);
 var
@@ -484,6 +556,19 @@ begin
   Result := False;
 end;
 
+function TText.PointInFigure(point: TFloatPoint): boolean;
+begin
+   Result :=
+      IsPointInRect(minp, maxp, point);
+   if Result then
+   begin
+     TextFigure:=@t;
+     FontFigure:=@f;
+     if TextRedactor<>nil then TextRedactor.Close;
+     Application.CreateForm(TTextRedactor,TextRedactor);
+   end;
+end;
+
 { FigureInRect }
 
 function TFigure.FigureInrect(point1, point2: TFloatPoint): boolean;
@@ -496,6 +581,7 @@ function TRectZoom.FigureInRect(point1, point2: TFloatPoint): boolean;
 begin
   Result := False;
 end;
+
 
 { CheckPoint }
 
@@ -640,6 +726,29 @@ begin
   end;
 end;
 
+function TText.SaveFigure(ADoc: TXMLDocument): TDOMNode;
+var
+  PNode: TDOMNode;
+var
+  i, n: integer;
+  pp: PPropList;
+begin
+  Result := ADoc.CreateElement(Self.ClassName);
+  n:=GetPropList(self.F,pp);
+  for i:=0 to n-1 do
+  begin
+    TDOMElement(Result).SetAttribute(pp^[i]^.Name, GetPropValue(self.f,pp^[i]^.Name));
+  end;
+  TDOMElement(Result).SetAttribute('Text', t);
+  for i := 0 to length(Points) - 1 do
+  begin
+    PNode := ADoc.CreateElement('point');
+    TDOMElement(PNode).SetAttribute('x', FloatToStr(Points[i].X));
+    TDOMElement(PNode).SetAttribute('y', FloatToStr(Points[i].Y));
+    Result.AppendChild(PNode);
+  end;
+end;
+
 function FiguresToString(ASaveAll: Boolean): String;
 var
   i: integer;
@@ -652,7 +761,7 @@ begin
   Result += '</Figures>';
 end;
 
-function TFigure.SaveFigureInString(): String;
+function TStandartFigure.SaveFigureInString(): String;
 var
   PNode: TDOMNode;
 var
@@ -666,6 +775,26 @@ begin
     Result += ' '+pp^[i]^.Name+'="'+ String(GetPropValue(self,pp^[i]^.Name))+'"';
   end;
   result:=Result+'>'#13;
+  for i := 0 to length(Points) - 1 do
+  begin
+    result:=Result+'    '+'<point x="'+FloatToStr(Points[i].X)+'" y="'+FloatToStr(Points[i].Y)+'"/>'+#13;
+  end;
+  result:=result+'  </'+Self.ClassName+'>'+#13;
+end;
+
+function TText.SaveFigureInString(): String;
+var
+  i, n: integer;
+  pp: PPropList;
+begin
+  Result := '  <' + Self.ClassName;
+  n:=GetPropList(self.f,pp);
+  for i:=0 to n-1 do
+  begin
+    Result += ' '+pp^[i]^.Name+'="'+ String(GetPropValue(self.f,pp^[i]^.Name))+'"';
+  end;
+  result+= ' '+'Text'+'="'+t+'"';
+  result+='>'#13;
   for i := 0 to length(Points) - 1 do
   begin
     result:=Result+'    '+'<point x="'+FloatToStr(Points[i].X)+'" y="'+FloatToStr(Points[i].Y)+'"/>'+#13;
@@ -775,7 +904,7 @@ begin
   end;
 end;
 
-class function TFigure.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;
+class function TStandartFigure.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;
 var
   F: TFigure;
   i: integer;
@@ -804,6 +933,37 @@ begin
   end;
 end;
 
+class function TText.LoadFigure(ANode: TDOMNode; AClass:FClass): boolean;
+var
+  FT: TText;
+  i: integer;
+  PNode: TDOMNode;
+begin
+  try
+    SetLength(Figures, Length(Figures) + 1);
+    FT := Ttext.Create(AClass);
+    fT.f:=TFont.Create;
+    for i := 0 to ANode.Attributes.Length - 2 do
+       if IsPublishedProp(Ft.f, ANode.Attributes.Item[i].NodeName) then
+         SetPropValue(FT.f, ANode.Attributes.Item[i].NodeName, ANode.Attributes.Item[i].NodeValue);
+    FT.t:=ANode.Attributes.Item[ANode.Attributes.Length - 1].NodeValue;
+    PNode := ANode;
+    for i := 1 to ANode.GetChildCount do
+    begin
+      PNode := PNode.GetNextNode;
+      fT.SetLengthPoints(Length(fT.Points) + 1);
+      fT.Points[High(fT.Points)] :=FloatPoint(
+        StrToFloat(PNode.Attributes.Item[0].NodeValue),
+        StrToFloat(PNode.Attributes.Item[1].NodeValue));
+    end;
+    Figures[High(Figures)] := FT;
+    Result := True;
+  except
+    SetLength(Figures, Length(Figures)-1);
+    exit(False);
+  end;
+end;
+
 initialization
 
   AddFigure(TPolyline);
@@ -811,4 +971,5 @@ initialization
   AddFigure(TRectangle);
   AddFigure(TEllipse);
   AddFigure(TRoundRect);
+  AddFigure(TText);
 end.

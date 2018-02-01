@@ -1,12 +1,12 @@
 object VecRedF: TVecRedF
-  Left = 1358
-  Height = 498
-  Top = 142
+  Left = 1192
+  Height = 505
+  Top = 208
   Width = 709
   Align = alClient
   Anchors = []
   Caption = 'VecRed'
-  ClientHeight = 478
+  ClientHeight = 485
   ClientWidth = 709
   DefaultMonitor = dmDesktop
   KeyPreview = True
@@ -16,7 +16,7 @@ object VecRedF: TVecRedF
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
   Position = poDesktopCenter
-  LCLVersion = '1.6.4.0'
+  LCLVersion = '1.8.0.6'
   object PBPanel: TPanel
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
@@ -25,11 +25,11 @@ object VecRedF: TVecRedF
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 478
+    Height = 485
     Top = 0
     Width = 709
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 478
+    ClientHeight = 485
     ClientWidth = 709
     Color = clWhite
     ParentColor = False
@@ -42,11 +42,11 @@ object VecRedF: TVecRedF
       AnchorSideBottom.Control = PBPanel
       AnchorSideBottom.Side = asrBottom
       Left = 1
-      Height = 456
+      Height = 463
       Top = 1
       Width = 687
       Align = alCustom
-      Anchors = [akTop, akLeft, akRight, akBottom]
+      Anchors = [akTop, akLeft, akBottom]
       BorderSpacing.Right = 20
       BorderSpacing.Bottom = 20
       OnDblClick = PBDblClick
@@ -64,7 +64,7 @@ object VecRedF: TVecRedF
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = ScrollBarBottom
       Left = 688
-      Height = 456
+      Height = 463
       Top = 1
       Width = 20
       Anchors = [akTop, akRight, akBottom]
@@ -84,7 +84,7 @@ object VecRedF: TVecRedF
       AnchorSideBottom.Side = asrBottom
       Left = 1
       Height = 20
-      Top = 457
+      Top = 464
       Width = 687
       Anchors = [akLeft, akRight, akBottom]
       Max = 10000
@@ -99,9 +99,9 @@ object VecRedF: TVecRedF
     AnchorSideTop.Control = PBPanel
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = -81
+    Left = 152
     Height = 232
-    Top = -117
+    Top = 120
     Width = 160
     Alignment = taLeftJustify
     Anchors = []
@@ -197,9 +197,9 @@ object VecRedF: TVecRedF
     AnchorSideRight.Control = MPanel
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
-    Left = 79
+    Left = 312
     Height = 0
-    Top = -117
+    Top = 120
     Width = 0
     AutoSize = True
     BevelOuter = bvNone
@@ -217,7 +217,7 @@ object VecRedF: TVecRedF
         OnClick = DeleteALLClick
       end
       object Reset: TMenuItem
-        Caption = 'Show All'
+        Caption = 'Показать все'
         OnClick = ResetClick
       end
       object Open: TMenuItem
@@ -231,6 +231,10 @@ object VecRedF: TVecRedF
       object SaveAs: TMenuItem
         Caption = 'SaveAs'
         OnClick = SaveAsClick
+      end
+      object Export: TMenuItem
+        Caption = 'Экспорт'
+        OnClick = ExportClick
       end
       object CloseB: TMenuItem
         Caption = 'Выход'
@@ -250,5 +254,21 @@ object VecRedF: TVecRedF
   object OpenDialog: TOpenDialog
     left = 312
     top = 88
+  end
+  object SavePictureDialog1: TSavePictureDialog
+    left = 464
+    top = 208
+  end
+  object FontDialog1: TFontDialog
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -24
+    Font.Name = 'Algerian'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsItalic]
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 448
+    top = 48
   end
 end

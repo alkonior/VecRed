@@ -1,0 +1,71 @@
+object TextRedactor: TTextRedactor
+  Left = 1248
+  Height = 340
+  Top = 287
+  Width = 508
+  Caption = 'Text'
+  ClientHeight = 340
+  ClientWidth = 508
+  OnClose = FormClose
+  OnCreate = FormCreate
+  LCLVersion = '1.8.0.6'
+  Visible = True
+  object Button1: TButton
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Memo1
+    AnchorSideTop.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 0
+    Height = 25
+    Top = 315
+    Width = 95
+    Anchors = [akLeft, akBottom]
+    AutoSize = True
+    Caption = 'Поттвердить'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Button2: TButton
+    AnchorSideLeft.Control = Button1
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = Memo1
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 95
+    Height = 25
+    Top = 315
+    Width = 65
+    Anchors = [akTop, akLeft, akBottom]
+    AutoSize = True
+    Caption = 'Шрифт'
+    OnClick = Button2Click
+    TabOrder = 1
+  end
+  object Memo1: TMemo
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Button1
+    Left = 0
+    Height = 315
+    Top = 0
+    Width = 508
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Lines.Strings = (
+      ' '
+    )
+    OnChange = Memo1Change
+    TabOrder = 2
+  end
+  object FontDialog1: TFontDialog
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 408
+    top = 312
+  end
+end
