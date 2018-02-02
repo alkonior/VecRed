@@ -494,8 +494,6 @@ procedure TTool.AddPoint(Point: TFloatPoint);
 begin
   Figures[high(Figures)].Points[1] := point;
   Drawing := False;
-  MinPoint := min(MinPoint, point);
-  MaxPoint := max(MaxPoint, point);
   SendToHistory()
 end;
 
@@ -554,7 +552,7 @@ begin
   begin
     Figures[high(Figures)].Points[1] := point;
     Drawing := False;
-    SendToHistory()
+    SendToHistory();
   end;
 end;
 
@@ -593,14 +591,14 @@ begin
       SetLength(Figures, Length(Figures) - 1);
       Drawing := False;
       if IsExport then
-    begin
-      If MessageDlg('Save picture?', 'Вы уверенны?',mtConfirmation, [mbYes, mbNo], 0)=mrYes then
       begin
-      SaveScreenToFile(ExportFile);
-      IsExport:=false;
-      end else
-      begin
-      if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
+        If MessageDlg('Save picture?', 'Вы уверенны?',mtConfirmation, [mbYes, mbNo], 0)=mrYes then
+        begin
+          SaveScreenToFile(ExportFile);
+          IsExport:=false;
+        end else
+        begin
+          if (minpoint.x < maxpoint.x) and (minpoint.y < maxpoint.y) then
              ZoomToRect((minpoint - FloatPoint(50, 50)), (maxpoint + FloatPoint(50, 50)));
       end;
     end;
@@ -663,11 +661,27 @@ begin
   IsMoving := False;
 end;
 
+procedure TTextTool.MouseUp(Point: TFloatPoint);
+var F:TText;
+begin
+  f:=TText.Create(TText);
+  f.SetLengthPoints(2);
+  f.Points[0]:=Figures[high(Figures)].Points[0];
+  F.Points[1]:=Figures[high(Figures)].Points[1];
+  FreeAndNil(Figures[high(Figures)]);
+  Figures[high(Figures)]:=f;
+  Drawing := False;
+  TextFigure:=@(Figures[high(Figures)]as TText).Text;
+  FontFigure:=@(Figures[high(Figures)]as TText).Font;
+  if TextRedactor<>nil then TextRedactor.Close;
+  Application.CreateForm(TTextRedactor,TextRedactor);
+end;
 { FigureEnd }
 
 procedure TTool.FigureEnd();
 begin
   Drawing := False;
+  DeleteLastFigure();
 end;
 
 procedure TMultylineTool.FigureEnd();
@@ -691,15 +705,6 @@ end;
 procedure TSelectTool.FigureEnd();
 begin
  DeleteLastFigure();
-end;
-
-procedure TTextTool.MouseUp(Point: TFloatPoint);
-begin
-  Drawing := False;
-  TextFigure:=@(Figures[high(Figures)]as TText).Text;
-  FontFigure:=@(Figures[high(Figures)]as TText).Font;
-  if TextRedactor<>nil then TextRedactor.Close;
-  Application.CreateForm(TTextRedactor,TextRedactor);
 end;
 
 
@@ -889,7 +894,7 @@ begin
   Number := n;
   Icon := 'ico/Scroll.png';
   IsMainTool := True;
-  Figure := TText;
+  Figure := TRectZoom;
 end;
 
 destructor TMyButton.Destroy();
