@@ -142,7 +142,9 @@ type
   private
     RX: integer;
     RY: integer;
-
+  published
+    property RadiusX: integer read RX write RX default 1;
+    property RadiusY: integer read RY write RY default 1;
   public
     procedure Draw(Canvas: TCanvas); override;
     function PointInFigure(point: TFloatPoint): boolean; override;

@@ -46,7 +46,7 @@ object VecRedF: TVecRedF
       Top = 1
       Width = 687
       Align = alCustom
-      Anchors = [akTop, akLeft, akBottom]
+      Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Right = 20
       BorderSpacing.Bottom = 20
       OnDblClick = PBDblClick
