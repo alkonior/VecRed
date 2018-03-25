@@ -256,8 +256,9 @@ object VecRedF: TVecRedF
     top = 88
   end
   object SavePictureDialog1: TSavePictureDialog
-    left = 464
-    top = 208
+    Options = [ofEnableSizing]
+    left = 488
+    top = 184
   end
   object FontDialog1: TFontDialog
     Font.CharSet = ANSI_CHARSET

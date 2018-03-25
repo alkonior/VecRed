@@ -14,9 +14,6 @@
     <i18n>
       <EnableI18N LFM="False"/>
     </i18n>
-    <VersionInfo>
-      <StringTable ProductVersion=""/>
-    </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
     </BuildModes>
@@ -33,7 +30,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="6">
       <Unit0>
         <Filename Value="VecRed.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -61,6 +58,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UScale"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="textform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="TextRedactor"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="TextForm"/>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

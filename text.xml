@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Figures Offset.x="0" Offset.y="0" zoom="100">
+  <TText CharSet="1" Color="536870912" Height="0" Name="default" Orientation="0" Pitch="fpDefault" Quality="fqDefault" Size="0" Style="" Text="bvsfdbvsdgbstrjh sgndgvnhgbnsgbstb">
+    <point x="250" y="66"/>
+    <point x="295" y="120"/>
+  </TText>
+  <TText CharSet="1" Color="536870912" Height="0" Name="default" Orientation="0" Pitch="fpDefault" Quality="fqDefault" Size="0" Style="" Text="bsfdbvs fb&#xD;&#xA;gb&#xD;&#xA;sfbs&#xD;&#xA;vbsf&#xD;&#xA;bsf&#xD;&#xA;bsgfb&#xD;&#xA;bvzbvsfdbsfadabvafv&#xD;&#xA;">
+    <point x="197" y="94"/>
+    <point x="472" y="413"/>
+  </TText>
+</Figures>

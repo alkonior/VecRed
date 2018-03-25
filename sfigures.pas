@@ -43,7 +43,6 @@ type
     function FigureInrect(point1, point2: TFloatPoint): boolean; virtual;
     function SaveFigure(ADoc: TXMLDocument): TDOMNode; virtual;
     function SaveFigureInString(): String; virtual; abstract;
-    constructor Create(C:FClass); virtual;
   end;
 
   { TStandartFigure }
@@ -157,7 +156,7 @@ type
     t:string;
     F:TFont;
   public
-    constructor Create(C:FClass);  override;
+    constructor Create;
     property Font: TFont read f write f ;
     property Text: string read t write t;
     procedure Draw(Canvas: TCanvas); override;
@@ -199,15 +198,10 @@ begin
   ClassesFigures[High(ClassesFigures)] := AFigure;
 end;
 
-constructor TFigure.Create(C:FClass);
-begin
-   CL:=c;
-end;
 
-constructor TText.Create(C:FClass);
+constructor TText.Create;
 begin
   f:=TFont.Create;
-  CL:=c;
 end;
 
 { Drow }
@@ -328,9 +322,14 @@ begin
 end;
 
 procedure TText.Draw(Canvas: TCanvas);
+var
+  Style: TTextStyle;
 begin
+  Style.SingleLine:=false;
+  Style.Layout:=tlTop;
+  Style.Wordbreak:=true;
   Canvas.Font:=f;
-  Canvas.TextRect(TRect.Create(WorldToScrn(minp),WorldToScrn(maxp)),WorldToScrn(minp).x,WorldToScrn(minp).y,T);
+  Canvas.TextRect(TRect.Create(WorldToScrn(minp),WorldToScrn(maxp)),WorldToScrn(minp).x,WorldToScrn(minp).y,T, Style);
 end;
 
 { DrawOutLine }
@@ -563,12 +562,7 @@ begin
    Result :=
       IsPointInRect(minp, maxp, point);
    if Result then
-   begin
-     TextFigure:=@t;
-     FontFigure:=@f;
-     if TextRedactor<>nil then TextRedactor.Close;
-     Application.CreateForm(TTextRedactor,TextRedactor);
-   end;
+     ShowTextMenu(@t,@f);
 end;
 
 { FigureInRect }
@@ -914,7 +908,7 @@ var
 begin
   try
     SetLength(Figures, Length(Figures) + 1);
-    F := AClass.Create(AClass);
+    F := AClass.Create;
     for i := 0 to ANode.Attributes.Length - 1 do
        if IsPublishedProp(AClass, ANode.Attributes.Item[i].NodeName) then
          SetPropValue(F, ANode.Attributes.Item[i].NodeName, ANode.Attributes.Item[i].NodeValue);
@@ -943,7 +937,7 @@ var
 begin
   try
     SetLength(Figures, Length(Figures) + 1);
-    FT := Ttext.Create(AClass);
+    FT := Ttext.Create;
     fT.f:=TFont.Create;
     for i := 0 to ANode.Attributes.Length - 2 do
        if IsPublishedProp(Ft.f, ANode.Attributes.Item[i].NodeName) then

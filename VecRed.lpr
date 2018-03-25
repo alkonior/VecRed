@@ -15,6 +15,7 @@ begin
   RequireDerivedFormResource:=True;
   Application.Initialize;
   Application.CreateForm(TVecRedF, VecRedF);
+  Application.CreateForm(TTextRedactor,TextRedactor);
   Application.Run;
 end.
 

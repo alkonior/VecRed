@@ -1,15 +1,14 @@
 object TextRedactor: TTextRedactor
-  Left = 1248
+  Left = 1292
   Height = 340
-  Top = 287
+  Top = 251
   Width = 508
+  Align = alClient
+  BorderStyle = bsNone
   Caption = 'Text'
   ClientHeight = 340
   ClientWidth = 508
-  OnClose = FormClose
-  OnCreate = FormCreate
   LCLVersion = '1.8.0.6'
-  Visible = True
   object Button1: TButton
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Memo1

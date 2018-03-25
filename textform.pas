@@ -11,7 +11,8 @@ uses
 type
 
   { TTextRedactor }
-
+  PFont=^TFont;
+  PString=^String;
   TTextRedactor = class(TForm)
     Button1: TButton;
     Button2: TButton;
@@ -19,53 +20,59 @@ type
     Memo1: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormCreate(Sender: TObject);
     procedure Memo1Change(Sender: TObject);
   private
 
   public
-
+    TextFigure:PString;
+    FontFigure:PFont;
   end;
-
+ procedure ShowTextMenu(figure_text:PString; figure_font:PFont);
 var
   TextRedactor: TTextRedactor;
-  TextFigure:^String;
-  FontFigure:^TFont;
+
 implementation
+
+procedure ShowTextMenu(figure_text: PString; figure_font: PFont);
+begin
+  with  TextRedactor do
+   begin
+     Visible:=true;
+     TextFigure:=figure_text;
+     FontFigure:=figure_font;
+     Memo1.lines.Text:=TextFigure^;
+     Memo1.Font:=TFont.Create;
+     FontDialog1.Font:=TFont.Create;
+     Memo1.Font:=FontFigure^;
+     FontDialog1.Font:=FontFigure^;
+   end;
+end;
+
 
 {$R *.lfm}
 
 { TTextRedactor }
 
-procedure TTextRedactor.FormCreate(Sender: TObject);
-begin
-  Memo1.Lines.Text:=TextFigure^;
-  Memo1.Font:=FontFigure^;
-  FontDialog1.Font:=FontFigure^;
-end;
-
 procedure TTextRedactor.Memo1Change(Sender: TObject);
 begin
    TextFigure^:=Memo1.Lines.Text;
-   FontFigure^:=Memo1.Font;
    InvalidateHandler;
-end;
-
-procedure TTextRedactor.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
-  FontDialog1.Font:=Font.Create;
 end;
 
 procedure TTextRedactor.Button2Click(Sender: TObject);
 begin
-  if FontDialog1.Execute then Memo1.Font:=FontDialog1.Font;
-  InvalidateHandler;
+  if FontDialog1.Execute then
+  begin
+    Memo1.Font:=FontDialog1.Font;
+    FontFigure^.Assign(Memo1.Font);
+    InvalidateHandler;
+  end;
 end;
+
 
 procedure TTextRedactor.Button1Click(Sender: TObject);
 begin
-  TextRedactor.Close;
+  TextRedactor.Visible:=false;
 end;
 
 

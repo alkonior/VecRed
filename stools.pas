@@ -312,7 +312,7 @@ procedure TTool.FigureCreate(Point: TFloatPoint);
 var i: Integer;
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := Figure.Create(Figure);
+  Figures[High(Figures)] := Figure.Create;
   Figures[High(Figures)].SetLengthPoints(2);
   Figures[High(Figures)].Points[0] := Point;
   Figures[High(Figures)].Points[1] := Point;
@@ -362,7 +362,7 @@ end;
 procedure TDesignatorTool.FigureCreate(Point: TFloatPoint);
 begin
   Setlength(Figures, length(figures) + 1);
-  Figures[High(Figures)] := Figure.Create(Figure);
+  Figures[High(Figures)] := Figure.Create;
   Figures[High(Figures)].SetLengthPoints(2);
   Figures[High(Figures)].Points[0] := Point;
   Figures[High(Figures)].Points[1] := Point;
@@ -664,17 +664,12 @@ end;
 procedure TTextTool.MouseUp(Point: TFloatPoint);
 var F:TText;
 begin
-  f:=TText.Create(TText);
-  f.SetLengthPoints(2);
-  f.Points[0]:=Figures[high(Figures)].Points[0];
-  F.Points[1]:=Figures[high(Figures)].Points[1];
+  f:=TText.Create;
+  f.Points:=Figures[high(Figures)].Points;
   FreeAndNil(Figures[high(Figures)]);
   Figures[high(Figures)]:=f;
   Drawing := False;
-  TextFigure:=@(Figures[high(Figures)]as TText).Text;
-  FontFigure:=@(Figures[high(Figures)]as TText).Font;
-  if TextRedactor<>nil then TextRedactor.Close;
-  Application.CreateForm(TTextRedactor,TextRedactor);
+  ShowTextMenu(@(Figures[high(Figures)]as TText).Text,@(Figures[high(Figures)]as TText).Font);
 end;
 { FigureEnd }
 
@@ -714,7 +709,7 @@ procedure TTool.CreateParams();
 begin
   MakeParams(Figure, Propertys);
   ButtonPanel.Height := 0;
-  PropertyPanel.Height := 39 * Length(Propertys);
+  PropertyPanel.Height := 37 * Length(Propertys);
 end;
 
 procedure TMultylineTool.CreateParams();
